@@ -41,7 +41,8 @@ public class LoginController {
     public String getLoginSuccess(Model model) {
 
        SecurityContext sc = SecurityContextHolder.getContext();
-      //  model.addAttribute("name", sc.getAuthentication().getPrincipal().getAttributes())
+       model.addAttribute("email", sc.getAuthentication().getPrincipal());
+      // return sc;
         return "loginSuccess";
     }
     @GetMapping("/loginFailure")
