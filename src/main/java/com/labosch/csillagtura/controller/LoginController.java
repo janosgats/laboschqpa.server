@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Controller
 public class LoginController {
-    private static final String authorizationRequestBaseUri = "oauth2/authorize-client";
+    private static final String authorizationRequestBaseUri = "/login/oauth2/code";
     Map<String, String> oauth2AuthenticationUrls = new HashMap<>();
 
 //    @Autowired
