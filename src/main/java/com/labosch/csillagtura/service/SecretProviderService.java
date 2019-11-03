@@ -29,17 +29,12 @@ public class SecretProviderService {
         Stream<String> lines = Files.lines(path);
 
         lines.forEach((String s) -> {
-            String[] parts = s.replace("\n", "").replace("\r", "").trim().split("=");
+            String[] parts = s.replace("\n", "").replace("\r", "").trim().split("=", 2);
+
             if (parts.length < 2)
                 return;
 
-            String key = parts[0];
-            StringBuilder value = new StringBuilder();
-
-            for (int i = 1; i < parts.length; ++i)
-                value.append(parts[i]);
-
-            keyValues.put(key, value.toString());
+            keyValues.put(parts[0], parts[1]);
         });
 
         lines.close();
