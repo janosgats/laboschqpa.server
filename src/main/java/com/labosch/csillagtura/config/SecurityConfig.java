@@ -2,6 +2,7 @@ package com.labosch.csillagtura.config;
 
 import com.labosch.csillagtura.config.auth.user.CustomOAuth2UserService;
 import com.labosch.csillagtura.config.auth.user.CustomOidcUserService;
+import com.labosch.csillagtura.service.SecretProviderService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -30,6 +31,9 @@ import java.util.stream.Collectors;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private Environment env;
+
+    @Resource
+    SecretProviderService secretProviderService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -96,13 +100,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     private ClientRegistration getRegistration(String client) {
-        String clientId = env.getProperty("oauth2.provider." + client + ".client.client-id");
+        //String clientId = env.getProperty("oauth2.provider." + client + ".client.client-id");
+        String clientId = secretProviderService.getSecret("oauth2.provider." + client + ".client.client-id");
 
         if (clientId == null) {
             return null;
         }
 
-        String clientSecret = env.getProperty("oauth2.provider." + client + ".client.client-secret");
+        //String clientSecret = env.getProperty("oauth2.provider." + client + ".client.client-secret");
+        String clientSecret = secretProviderService.getSecret("oauth2.provider." + client + ".client.client-secret");
 
         if (client.equals("google")) {
             return CommonOAuth2Provider.GOOGLE.getBuilder(client)
