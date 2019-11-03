@@ -1,6 +1,5 @@
 package com.labosch.csillagtura.config;
 
-import com.labosch.csillagtura.config.auth.AuthConstants;
 import com.labosch.csillagtura.config.auth.user.CustomOAuth2UserService;
 import com.labosch.csillagtura.config.auth.user.CustomOidcUserService;
 import org.springframework.context.annotation.Bean;
@@ -35,15 +34,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers(AuthConstants.loginPageUrl, AuthConstants.defaultLoginFailureUrl, AuthConstants.oAuthAuthorizationRequestBaseUri + "**")
+                .antMatchers("/", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuthAuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
                 .oauth2Login()
-                .loginPage(AuthConstants.loginPageUrl)
+                .loginPage(AppConstants.loginPageUrl)
                 .authorizationEndpoint()
-                .baseUri(AuthConstants.oAuthAuthorizationRequestBaseUri)
+                .baseUri(AppConstants.oAuthAuthorizationRequestBaseUri)
                 .authorizationRequestRepository(authorizationRequestRepository())
                 .and()
                 .userInfoEndpoint().userService(oauth2UserService()).oidcUserService(oidcUserService())
@@ -51,12 +50,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .tokenEndpoint()
                 .accessTokenResponseClient(accessTokenResponseClient())
                 .and()
-                .defaultSuccessUrl(AuthConstants.defaultLoginSuccessUrl)
-                .failureUrl(AuthConstants.defaultLoginFailureUrl)
+                .defaultSuccessUrl(AppConstants.defaultLoginSuccessUrl)
+                .failureUrl(AppConstants.defaultLoginFailureUrl)
                 .and()
                 .logout()
-                .logoutUrl(AuthConstants.logOutUrl)
-                .logoutSuccessUrl(AuthConstants.logOutSuccessUrl)
+                .logoutUrl(AppConstants.logOutUrl)
+                .logoutSuccessUrl(AppConstants.logOutSuccessUrl)
                 .invalidateHttpSession(true);
     }
 
@@ -88,7 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
-        List<ClientRegistration> registrations = AuthConstants.oAuth2ProviderRegistrationIds.stream()
+        List<ClientRegistration> registrations = AppConstants.oAuth2ProviderRegistrationIds.stream()
                 .map(this::getRegistration)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());

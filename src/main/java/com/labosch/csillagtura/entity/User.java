@@ -2,20 +2,24 @@ package com.labosch.csillagtura.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="user")
 public class User implements Serializable {
+    static final long serialVersionUID = 42L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "email")
-    private String email;
-
+    @Column
     private Boolean enabled;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserEmailAddress> userEmailAddresses = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -33,11 +37,7 @@ public class User implements Serializable {
         this.enabled = enabled;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public List<UserEmailAddress> getUserEmailAddresses() {
+        return userEmailAddresses;
     }
 }

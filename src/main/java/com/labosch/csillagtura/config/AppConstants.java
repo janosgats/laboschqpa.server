@@ -1,9 +1,13 @@
-package com.labosch.csillagtura.config.auth;
+package com.labosch.csillagtura.config;
+
+import org.springframework.ui.Model;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class AuthConstants {
+public class AppConstants {
     public static final String oAuthAuthorizationRequestBaseUri = "/login/";//This HAS TO HAVE a "/" (slash) character at the end!
     public static final String logOutUrl = "/logout";
     public static final String loginPageUrl = "/loginPage";
@@ -13,5 +17,15 @@ public class AuthConstants {
 
     public static final String logOutSuccessUrl = "/";
 
+    public static final String errorPageUrl = "/error/";
+
     public static final List<String> oAuth2ProviderRegistrationIds = Arrays.asList("google", "github");
+
+    public static void preFillModel(Model model) {
+        Map<String, String> constants = new HashMap<>();
+        constants.put("logoutUrl", logOutUrl);
+        constants.put("loginPageUrl", loginPageUrl);
+
+        model.addAttribute("const", constants);
+    }
 }
