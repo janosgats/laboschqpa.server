@@ -22,15 +22,13 @@ public class LoginController {
         oauth2AuthenticationUrls.put("Google", AppConstants.oAuthAuthorizationRequestBaseUri + "google");
         oauth2AuthenticationUrls.put("GitHub", AppConstants.oAuthAuthorizationRequestBaseUri + "github");
 
-        model.addAttribute("urls", oauth2AuthenticationUrls);
+        model.addAttribute("oauth2AuthenticationUrls", oauth2AuthenticationUrls);
 
         return "loginPage";
     }
 
     @GetMapping("/loginSuccess")
     public String getLogSuc(Model model) {
-        AppConstants.preFillModel(model);
-
         SecurityContext sc = SecurityContextHolder.getContext();
         List<UserEmailAddress> buff = ((CustomOauth2User) sc.getAuthentication().getPrincipal()).getUserEntity().getUserEmailAddresses();
         if (!buff.isEmpty())
@@ -46,7 +44,6 @@ public class LoginController {
 
     @GetMapping("/")
     public String getRootForward(Model model) {
-        AppConstants.preFillModel(model);
         return "rootIndex";
     }
 }

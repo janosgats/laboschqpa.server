@@ -1,10 +1,14 @@
 package com.labosch.csillagtura.config;
 
+import com.labosch.csillagtura.config.auth.filter.PrincipalUserEntityRefresherFromDBFilter;
 import com.labosch.csillagtura.config.auth.user.CustomOAuth2UserService;
 import com.labosch.csillagtura.config.auth.user.CustomOidcUserService;
+import com.labosch.csillagtura.repo.UserRepository;
 import com.labosch.csillagtura.service.SecretProviderService;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,6 +39,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     SecretProviderService secretProviderService;
 
+    @Resource
+    UserRepository userRepository;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
@@ -61,6 +68,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl(AppConstants.logOutUrl)
                 .logoutSuccessUrl(AppConstants.logOutSuccessUrl)
                 .invalidateHttpSession(true);
+    }
+
+    @Bean
+    public FilterRegistrationBean principalUserEntityLoaderFilterRegistrationBean() {
+        PrincipalUserEntityRefresherFromDBFilter filter = new PrincipalUserEntityRefresherFromDBFilter();
+        filter.setUserRepository(userRepository);
+
+        FilterRegistrationBean<PrincipalUserEntityRefresherFromDBFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(filter);
+        registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
+        return registrationBean;
     }
 
     @Bean

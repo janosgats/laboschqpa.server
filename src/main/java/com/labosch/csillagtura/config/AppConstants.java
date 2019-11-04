@@ -17,7 +17,7 @@ public class AppConstants {
 
     public static final String logOutSuccessUrl = "/";
 
-    public static final String errorPageUrl = "/error/";
+    public static final String errorPageUrl = "/error/";//This HAS TO HAVE a "/" (slash) character at the end!
 
     public static final List<String> oAuth2ProviderRegistrationIds = Arrays.asList("google", "github");
 

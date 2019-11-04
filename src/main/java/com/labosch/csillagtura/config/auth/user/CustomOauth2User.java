@@ -28,6 +28,7 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
 
     public void setUserEntity(User userEntity) {
         this.userEntity = userEntity;
+        //TODO: Setting authorities of SecurityContext by the authorities of the userEntity
     }
 
     @Override
