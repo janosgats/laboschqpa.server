@@ -3,6 +3,7 @@ package com.labosch.csillagtura.entity;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "account_join_initiation")
 public class AccountJoinInitiation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +15,7 @@ public class AccountJoinInitiation {
     private User initiatorUser;
 
     @JoinColumn(name = "approver_user_id", nullable = false)
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User approverUser;
 
     @Column(name="approved", nullable = false)

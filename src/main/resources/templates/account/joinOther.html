@@ -23,6 +23,13 @@
     <p>This request is initiated from this account and isn't approved yet.</p>
 
     <div style="padding-left: 30px">
+
+        <form method="post">
+            <input type="submit" name="submitCancel" value="Cancel">
+            <input type="hidden" th:name="action" value="cancelInitiatedJoin"/>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        </form>
+
         <p th:text="'Approver: ' + ${existingInitiation.getApproverUser().getUserEmailAddresses().get(0).getEmail()}"></p>
         <p><a th:href="${const.loginPageUrl}">Log in to the account</a> to approve the join request!</p>
     </div>
@@ -45,7 +52,7 @@
     <h2>Waiting for approval</h2>
     <p>Join requests initiated from other accounts waiting for approval by this account.</p>
 
-    <div th:if="${waitingForApprovalInitiations}" >
+    <div th:if="${waitingForApprovalInitiations}">
 
     </div>
 

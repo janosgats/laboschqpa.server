@@ -1,12 +1,15 @@
 package com.labosch.csillagtura.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="user")
+@Table(name="user_")
 public class User implements Serializable {
     static final long serialVersionUID = 42L;
 
@@ -21,13 +24,16 @@ public class User implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     private User joinedInto;//The account which this account is joined in. Null if this account was not joined in another one.
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = {CascadeType.REMOVE})
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<UserEmailAddress> userEmailAddresses = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "approverUser")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "approverUser", cascade = {CascadeType.REMOVE})
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<AccountJoinInitiation> accountJoinInitiationsToApprove = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "initiatorUser")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "initiatorUser", cascade = {CascadeType.REMOVE})
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private AccountJoinInitiation initiatedAccountJoinInitiation;
 
 

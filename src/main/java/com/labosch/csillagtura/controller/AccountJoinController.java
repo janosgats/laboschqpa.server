@@ -43,6 +43,9 @@ public class AccountJoinController {
             case "initiateJoin":
                 handleInitiateJoin(model, targetEmailAddress, authenticationPrincipal.getUserEntity());
                 break;
+            case "cancelInitiatedJoin":
+                handleCancelInitiatedJoin(model, authenticationPrincipal.getUserEntity());
+                break;
             case "judgeInitiation":
                 handleJudgeInitiation(model, initiationId, authenticationPrincipal.getUserEntity());
                 break;
@@ -55,6 +58,22 @@ public class AccountJoinController {
         addExisting_JoinInitiation_ToModel(model, authenticationPrincipal.getUserEntity());
         addWaitingForApproval_JoinInitiations_ToModel(model, authenticationPrincipal.getUserEntity());
         return "account/joinOther";
+    }
+
+    private void handleCancelInitiatedJoin(Model model, User currentUser) {
+        try {
+            Optional<AccountJoinInitiation> accountJoinInitiationOptional = accountJoinInitiationRepository.findByInitiatorUser(currentUser);
+            if (accountJoinInitiationOptional.isEmpty())
+                throw new DisplayAsUserAlertException("There aren't any join requests initiated bey you!");
+
+            AccountJoinInitiation accountJoinInitiation = accountJoinInitiationOptional.get();
+
+            accountJoinInitiationRepository.delete(accountJoinInitiation);
+
+        } catch (DisplayAsUserAlertException e) {
+            model.addAttribute("initiationStatus", "error");
+            model.addAttribute("statusMessage", e.getMessage());
+        }
     }
 
     private void handleInitiateJoin(Model model, String targetEmailAddress, User currentUser) {
@@ -91,11 +110,13 @@ public class AccountJoinController {
             model.addAttribute("statusMessage", e.getMessage());
         }
     }
+
     private void handleJudgeInitiation(Model model, Integer initiationId, User currentUser) {
         //TODO: Checking if this initiation's approver is really the currentUser
 
         throw new NotImplementedException();
     }
+
     private void addWaitingForApproval_JoinInitiations_ToModel(Model model, User currentUser) {
         List<AccountJoinInitiation> waitingForApprovalInitiations = accountJoinInitiationRepository.findByApproverUser(currentUser);
         model.addAttribute("waitingForApprovalInitiations", waitingForApprovalInitiations);
