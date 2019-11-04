@@ -38,29 +38,34 @@ public class AccountJoinController {
     }
 
     @PostMapping("/account/joinOther")
-    String postJoinInitiate(Model model, @RequestParam("action") String action, @RequestParam(name = "targetEmailAddress", required = false) String targetEmailAddress, @RequestParam(name = "initiationId", required = false) Integer initiationId, @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    String postJoinInitiate(Model model, @RequestParam("action") String action, @RequestParam(name = "subAction", required = false) String subAction, @RequestParam(name = "targetEmailAddress", required = false) String targetEmailAddress, @RequestParam(name = "initiationId", required = false) Long initiationId, @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        boolean redirectToBaseJoinPage;
         switch (action) {
             case "initiateJoin":
-                handleInitiateJoin(model, targetEmailAddress, authenticationPrincipal.getUserEntity());
+                redirectToBaseJoinPage = handleInitiateJoin(model, targetEmailAddress, authenticationPrincipal.getUserEntity());
                 break;
             case "cancelInitiatedJoin":
-                handleCancelInitiatedJoin(model, authenticationPrincipal.getUserEntity());
+                redirectToBaseJoinPage = handleCancelInitiatedJoin(model, authenticationPrincipal.getUserEntity());
                 break;
             case "judgeInitiation":
-                handleJudgeInitiation(model, initiationId, authenticationPrincipal.getUserEntity());
+                redirectToBaseJoinPage = handleJudgeInitiation(model, subAction, initiationId, authenticationPrincipal.getUserEntity());
                 break;
             default:
-                logger.warn("No action found for post request on account/joinOther.");
-                return "redirect:/account/joinOther";
+                logger.info("No action found for post request on account/joinOther.");
+                redirectToBaseJoinPage = true;
         }
 
+        if (redirectToBaseJoinPage) {
+            logger.info("Redirecting to base account join page.");
+            return "redirect:/account/joinOther";
+        }
 
         addExisting_JoinInitiation_ToModel(model, authenticationPrincipal.getUserEntity());
         addWaitingForApproval_JoinInitiations_ToModel(model, authenticationPrincipal.getUserEntity());
         return "account/joinOther";
     }
 
-    private void handleCancelInitiatedJoin(Model model, User currentUser) {
+    private boolean handleCancelInitiatedJoin(Model model, User currentUser) {
         try {
             Optional<AccountJoinInitiation> accountJoinInitiationOptional = accountJoinInitiationRepository.findByInitiatorUser(currentUser);
             if (accountJoinInitiationOptional.isEmpty())
@@ -74,9 +79,11 @@ public class AccountJoinController {
             model.addAttribute("initiationStatus", "error");
             model.addAttribute("statusMessage", e.getMessage());
         }
+
+        return false;
     }
 
-    private void handleInitiateJoin(Model model, String targetEmailAddress, User currentUser) {
+    private boolean handleInitiateJoin(Model model, String targetEmailAddress, User currentUser) {
         try {
             if (targetEmailAddress == null || targetEmailAddress.isBlank())
                 throw new DisplayAsUserAlertException("Your given e-mail address is blank!");
@@ -109,10 +116,54 @@ public class AccountJoinController {
             model.addAttribute("initiationStatus", "error");
             model.addAttribute("statusMessage", e.getMessage());
         }
+
+        return false;
     }
 
-    private void handleJudgeInitiation(Model model, Integer initiationId, User currentUser) {
-        //TODO: Checking if this initiation's approver is really the currentUser
+    private boolean handleJudgeInitiation(Model model, String subAction, Long initiationId, User currentUser) {
+        try {
+            if (subAction == null || initiationId == null)
+                return true;
+
+            Optional<AccountJoinInitiation> accountJoinInitiationOptional = accountJoinInitiationRepository.findById(initiationId);
+            if (accountJoinInitiationOptional.isEmpty())
+                throw new DisplayAsUserAlertException("Join request is not found.");
+
+            AccountJoinInitiation accountJoinInitiation = accountJoinInitiationOptional.get();
+            if (!accountJoinInitiation.getApproverUser().equalsById(currentUser))
+                throw new DisplayAsUserAlertException("You cannot decide on this join request. You are not the approver.");
+
+            User initiatorUser = accountJoinInitiation.getInitiatorUser();
+            User approverUser = accountJoinInitiation.getApproverUser();
+
+            switch (subAction) {
+                case "joinIntoApprover":
+                    logger.info("Joining join request into approver.");
+                    joinUserAccounts(initiatorUser, approverUser);
+                    break;
+                case "joinIntoInitiator":
+                    logger.info("Joining join request into initiator.");
+                    joinUserAccounts(approverUser, initiatorUser);
+                    break;
+                case "reject":
+                    logger.info("Deleting (rejecting) join request.");
+                    accountJoinInitiationRepository.delete(accountJoinInitiation);
+                    break;
+                default:
+                    logger.info("No subAction found for judgeInitiation post request on account/joinOther.");
+                    return true;
+            }
+        } catch (DisplayAsUserAlertException e) {
+            model.addAttribute("initiationStatus", "error");
+            model.addAttribute("statusMessage", e.getMessage());
+        }
+
+        return false;
+    }
+
+    private void joinUserAccounts(User fromUser, User toUser) {
+        if (fromUser.equalsById(toUser))
+            throw new RuntimeException("Error joining User Accounts: fromUser and toUser are the same account!");
 
         throw new NotImplementedException();
     }

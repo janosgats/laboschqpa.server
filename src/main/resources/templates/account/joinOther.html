@@ -10,6 +10,7 @@
 <body>
 
 <div th:if="${initiationStatus == 'success'}">
+    <h3>Success</h3>
     <p>Your join request is opened!</p>
 </div>
 
@@ -60,9 +61,9 @@
         <form method="post" style="padding-left: 30px">
             <p th:text="'Initiator: ' + ${initiation.getInitiatorUser().getUserEmailAddresses().get(0).getEmail()}"></p>
 
-            <input type="submit" name="submitJoinIntoApprover" value="Join into this account">
-            <input type="submit" name="submitJoinIntoInitiator" value="Join this account into">
-            <input type="submit" name="submitReject" value="Reject">
+            <button type="submit" name="subAction" value="joinIntoApprover">Join into this account</button>
+            <button type="submit" name="subAction" value="joinIntoInitiator">Join this account into</button>
+            <button type="submit" name="subAction" value="reject">Reject</button>
 
             <input type="hidden" th:name="action" value="judgeInitiation"/>
             <input type="hidden" name="initiationId" th:value="${initiation.getId()}">

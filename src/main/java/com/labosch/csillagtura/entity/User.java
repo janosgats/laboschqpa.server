@@ -76,4 +76,9 @@ public class User implements Serializable {
     public void setInitiatedAccountJoinInitiation(AccountJoinInitiation initiatedAccountJoinInitiationsToApprove) {
         this.initiatedAccountJoinInitiation = initiatedAccountJoinInitiationsToApprove;
     }
+
+    public boolean equalsById(User otherUser) {
+        return this.getId() != null
+                && this.getId().equals(otherUser.getId());
+    }
 }

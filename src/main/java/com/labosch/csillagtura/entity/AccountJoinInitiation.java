@@ -18,7 +18,7 @@ public class AccountJoinInitiation {
     @ManyToOne(fetch = FetchType.EAGER)
     private User approverUser;
 
-    @Column(name="approved", nullable = false)
+    @Column(name = "approved", nullable = false)
     private boolean approved = false;
 
     public boolean isApproved() {
