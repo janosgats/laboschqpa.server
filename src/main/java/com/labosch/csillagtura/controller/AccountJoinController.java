@@ -4,15 +4,19 @@ import com.labosch.csillagtura.config.auth.user.CustomOauth2User;
 import com.labosch.csillagtura.entity.AccountJoinInitiation;
 import com.labosch.csillagtura.entity.User;
 import com.labosch.csillagtura.entity.UserEmailAddress;
+import com.labosch.csillagtura.entity.externalaccount.ExternalAccountDetail;
 import com.labosch.csillagtura.exceptions.DisplayAsUserAlertException;
 import com.labosch.csillagtura.exceptions.NotImplementedException;
 import com.labosch.csillagtura.repo.AccountJoinInitiationRepository;
+import com.labosch.csillagtura.repo.ExternalAccountDetailRepository;
 import com.labosch.csillagtura.repo.UserEmailAddressRepository;
+import com.labosch.csillagtura.repo.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +30,13 @@ public class AccountJoinController {
     private static final Logger logger = LoggerFactory.getLogger(AccountJoinController.class);
     @Autowired
     UserEmailAddressRepository userEmailAddressRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    ExternalAccountDetailRepository externalAccountDetailRepository;
+
     @Autowired
     AccountJoinInitiationRepository accountJoinInitiationRepository;
 
@@ -139,11 +150,11 @@ public class AccountJoinController {
             switch (subAction) {
                 case "joinIntoApprover":
                     logger.info("Joining join request into approver.");
-                    joinUserAccounts(initiatorUser, approverUser);
+                    joinUserAccounts(initiatorUser, approverUser, accountJoinInitiation);
                     break;
                 case "joinIntoInitiator":
                     logger.info("Joining join request into initiator.");
-                    joinUserAccounts(approverUser, initiatorUser);
+                    joinUserAccounts(approverUser, initiatorUser, accountJoinInitiation);
                     break;
                 case "reject":
                     logger.info("Deleting (rejecting) join request.");
@@ -161,11 +172,31 @@ public class AccountJoinController {
         return false;
     }
 
-    private void joinUserAccounts(User fromUser, User toUser) {
+    @Transactional
+    void joinUserAccounts(User fromUser, User toUser, AccountJoinInitiation accountJoinInitiation) {
         if (fromUser.equalsById(toUser))
             throw new RuntimeException("Error joining User Accounts: fromUser and toUser are the same account!");
 
-        throw new NotImplementedException();
+        fromUser.setJoinedInto(toUser);
+        fromUser.setEnabled(false);
+
+        toUser.getUserEmailAddresses().addAll(fromUser.getUserEmailAddresses());
+        fromUser.getUserEmailAddresses().forEach(userEmailAddress -> {
+            userEmailAddress.setUser(toUser);
+            userEmailAddressRepository.save(userEmailAddress);
+        });
+        fromUser.getUserEmailAddresses().clear();
+
+        fromUser.getExternalAccountDetails().forEach(externalAccountDetail -> {
+            externalAccountDetail.setUser(toUser);
+            externalAccountDetailRepository.save(externalAccountDetail);
+        });
+
+
+        userRepository.save(toUser);
+        userRepository.save(fromUser);
+
+        accountJoinInitiationRepository.delete(accountJoinInitiation);
     }
 
     private void addWaitingForApproval_JoinInitiations_ToModel(Model model, User currentUser) {

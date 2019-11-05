@@ -1,7 +1,13 @@
 package com.labosch.csillagtura.entity;
 
+import com.labosch.csillagtura.entity.externalaccount.ExternalAccountDetail;
+import com.labosch.csillagtura.entity.externalaccount.GithubExternalAccountDetail;
+import com.labosch.csillagtura.entity.externalaccount.GoogleExternalAccountDetail;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,7 +16,7 @@ import java.util.List;
 
 @Entity
 @Table(name="user_")
-public class User implements Serializable {
+public class User implements Serializable {//TODO: Get rid of these EAGER fetchings!!!! They have to be lazy!!! (currently hibernate exceptions don't let lazy work)
     static final long serialVersionUID = 42L;
 
     @Id
@@ -27,6 +33,24 @@ public class User implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = {CascadeType.REMOVE})
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<UserEmailAddress> userEmailAddresses = new ArrayList<>();
+
+
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE})
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<ExternalAccountDetail> externalAccountDetails = new ArrayList<>();
+
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE})
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<GoogleExternalAccountDetail> googleExternalAccountDetails = new ArrayList<>();
+
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE})
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<GithubExternalAccountDetail> githubExternalAccountDetails = new ArrayList<>();
+
+
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "approverUser", cascade = {CascadeType.REMOVE})
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -80,5 +104,17 @@ public class User implements Serializable {
     public boolean equalsById(User otherUser) {
         return this.getId() != null
                 && this.getId().equals(otherUser.getId());
+    }
+
+    public List<GoogleExternalAccountDetail> getGoogleExternalAccountDetails() {
+        return googleExternalAccountDetails;
+    }
+
+    public List<GithubExternalAccountDetail> getGithubExternalAccountDetails() {
+        return githubExternalAccountDetails;
+    }
+
+    public List<ExternalAccountDetail> getExternalAccountDetails() {
+        return externalAccountDetails;
     }
 }

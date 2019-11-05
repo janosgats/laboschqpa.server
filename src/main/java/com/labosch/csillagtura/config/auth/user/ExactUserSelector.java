@@ -6,8 +6,15 @@ import com.labosch.csillagtura.config.auth.authorities.Authority;
 import com.labosch.csillagtura.config.auth.authorities.EnumBasedAuthority;
 import com.labosch.csillagtura.entity.User;
 import com.labosch.csillagtura.entity.UserEmailAddress;
+import com.labosch.csillagtura.entity.externalaccount.ExternalAccountDetail;
+import com.labosch.csillagtura.entity.externalaccount.GithubExternalAccountDetail;
+import com.labosch.csillagtura.entity.externalaccount.GoogleExternalAccountDetail;
+import com.labosch.csillagtura.repo.GithubExternalAccountDetailRepository;
+import com.labosch.csillagtura.repo.GoogleExternalAccountDetailRepository;
 import com.labosch.csillagtura.repo.UserEmailAddressRepository;
 import com.labosch.csillagtura.repo.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -33,8 +40,16 @@ import java.util.Optional;
 
 @Component
 public class ExactUserSelector {
+    Logger logger = LoggerFactory.getLogger(ExactUserSelector.class);
+
     @Autowired
     UserEmailAddressRepository userEmailAddressRepository;
+
+    @Autowired
+    GoogleExternalAccountDetailRepository googleExternalAccountDetailRepository;
+
+    @Autowired
+    GithubExternalAccountDetailRepository githubExternalAccountDetailRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -49,45 +64,124 @@ public class ExactUserSelector {
 
         CustomOauth2User customOauth2User = new CustomOauth2User();
 
-        String emailAddressFromRequest = null;
-        switch (oAuth2UserRequest.getClientRegistration().getRegistrationId()) {
+        String clientRegistrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
+
+        ExternalAccountDetail externalAccountDetail = null;
+        String emailAddressFromRequest = null;//We try to automatically merge (not create new) accounts by their e-mail addresses if possible.
+        switch (clientRegistrationId) {
             //Doing provider specific processing of 'oAuth2UserRequest'
             case "google":
-                Object buff = ((OidcUserRequest) oAuth2UserRequest).getIdToken().getClaims().get("email");
-                if (buff != null)
-                    emailAddressFromRequest = (String) buff;
+                Map<String, Object> claims = ((OidcUserRequest) oAuth2UserRequest).getIdToken().getClaims();
+                Object googleBuff = claims.get("sub");
+
+                if (googleBuff instanceof String && !((String) googleBuff).isBlank()) {
+                    GoogleExternalAccountDetail googleEADBuff = new GoogleExternalAccountDetail();
+                    googleEADBuff.setSub((String) googleBuff);
+
+                    externalAccountDetail = googleEADBuff;
+                }
+
+                emailAddressFromRequest = tryToGetGoogleEmail(claims);
                 break;
             case "github":
                 JsonObject gitHubResponseJsonObject = sendGitHubApiRequestForUserScope(oAuth2UserRequest.getAccessToken());
 
-                if (gitHubResponseJsonObject.has("email")) {
-                    emailAddressFromRequest = gitHubResponseJsonObject.get("email").getAsString();
+                if (gitHubResponseJsonObject.has("id")) {
+                    String githubId = gitHubResponseJsonObject.get("id").getAsString();
+                    if (!githubId.isBlank()) {
+                        GithubExternalAccountDetail githubEADBuff = new GithubExternalAccountDetail();
+                        githubEADBuff.setGithubId(githubId);
+
+                        externalAccountDetail = githubEADBuff;
+                    }
+                }
+
+                emailAddressFromRequest = tryToGetGithubEmail(gitHubResponseJsonObject);
+                break;
+            default:
+                throw new RuntimeException("clientRegistrationId not found");
+        }
+
+        if (externalAccountDetail == null)
+            throw new RuntimeException("Cannot log in! Cannot found external account ID in Google OAuth2/Oidc resource.");
+
+
+        UserEmailAddress userEmailAddressFromRequestTriedToLoadFromDB = load_UserEmailAddressFromRequest_FromDB_IfPresent(emailAddressFromRequest);
+
+
+        User userEntity = null;
+
+        switch (clientRegistrationId) {
+            case "google":
+                Optional<GoogleExternalAccountDetail> googleExternalAccountDetailOptional =
+                        googleExternalAccountDetailRepository.findBySub(((GoogleExternalAccountDetail) externalAccountDetail).getSub());
+
+                if (googleExternalAccountDetailOptional.isPresent()) {
+                    userEntity = googleExternalAccountDetailOptional.get().getUser();
+                    logger.info("Logged in existing user by matching externalAccountDetail from: " + clientRegistrationId);
+                } else {
+                    if (userEmailAddressFromRequestTriedToLoadFromDB != null) {
+                        //The e-mail from the request is belonging to a registered account. Adding externalAccountDetail to that account.
+
+                        userEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUser();
+                        externalAccountDetail.setUser(userEntity);
+                    } else {
+                        //Couldn't found anything to merge accounts by. Creating new account
+
+                        userEntity = new User();
+                        userEntity.setEnabled(true);
+                        userRepository.save(userEntity);
+
+                        externalAccountDetail.setUser(userEntity);
+                        googleExternalAccountDetailRepository.save((GoogleExternalAccountDetail) externalAccountDetail);
+
+                        logger.info("Registered new user from: " + clientRegistrationId);
+                    }
+                }
+                break;
+            case "github":
+                Optional<GithubExternalAccountDetail> githubExternalAccountDetailOptional =
+                        githubExternalAccountDetailRepository.findByGithubId(((GithubExternalAccountDetail) externalAccountDetail).getGithubId());
+
+                if (githubExternalAccountDetailOptional.isPresent()) {
+                    userEntity = githubExternalAccountDetailOptional.get().getUser();
+                    logger.info("Logged in existing user by matching externalAccountDetail from: " + clientRegistrationId);
+                } else {
+                    if (userEmailAddressFromRequestTriedToLoadFromDB != null) {
+                        //The e-mail from the request is belonging to a registered account. Adding externalAccountDetail to that account.
+
+                        userEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUser();
+                        externalAccountDetail.setUser(userEntity);
+                        githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
+                    } else {
+                        //Couldn't found anything to merge accounts by. Creating new account
+
+                        userEntity = new User();
+                        userEntity.setEnabled(true);
+                        userRepository.save(userEntity);
+
+                        externalAccountDetail.setUser(userEntity);
+                        githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
+
+                        logger.info("Registered new user from: " + clientRegistrationId);
+                    }
                 }
                 break;
         }
 
-        if (emailAddressFromRequest == null || emailAddressFromRequest.isBlank())
-            throw new RuntimeException("Cannot log in! E-mail address not found in OAuth2/Oidc resource.");
+        if (userEntity == null)
+            throw new RuntimeException("Cannot log in! 'userEntity' is null but it should have been created or loaded already.");
 
-        Optional<UserEmailAddress> userEmailAddressOptional = userEmailAddressRepository.findByEmail(emailAddressFromRequest);
+        if (!userEntity.getEnabled())
+            throw new RuntimeException("Account is disabled.");
 
-        User userEntity;
-
-        if (userEmailAddressOptional.isPresent()) {
-            //Already registered e-mail address
-            UserEmailAddress userEmailAddress = userEmailAddressOptional.get();
-            userEntity = userEmailAddress.getUser();
-        } else {
-            //New e-mal address, register new account
-            userEntity = new User();
-            userEntity.setEnabled(true);
-            userRepository.save(userEntity);
+        if (userEmailAddressFromRequestTriedToLoadFromDB == null) {
+            //Saving the new e-mail address to the loaded/registered userEntity
 
             UserEmailAddress newUserEmailAddress = new UserEmailAddress();
             newUserEmailAddress.setEmail(emailAddressFromRequest);
             newUserEmailAddress.setUser(userEntity);
             userEmailAddressRepository.save(newUserEmailAddress);
-
             userEntity.getUserEmailAddresses().add(newUserEmailAddress);
         }
 
@@ -108,6 +202,45 @@ public class ExactUserSelector {
         }
 
         return customOauth2User;
+    }
+
+    /**
+     * IF the returned value is not null, then this e-mail address is already belonging to a registered account.
+     * So IF the externalAccountDetail is not found in DB then we should add it to the account that this e-mail belongs to.
+     *
+     * @return {@link UserEmailAddress}UserEmailAddress if the given email is present in DB, or <code>null</code> if not
+     **/
+    private UserEmailAddress load_UserEmailAddressFromRequest_FromDB_IfPresent(String emailAddressFromRequest) {
+        if (emailAddressFromRequest != null) {
+            Optional<UserEmailAddress> userEmailAddressOptional = userEmailAddressRepository.findByEmail(emailAddressFromRequest);
+            if (userEmailAddressOptional.isPresent()) {
+                return userEmailAddressOptional.get();
+            }
+        }
+        return null;
+    }
+
+    private String tryToGetGoogleEmail(Map<String, Object> claims) {
+        try {
+            Object buff = claims.get("email");
+            if (buff instanceof String && !((String) buff).isBlank())
+                return (String) buff;
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    private String tryToGetGithubEmail(JsonObject gitHubResponseJsonObject) {
+        try {
+            if (gitHubResponseJsonObject.has("email")) {
+                String githubEmail = gitHubResponseJsonObject.get("email").getAsString();
+                if (!githubEmail.isBlank()) {
+                    return githubEmail;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     private JsonObject sendGitHubApiRequestForUserScope(OAuth2AccessToken accessToken) {
