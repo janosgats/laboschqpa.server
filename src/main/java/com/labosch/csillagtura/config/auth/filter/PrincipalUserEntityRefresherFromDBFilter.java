@@ -36,15 +36,16 @@ public class PrincipalUserEntityRefresherFromDBFilter extends GenericFilterBean 
 
         if (principal instanceof CustomOauth2User) {
             CustomOauth2User customOauth2User = (CustomOauth2User) principal;
-            User userFromSession = customOauth2User.getUserEntity();
+            Long userIdFromSession = customOauth2User.getUserId();
 
-            if (userFromSession != null) {
-                Optional<User> userFromDBOptional = userRepository.findById(userFromSession.getId());
+            if (userIdFromSession != null) {
+                Optional<User> userFromDBOptional = userRepository.findById(userIdFromSession);
 
                 if (userFromDBOptional.isPresent()) {
                     User userFromDB = userFromDBOptional.get();
 
                     if (userFromDB.getEnabled()) {
+                        customOauth2User.refreshUserEntityFromDB(userRepository);
                         shouldBeUnauthenticated = false;
                     }
                 }

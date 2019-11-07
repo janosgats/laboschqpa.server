@@ -1,12 +1,13 @@
 package com.labosch.csillagtura.controller;
 
+import com.labosch.csillagtura.advice.SameClassTransactionalBoolean;
+import com.labosch.csillagtura.advice.SameClassTransactionalString;
+import com.labosch.csillagtura.advice.SameClassTransactionalVoid;
 import com.labosch.csillagtura.config.auth.user.CustomOauth2User;
 import com.labosch.csillagtura.entity.AccountJoinInitiation;
 import com.labosch.csillagtura.entity.User;
 import com.labosch.csillagtura.entity.UserEmailAddress;
-import com.labosch.csillagtura.entity.externalaccount.ExternalAccountDetail;
 import com.labosch.csillagtura.exceptions.DisplayAsUserAlertException;
-import com.labosch.csillagtura.exceptions.NotImplementedException;
 import com.labosch.csillagtura.repo.AccountJoinInitiationRepository;
 import com.labosch.csillagtura.repo.ExternalAccountDetailRepository;
 import com.labosch.csillagtura.repo.UserEmailAddressRepository;
@@ -16,13 +17,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -30,61 +34,86 @@ public class AccountJoinController {
     private static final Logger logger = LoggerFactory.getLogger(AccountJoinController.class);
     @Autowired
     UserEmailAddressRepository userEmailAddressRepository;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     ExternalAccountDetailRepository externalAccountDetailRepository;
-
     @Autowired
     AccountJoinInitiationRepository accountJoinInitiationRepository;
+    @Autowired
+    TransactionTemplate transactionTemplate;
 
     @GetMapping("/account/joinOther")
+    @SameClassTransactionalString
     String getJoinOther(Model model, @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        authenticationPrincipal.refreshUserEntityFromDB(userRepository);
+
         addExisting_JoinInitiation_ToModel(model, authenticationPrincipal.getUserEntity());
         addWaitingForApproval_JoinInitiations_ToModel(model, authenticationPrincipal.getUserEntity());
-        //((CustomOauth2User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).
+
         return "account/joinOther";
     }
 
     @PostMapping("/account/joinOther")
     String postJoinInitiate(Model model, @RequestParam("action") String action, @RequestParam(name = "subAction", required = false) String subAction, @RequestParam(name = "targetEmailAddress", required = false) String targetEmailAddress, @RequestParam(name = "initiationId", required = false) Long initiationId, @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        boolean redirectToBaseJoinPage;
-        switch (action) {
-            case "initiateJoin":
-                redirectToBaseJoinPage = handleInitiateJoin(model, targetEmailAddress, authenticationPrincipal.getUserEntity());
-                break;
-            case "cancelInitiatedJoin":
-                redirectToBaseJoinPage = handleCancelInitiatedJoin(model, authenticationPrincipal.getUserEntity());
-                break;
-            case "judgeInitiation":
-                redirectToBaseJoinPage = handleJudgeInitiation(model, subAction, initiationId, authenticationPrincipal.getUserEntity());
-                break;
-            default:
-                logger.info("No action found for post request on account/joinOther.");
-                redirectToBaseJoinPage = true;
-        }
+        Boolean redirectToBaseJoinPage = transactionTemplate.execute(new TransactionCallback<Boolean>() {
+            @Override
+            public Boolean doInTransaction(TransactionStatus transactionStatus) {
+                return handleMainSwitch(model, action, subAction, targetEmailAddress, initiationId, authenticationPrincipal);
+            }
+        });
+
 
         if (redirectToBaseJoinPage) {
             logger.info("Redirecting to base account join page.");
             return "redirect:/account/joinOther";
         }
 
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                fillModelPost(model, authenticationPrincipal);
+            }
+        });
+        return "account/joinOther";
+    }
+
+    @SameClassTransactionalBoolean
+    public Boolean fillModelPost(Model model, CustomOauth2User authenticationPrincipal) {
+        authenticationPrincipal.refreshUserEntityFromDB(userRepository);
         addExisting_JoinInitiation_ToModel(model, authenticationPrincipal.getUserEntity());
         addWaitingForApproval_JoinInitiations_ToModel(model, authenticationPrincipal.getUserEntity());
-        return "account/joinOther";
+        return true;
+    }
+
+    @SameClassTransactionalBoolean
+    public Boolean handleMainSwitch(Model model, String action, String subAction, String targetEmailAddress, Long initiationId, CustomOauth2User authenticationPrincipal) {
+        authenticationPrincipal.refreshUserEntityFromDB(userRepository);
+
+        if (authenticationPrincipal.getUserEntity() == null)
+            throw new RuntimeException("Your account seems missing.");
+
+        switch (action) {
+            case "initiateJoin":
+                return handleInitiateJoin(model, targetEmailAddress, authenticationPrincipal.getUserEntity());
+            case "cancelInitiatedJoin":
+                return handleCancelInitiatedJoin(model, authenticationPrincipal.getUserEntity());
+            case "judgeInitiation":
+                return handleJudgeInitiation(model, subAction, initiationId, authenticationPrincipal.getUserEntity());
+            default:
+                logger.info("No action found for post request on account/joinOther.");
+                return true;
+        }
+
     }
 
     private boolean handleCancelInitiatedJoin(Model model, User currentUser) {
         try {
-            Optional<AccountJoinInitiation> accountJoinInitiationOptional = accountJoinInitiationRepository.findByInitiatorUser(currentUser);
-            if (accountJoinInitiationOptional.isEmpty())
-                throw new DisplayAsUserAlertException("There aren't any join requests initiated bey you!");
+            if (currentUser.getInitiatedAccountJoinInitiation() == null)
+                throw new DisplayAsUserAlertException("There aren't any join requests initiated by you!");
 
-            AccountJoinInitiation accountJoinInitiation = accountJoinInitiationOptional.get();
-
-            accountJoinInitiationRepository.delete(accountJoinInitiation);
+            accountJoinInitiationRepository.delete(currentUser.getInitiatedAccountJoinInitiation());
+            currentUser.setInitiatedAccountJoinInitiation(null);
 
         } catch (DisplayAsUserAlertException e) {
             model.addAttribute("initiationStatus", "error");
@@ -105,14 +134,17 @@ public class AccountJoinController {
 
             User targetedUser = targetedUserEmailAddress.get().getUser();
             if (targetedUser == null)
-                throw new DisplayAsUserAlertException("Account is not found!");
+                throw new DisplayAsUserAlertException("The targeted account is not found!");
+
+            if (!targetedUser.getEnabled())
+                throw new DisplayAsUserAlertException("The targeted account is currently disabled!");
 
             if (targetedUser.getId().equals(currentUser.getId()))
                 throw new DisplayAsUserAlertException("The given e-mail address belongs to this account already.");
 
-            Optional<AccountJoinInitiation> alreadyExistingInitiationByCurrentAccount = accountJoinInitiationRepository.findByInitiatorUser(currentUser);
+            AccountJoinInitiation alreadyExistingInitiationByCurrentAccount = currentUser.getInitiatedAccountJoinInitiation();
 
-            if (alreadyExistingInitiationByCurrentAccount.isPresent())
+            if (alreadyExistingInitiationByCurrentAccount != null)
                 throw new DisplayAsUserAlertException("You can have only one pending initiation by user. Approve the current one from the other account or cancel it from this one!");
 
             AccountJoinInitiation accountJoinInitiation = new AccountJoinInitiation();
@@ -158,6 +190,11 @@ public class AccountJoinController {
                     break;
                 case "reject":
                     logger.info("Deleting (rejecting) join request.");
+
+                    currentUser.getAccountJoinInitiationsToApprove().forEach((init) -> {
+                        if (init.getId().equals(initiationId))
+                            currentUser.getAccountJoinInitiationsToApprove().remove(init);
+                    });
                     accountJoinInitiationRepository.delete(accountJoinInitiation);
                     break;
                 default:
@@ -192,23 +229,34 @@ public class AccountJoinController {
             externalAccountDetailRepository.save(externalAccountDetail);
         });
 
+        accountJoinInitiationRepository.deleteAll(fromUser.getAccountJoinInitiationsToApprove());
+        accountJoinInitiationRepository.delete(fromUser.getInitiatedAccountJoinInitiation());
 
-        userRepository.save(toUser);
         userRepository.save(fromUser);
+        userRepository.save(toUser);
 
         accountJoinInitiationRepository.delete(accountJoinInitiation);
     }
 
     private void addWaitingForApproval_JoinInitiations_ToModel(Model model, User currentUser) {
-        List<AccountJoinInitiation> waitingForApprovalInitiations = accountJoinInitiationRepository.findByApproverUser(currentUser);
-        model.addAttribute("waitingForApprovalInitiations", waitingForApprovalInitiations);
+        currentUser.getAccountJoinInitiationsToApprove().size();
+        currentUser.getAccountJoinInitiationsToApprove().forEach((init) -> {
+            init.getInitiatorUser().getUserEmailAddresses().size();//Triggering lazy fetch
+        });
+        model.addAttribute("waitingForApprovalInitiations", currentUser.getAccountJoinInitiationsToApprove());
     }
 
-    private void addExisting_JoinInitiation_ToModel(Model model, User currentUser) {
-        Optional<AccountJoinInitiation> alreadyExistingInitiationByCurrentAccount = accountJoinInitiationRepository.findByInitiatorUser(currentUser);
+    public void addExisting_JoinInitiation_ToModel(Model model, User currentUser) {
+        AccountJoinInitiation alreadyExistingInitiationByCurrentAccount = currentUser.getInitiatedAccountJoinInitiation();
 
-        if (alreadyExistingInitiationByCurrentAccount.isPresent()) {
-            model.addAttribute("existingInitiation", alreadyExistingInitiationByCurrentAccount.get());
+
+        if (alreadyExistingInitiationByCurrentAccount != null) {
+            //Triggering lazy fetch
+            if (alreadyExistingInitiationByCurrentAccount.getApproverUser() != null
+                    && alreadyExistingInitiationByCurrentAccount.getApproverUser() != null
+                    && alreadyExistingInitiationByCurrentAccount.getApproverUser().getUserEmailAddresses() != null) {
+            }
+            model.addAttribute("existingInitiation", alreadyExistingInitiationByCurrentAccount);
             model.addAttribute("submitEmailAddress", false);
         } else
             model.addAttribute("submitEmailAddress", true);

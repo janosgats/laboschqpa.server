@@ -16,7 +16,7 @@ import java.util.List;
 
 @Entity
 @Table(name="user_")
-public class User implements Serializable {//TODO: Get rid of these EAGER fetchings!!!! They have to be lazy!!! (currently hibernate exceptions don't let lazy work)
+public class User implements Serializable {
     static final long serialVersionUID = 42L;
 
     @Id
@@ -30,23 +30,20 @@ public class User implements Serializable {//TODO: Get rid of these EAGER fetchi
     @ManyToOne(fetch = FetchType.EAGER)
     private User joinedInto;//The account which this account is joined in. Null if this account was not joined in another one.
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<UserEmailAddress> userEmailAddresses = new ArrayList<>();
 
 
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<ExternalAccountDetail> externalAccountDetails = new ArrayList<>();
 
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<GoogleExternalAccountDetail> googleExternalAccountDetails = new ArrayList<>();
 
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<GithubExternalAccountDetail> githubExternalAccountDetails = new ArrayList<>();
 

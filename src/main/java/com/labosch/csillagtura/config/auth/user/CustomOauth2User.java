@@ -2,6 +2,7 @@ package com.labosch.csillagtura.config.auth.user;
 
 import com.labosch.csillagtura.entity.User;
 import com.labosch.csillagtura.exceptions.NotImplementedException;
+import com.labosch.csillagtura.repo.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -20,15 +21,38 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     private String name;
     private Map<String, Object> attributes;
 
-    private User userEntity;
+    private transient User userEntity;
+    private Long userId;
 
     public User getUserEntity() {
         return userEntity;
     }
 
-    public void setUserEntity(User userEntity) {
-        this.userEntity = userEntity;
+    public void refreshUserEntityFromDB(UserRepository userRepository) {
+        if (userId == null)
+            userEntity = null;
+        else
+            userEntity = userRepository.findById(userId).orElse(null);
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public void setUserIdAndLoadFromDb(Long userId, UserRepository userRepository) {
+        this.userId = userId;
+        refreshUserEntityFromDB(userRepository);
         //TODO: Setting authorities of SecurityContext by the authorities of the userEntity
+    }
+
+    public void setUserEntity(User userEntity) {
+        if (userEntity == null) {
+            this.userId = null;
+            this.userEntity = null;
+        } else {
+            this.userId = userEntity.getId();
+            this.userEntity = userEntity;
+        }
     }
 
     @Override
@@ -45,6 +69,7 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     public String getName() {
         return name;
     }
+
     public void setAuthorities(ArrayList<GrantedAuthority> grantedAuthorities) {
         this.authorities = grantedAuthorities;
     }
@@ -56,7 +81,6 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     public void setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
     }
-
 
 
     @Override
@@ -72,5 +96,9 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     @Override
     public OidcIdToken getIdToken() {
         throw new NotImplementedException("OIDC part of CustomOauth2User is not implemented.");
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 }
