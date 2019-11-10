@@ -11,12 +11,12 @@ public class AccountJoinInitiation {
     private Long id;
 
     @JoinColumn(name = "initiator_user_id", unique = true, nullable = false)
-    @OneToOne(fetch = FetchType.EAGER)
-    private User initiatorUser;
+    @OneToOne(fetch = FetchType.LAZY)
+    private UserAcc initiatorUserAcc;
 
     @JoinColumn(name = "approver_user_id", nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
-    private User approverUser;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserAcc approverUserAcc;
 
     @Column(name = "approved", nullable = false)
     private boolean approved = false;
@@ -29,20 +29,20 @@ public class AccountJoinInitiation {
         this.approved = approved;
     }
 
-    public User getApproverUser() {
-        return approverUser;
+    public UserAcc getApproverUserAcc() {
+        return approverUserAcc;
     }
 
-    public void setApproverUser(User approverUser) {
-        this.approverUser = approverUser;
+    public void setApproverUserAcc(UserAcc approverUserAcc) {
+        this.approverUserAcc = approverUserAcc;
     }
 
-    public User getInitiatorUser() {
-        return initiatorUser;
+    public UserAcc getInitiatorUserAcc() {
+        return initiatorUserAcc;
     }
 
-    public void setInitiatorUser(User initiatorUser) {
-        this.initiatorUser = initiatorUser;
+    public void setInitiatorUserAcc(UserAcc initiatorUserAcc) {
+        this.initiatorUserAcc = initiatorUserAcc;
     }
 
     public Long getId() {

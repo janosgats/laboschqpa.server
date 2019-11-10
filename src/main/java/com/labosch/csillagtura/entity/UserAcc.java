@@ -3,20 +3,17 @@ package com.labosch.csillagtura.entity;
 import com.labosch.csillagtura.entity.externalaccount.ExternalAccountDetail;
 import com.labosch.csillagtura.entity.externalaccount.GithubExternalAccountDetail;
 import com.labosch.csillagtura.entity.externalaccount.GoogleExternalAccountDetail;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name="user_")
-public class User implements Serializable {
+@Table(name = "userAcc")
+public class UserAcc implements Serializable {
     static final long serialVersionUID = 42L;
 
     @Id
@@ -28,32 +25,31 @@ public class User implements Serializable {
     private Boolean enabled;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private User joinedInto;//The account which this account is joined in. Null if this account was not joined in another one.
+    private UserAcc joinedInto;//The account which this account is joined in. Null if this account was not joined in another one.
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<UserEmailAddress> userEmailAddresses = new ArrayList<>();
+    private Set<UserEmailAddress> userEmailAddresses = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<ExternalAccountDetail> externalAccountDetails = new ArrayList<>();
+    private Set<ExternalAccountDetail> externalAccountDetails = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<GoogleExternalAccountDetail> googleExternalAccountDetails = new ArrayList<>();
+    private Set<GoogleExternalAccountDetail> googleExternalAccountDetails = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<GithubExternalAccountDetail> githubExternalAccountDetails = new ArrayList<>();
+    private Set<GithubExternalAccountDetail> githubExternalAccountDetails = new HashSet<>();
 
 
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "approverUser", cascade = {CascadeType.REMOVE})
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "approverUserAcc", cascade = {CascadeType.REMOVE})
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<AccountJoinInitiation> accountJoinInitiationsToApprove = new ArrayList<>();
+    private Set<AccountJoinInitiation> accountJoinInitiationsToApprove = new HashSet<>();
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "initiatorUser", cascade = {CascadeType.REMOVE})
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "initiatorUserAcc", cascade = {CascadeType.REMOVE})
     @OnDelete(action = OnDeleteAction.CASCADE)
     private AccountJoinInitiation initiatedAccountJoinInitiation;
 
@@ -74,19 +70,19 @@ public class User implements Serializable {
         this.enabled = enabled;
     }
 
-    public List<UserEmailAddress> getUserEmailAddresses() {
+    public Set<UserEmailAddress> getUserEmailAddresses() {
         return userEmailAddresses;
     }
 
-    public User getJoinedInto() {
+    public UserAcc getJoinedInto() {
         return joinedInto;
     }
 
-    public void setJoinedInto(User joinedInto) {
+    public void setJoinedInto(UserAcc joinedInto) {
         this.joinedInto = joinedInto;
     }
 
-    public List<AccountJoinInitiation> getAccountJoinInitiationsToApprove() {
+    public Set<AccountJoinInitiation> getAccountJoinInitiationsToApprove() {
         return accountJoinInitiationsToApprove;
     }
 
@@ -98,20 +94,20 @@ public class User implements Serializable {
         this.initiatedAccountJoinInitiation = initiatedAccountJoinInitiationsToApprove;
     }
 
-    public boolean equalsById(User otherUser) {
+    public boolean equalsById(UserAcc otherUserAcc) {
         return this.getId() != null
-                && this.getId().equals(otherUser.getId());
+                && this.getId().equals(otherUserAcc.getId());
     }
 
-    public List<GoogleExternalAccountDetail> getGoogleExternalAccountDetails() {
+    public Set<GoogleExternalAccountDetail> getGoogleExternalAccountDetails() {
         return googleExternalAccountDetails;
     }
 
-    public List<GithubExternalAccountDetail> getGithubExternalAccountDetails() {
+    public Set<GithubExternalAccountDetail> getGithubExternalAccountDetails() {
         return githubExternalAccountDetails;
     }
 
-    public List<ExternalAccountDetail> getExternalAccountDetails() {
+    public Set<ExternalAccountDetail> getExternalAccountDetails() {
         return externalAccountDetails;
     }
 }

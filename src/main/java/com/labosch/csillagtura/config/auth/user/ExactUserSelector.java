@@ -4,7 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.labosch.csillagtura.config.auth.authorities.Authority;
 import com.labosch.csillagtura.config.auth.authorities.EnumBasedAuthority;
-import com.labosch.csillagtura.entity.User;
+import com.labosch.csillagtura.entity.UserAcc;
 import com.labosch.csillagtura.entity.UserEmailAddress;
 import com.labosch.csillagtura.entity.externalaccount.ExternalAccountDetail;
 import com.labosch.csillagtura.entity.externalaccount.GithubExternalAccountDetail;
@@ -12,7 +12,7 @@ import com.labosch.csillagtura.entity.externalaccount.GoogleExternalAccountDetai
 import com.labosch.csillagtura.repo.GithubExternalAccountDetailRepository;
 import com.labosch.csillagtura.repo.GoogleExternalAccountDetailRepository;
 import com.labosch.csillagtura.repo.UserEmailAddressRepository;
-import com.labosch.csillagtura.repo.UserRepository;
+import com.labosch.csillagtura.repo.UserAccRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class ExactUserSelector {
     GithubExternalAccountDetailRepository githubExternalAccountDetailRepository;
 
     @Autowired
-    UserRepository userRepository;
+    UserAccRepository userAccRepository;
 
     @Value("${oauth2.provider.github.resource.user-info-uri}")
     private String gitHubUserInfoUri;
@@ -108,7 +108,7 @@ public class ExactUserSelector {
         UserEmailAddress userEmailAddressFromRequestTriedToLoadFromDB = load_UserEmailAddressFromRequest_FromDB_IfPresent(emailAddressFromRequest);
 
 
-        User userEntity = null;
+        UserAcc userAccEntity = null;
 
         switch (clientRegistrationId) {
             case "google":
@@ -116,22 +116,22 @@ public class ExactUserSelector {
                         googleExternalAccountDetailRepository.findBySub(((GoogleExternalAccountDetail) externalAccountDetail).getSub());
 
                 if (googleExternalAccountDetailOptional.isPresent()) {
-                    userEntity = googleExternalAccountDetailOptional.get().getUser();
+                    userAccEntity = googleExternalAccountDetailOptional.get().getUserAcc();
                     logger.info("Logged in existing user by matching externalAccountDetail from: " + clientRegistrationId);
                 } else {
                     if (userEmailAddressFromRequestTriedToLoadFromDB != null) {
                         //The e-mail from the request is belonging to a registered account. Adding externalAccountDetail to that account.
 
-                        userEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUser();
-                        externalAccountDetail.setUser(userEntity);
+                        userAccEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUserAcc();
+                        externalAccountDetail.setUserAcc(userAccEntity);
                     } else {
                         //Couldn't found anything to merge accounts by. Creating new account
 
-                        userEntity = new User();
-                        userEntity.setEnabled(true);
-                        userRepository.save(userEntity);
+                        userAccEntity = new UserAcc();
+                        userAccEntity.setEnabled(true);
+                        userAccRepository.save(userAccEntity);
 
-                        externalAccountDetail.setUser(userEntity);
+                        externalAccountDetail.setUserAcc(userAccEntity);
                         googleExternalAccountDetailRepository.save((GoogleExternalAccountDetail) externalAccountDetail);
 
                         logger.info("Registered new user from: " + clientRegistrationId);
@@ -143,23 +143,23 @@ public class ExactUserSelector {
                         githubExternalAccountDetailRepository.findByGithubId(((GithubExternalAccountDetail) externalAccountDetail).getGithubId());
 
                 if (githubExternalAccountDetailOptional.isPresent()) {
-                    userEntity = githubExternalAccountDetailOptional.get().getUser();
+                    userAccEntity = githubExternalAccountDetailOptional.get().getUserAcc();
                     logger.info("Logged in existing user by matching externalAccountDetail from: " + clientRegistrationId);
                 } else {
                     if (userEmailAddressFromRequestTriedToLoadFromDB != null) {
                         //The e-mail from the request is belonging to a registered account. Adding externalAccountDetail to that account.
 
-                        userEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUser();
-                        externalAccountDetail.setUser(userEntity);
+                        userAccEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUserAcc();
+                        externalAccountDetail.setUserAcc(userAccEntity);
                         githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
                     } else {
                         //Couldn't found anything to merge accounts by. Creating new account
 
-                        userEntity = new User();
-                        userEntity.setEnabled(true);
-                        userRepository.save(userEntity);
+                        userAccEntity = new UserAcc();
+                        userAccEntity.setEnabled(true);
+                        userAccRepository.save(userAccEntity);
 
-                        externalAccountDetail.setUser(userEntity);
+                        externalAccountDetail.setUserAcc(userAccEntity);
                         githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
 
                         logger.info("Registered new user from: " + clientRegistrationId);
@@ -168,10 +168,10 @@ public class ExactUserSelector {
                 break;
         }
 
-        if (userEntity == null)
+        if (userAccEntity == null)
             throw new RuntimeException("Cannot log in! 'userEntity' is null but it should have been created or loaded already.");
 
-        if (!userEntity.getEnabled())
+        if (!userAccEntity.getEnabled())
             throw new RuntimeException("Account is disabled.");
 
         if (userEmailAddressFromRequestTriedToLoadFromDB == null) {
@@ -179,12 +179,12 @@ public class ExactUserSelector {
 
             UserEmailAddress newUserEmailAddress = new UserEmailAddress();
             newUserEmailAddress.setEmail(emailAddressFromRequest);
-            newUserEmailAddress.setUser(userEntity);
+            newUserEmailAddress.setUserAcc(userAccEntity);
             userEmailAddressRepository.save(newUserEmailAddress);
-            userEntity.getUserEmailAddresses().add(newUserEmailAddress);
+            userAccEntity.getUserEmailAddresses().add(newUserEmailAddress);
         }
 
-        customOauth2User.setUserEntity(userEntity);
+        customOauth2User.setUserAccEntity(userAccEntity);
 
         {//This is just dummy data for testing
             customOauth2User.setName("testname");

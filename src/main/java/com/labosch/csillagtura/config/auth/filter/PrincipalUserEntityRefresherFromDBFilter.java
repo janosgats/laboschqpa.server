@@ -2,8 +2,8 @@ package com.labosch.csillagtura.config.auth.filter;
 
 import com.labosch.csillagtura.config.AppConstants;
 import com.labosch.csillagtura.config.auth.user.CustomOauth2User;
-import com.labosch.csillagtura.entity.User;
-import com.labosch.csillagtura.repo.UserRepository;
+import com.labosch.csillagtura.entity.UserAcc;
+import com.labosch.csillagtura.repo.UserAccRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContext;
@@ -20,7 +20,7 @@ import java.util.Optional;
 public class PrincipalUserEntityRefresherFromDBFilter extends GenericFilterBean {
     Logger logger = LoggerFactory.getLogger(PrincipalUserEntityRefresherFromDBFilter.class);
 
-    private UserRepository userRepository;
+    private UserAccRepository userAccRepository;
 
 
     @Override
@@ -39,13 +39,13 @@ public class PrincipalUserEntityRefresherFromDBFilter extends GenericFilterBean 
             Long userIdFromSession = customOauth2User.getUserId();
 
             if (userIdFromSession != null) {
-                Optional<User> userFromDBOptional = userRepository.findById(userIdFromSession);
+                Optional<UserAcc> userFromDBOptional = userAccRepository.findById(userIdFromSession);
 
                 if (userFromDBOptional.isPresent()) {
-                    User userFromDB = userFromDBOptional.get();
+                    UserAcc userAccFromDB = userFromDBOptional.get();
 
-                    if (userFromDB.getEnabled()) {
-                        customOauth2User.refreshUserEntityFromDB(userRepository);
+                    if (userAccFromDB.getEnabled()) {
+                        customOauth2User.setUserAccEntity(userAccFromDB);
                         shouldBeUnauthenticated = false;
                     }
                 }
@@ -69,7 +69,7 @@ public class PrincipalUserEntityRefresherFromDBFilter extends GenericFilterBean 
             filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public void setUserAccRepository(UserAccRepository userAccRepository) {
+        this.userAccRepository = userAccRepository;
     }
 }

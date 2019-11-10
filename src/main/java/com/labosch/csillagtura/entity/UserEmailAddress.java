@@ -15,7 +15,7 @@ public class UserEmailAddress implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserAcc userAcc;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -28,12 +28,12 @@ public class UserEmailAddress implements Serializable {
         this.email = email;
     }
 
-    public User getUser() {
-        return user;
+    public UserAcc getUserAcc() {
+        return userAcc;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserAcc(UserAcc userAcc) {
+        this.userAcc = userAcc;
     }
 
     public Long getId() {

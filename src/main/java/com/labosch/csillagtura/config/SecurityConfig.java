@@ -3,7 +3,7 @@ package com.labosch.csillagtura.config;
 import com.labosch.csillagtura.config.auth.filter.PrincipalUserEntityRefresherFromDBFilter;
 import com.labosch.csillagtura.config.auth.user.CustomOAuth2UserService;
 import com.labosch.csillagtura.config.auth.user.CustomOidcUserService;
-import com.labosch.csillagtura.repo.UserRepository;
+import com.labosch.csillagtura.repo.UserAccRepository;
 import com.labosch.csillagtura.service.SecretProviderService;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     SecretProviderService secretProviderService;
 
     @Resource
-    UserRepository userRepository;
+    UserAccRepository userAccRepository;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -73,7 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public FilterRegistrationBean principalUserEntityLoaderFilterRegistrationBean() {
         PrincipalUserEntityRefresherFromDBFilter filter = new PrincipalUserEntityRefresherFromDBFilter();
-        filter.setUserRepository(userRepository);
+        filter.setUserAccRepository(userAccRepository);
 
         FilterRegistrationBean<PrincipalUserEntityRefresherFromDBFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(filter);

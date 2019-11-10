@@ -1,8 +1,8 @@
 package com.labosch.csillagtura.config.auth.user;
 
-import com.labosch.csillagtura.entity.User;
+import com.labosch.csillagtura.entity.UserAcc;
 import com.labosch.csillagtura.exceptions.NotImplementedException;
-import com.labosch.csillagtura.repo.UserRepository;
+import com.labosch.csillagtura.repo.UserAccRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -21,37 +21,37 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     private String name;
     private Map<String, Object> attributes;
 
-    private transient User userEntity;
+    private transient UserAcc userAccEntity;
     private Long userId;
 
-    public User getUserEntity() {
-        return userEntity;
+    public UserAcc getUserAccEntity() {
+        return userAccEntity;
     }
 
-    public void refreshUserEntityFromDB(UserRepository userRepository) {
+    public void refreshUserEntityIfNull_FromDB(UserAccRepository userAccRepository) {
         if (userId == null)
-            userEntity = null;
+            userAccEntity = null;
         else
-            userEntity = userRepository.findById(userId).orElse(null);
+            userAccEntity = userAccRepository.findById(userId).orElse(null);
     }
 
     public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public void setUserIdAndLoadFromDb(Long userId, UserRepository userRepository) {
+    public void setUserIdAndLoadFromDb(Long userId, UserAccRepository userAccRepository) {
         this.userId = userId;
-        refreshUserEntityFromDB(userRepository);
+        refreshUserEntityIfNull_FromDB(userAccRepository);
         //TODO: Setting authorities of SecurityContext by the authorities of the userEntity
     }
 
-    public void setUserEntity(User userEntity) {
-        if (userEntity == null) {
+    public void setUserAccEntity(UserAcc userAccEntity) {
+        if (userAccEntity == null) {
             this.userId = null;
-            this.userEntity = null;
+            this.userAccEntity = null;
         } else {
-            this.userId = userEntity.getId();
-            this.userEntity = userEntity;
+            this.userId = userAccEntity.getId();
+            this.userAccEntity = userAccEntity;
         }
     }
 

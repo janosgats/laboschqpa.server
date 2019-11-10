@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <!--/*@thymesVar id="existingInitiation" type="com.labosch.csillagtura.entity.AccountJoinInitiation"*/-->
-<!--/*@thymesVar id="waitingForApprovalInitiations" type="java.util.List<com.labosch.csillagtura.entity.AccountJoinInitiation>"*/-->
+<!--/*@thymesVar id="waitingForApprovalInitiations" type="java.util.Set<com.labosch.csillagtura.entity.AccountJoinInitiation>"*/-->
 <head>
     <meta charset="UTF-8">
     <title>Join accounts</title>
@@ -31,7 +31,7 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         </form>
 
-        <p th:text="'Approver: ' + ${existingInitiation.getApproverUser().getUserEmailAddresses().get(0).getEmail()}"></p>
+        <p th:text="'Approver: ' + ${existingInitiation.getApproverUserAcc().getId()}"></p>
         <p><a th:href="${const.loginPageUrl}">Log in to the account</a> to approve the join request!</p>
     </div>
 </div>
@@ -59,7 +59,7 @@
 
     <div th:each="initiation : ${waitingForApprovalInitiations}">
         <form method="post" style="padding-left: 30px">
-            <p th:text="'Initiator: ' + ${initiation.getInitiatorUser().getUserEmailAddresses().get(0).getEmail()}"></p>
+            <p th:text="'Initiator: ' + ${initiation.getInitiatorUserAcc().getId()}"></p>
 
             <button type="submit" name="subAction" value="joinIntoApprover">Join into this account</button>
             <button type="submit" name="subAction" value="joinIntoInitiator">Join this account into</button>

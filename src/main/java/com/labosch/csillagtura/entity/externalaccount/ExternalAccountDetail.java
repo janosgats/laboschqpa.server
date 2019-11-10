@@ -1,7 +1,6 @@
 package com.labosch.csillagtura.entity.externalaccount;
 
-import com.labosch.csillagtura.entity.User;
-import org.springframework.context.annotation.Primary;
+import com.labosch.csillagtura.entity.UserAcc;
 
 import javax.persistence.*;
 
@@ -15,17 +14,17 @@ public abstract class ExternalAccountDetail {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserAcc userAcc;
 
     public Long getId() {
         return id;
     }
 
-    public User getUser() {
-        return user;
+    public UserAcc getUserAcc() {
+        return userAcc;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserAcc(UserAcc userAcc) {
+        this.userAcc = userAcc;
     }
 }
