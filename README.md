@@ -1,4 +1,4 @@
-# labosch.csillagtura.server
+# laboschcst.server
 
 Server microservice of **webpage of 50th "Csillagtúra"** organized in 2020.
 
