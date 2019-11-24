@@ -12,6 +12,8 @@ public class AppConstants {
     public static final String logOutUrl = "/logout";
     public static final String loginPageUrl = "/loginPage";
 
+    public static final String adminBaseUrl = "/admin/";//This HAS TO HAVE a "/" (slash) character at the end!
+
     public static final String defaultLoginSuccessUrl = "/loginSuccess";
     public static final String defaultLoginFailureUrl = "/loginFailure";
 

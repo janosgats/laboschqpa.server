@@ -1,5 +1,6 @@
 package com.laboschcst.server.config;
 
+import com.laboschcst.server.config.auth.authorities.Authority;
 import com.laboschcst.server.config.auth.filter.PrincipalUserEntityRefresherFromDBFilter;
 import com.laboschcst.server.config.auth.user.CustomOAuth2UserService;
 import com.laboschcst.server.config.auth.user.CustomOidcUserService;
@@ -25,6 +26,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 
 @EnableWebSecurity
 @Configuration
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private Environment env;
 
@@ -45,6 +47,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                /*TODO: When hasAuthority() is checked, it uses the Authentication.authorities instead of the principal's authorities.
+                   This HAS to BE fixed according to this: https://stackoverflow.com/questions/23072235/reload-userdetails-object-from-database-every-request-in-spring-security*/
+                .antMatchers(AppConstants.adminBaseUrl + "**").hasAuthority(Authority.Admin.getStringValue())
                 .antMatchers("/", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuthAuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
                 .permitAll()
                 .anyRequest()
@@ -68,18 +73,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl(AppConstants.logOutUrl)
                 .logoutSuccessUrl(AppConstants.logOutSuccessUrl)
                 .invalidateHttpSession(true);
-    }
 
-    @Bean
-    public FilterRegistrationBean principalUserEntityLoaderFilterRegistrationBean() {
         PrincipalUserEntityRefresherFromDBFilter filter = new PrincipalUserEntityRefresherFromDBFilter();
         filter.setUserAccRepository(userAccRepository);
 
-        FilterRegistrationBean<PrincipalUserEntityRefresherFromDBFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(filter);
-        registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
-        return registrationBean;
+        http.addFilterBefore(filter, FilterSecurityInterceptor.class);
     }
+
+//    @Bean
+//    public FilterRegistrationBean principalUserEntityLoaderFilterRegistrationBean() {
+//        PrincipalUserEntityRefresherFromDBFilter filter = new PrincipalUserEntityRefresherFromDBFilter();
+//        filter.setUserAccRepository(userAccRepository);
+//
+//        FilterRegistrationBean<PrincipalUserEntityRefresherFromDBFilter> registrationBean = new FilterRegistrationBean<>();
+//        registrationBean.setFilter(filter);
+//        registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
+//        return registrationBean;
+//    }
 
     @Bean
     public CustomOAuth2UserService oauth2UserService() {

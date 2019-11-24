@@ -1,5 +1,7 @@
 package com.laboschcst.server.entity;
 
+import com.laboschcst.server.config.auth.authorities.Authority;
+import com.laboschcst.server.config.auth.authorities.EnumBasedAuthority;
 import com.laboschcst.server.entity.externalaccount.ExternalAccountDetail;
 import com.laboschcst.server.entity.externalaccount.GithubExternalAccountDetail;
 import com.laboschcst.server.entity.externalaccount.GoogleExternalAccountDetail;
@@ -8,8 +10,11 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "userAcc")
@@ -31,6 +36,11 @@ public class UserAcc implements Serializable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<UserEmailAddress> userEmailAddresses = new HashSet<>();
 
+    @ElementCollection(targetClass = Authority.class, fetch = FetchType.EAGER)
+    @JoinTable(name = "granted_authority", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "granted_authority", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Set<Authority> authorities = new HashSet<>();
 
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -109,5 +119,24 @@ public class UserAcc implements Serializable {
 
     public Set<ExternalAccountDetail> getExternalAccountDetails() {
         return externalAccountDetails;
+    }
+
+    public Set<Authority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = authorities;
+    }
+
+    public List<EnumBasedAuthority> getCopyOfAuthorities_AsEnumBasedAuthority() {
+        return this.getAuthorities().stream().map(EnumBasedAuthority::new).collect(Collectors.toList());
+    }
+
+    public void setAuthorities_FromEnumBasedAuthority(Collection<EnumBasedAuthority> authorities) {
+        this.setAuthorities(authorities.stream()
+                .map((ga) -> Authority.fromStringValue(ga.getAuthority()))
+                .collect(Collectors.toSet())
+        );
     }
 }

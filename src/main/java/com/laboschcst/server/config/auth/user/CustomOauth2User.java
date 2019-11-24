@@ -1,5 +1,6 @@
 package com.laboschcst.server.config.auth.user;
 
+import com.laboschcst.server.config.auth.authorities.EnumBasedAuthority;
 import com.laboschcst.server.entity.UserAcc;
 import com.laboschcst.server.exceptions.NotImplementedException;
 import com.laboschcst.server.repo.UserAccRepository;
@@ -12,12 +13,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     static final long serialVersionUID = 42L;
 
-    private ArrayList<GrantedAuthority> authorities;
     private String name;
     private Map<String, Object> attributes;
 
@@ -42,7 +43,6 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     public void setUserIdAndLoadFromDb(Long userId, UserAccRepository userAccRepository) {
         this.userId = userId;
         refreshUserEntityIfNull_FromDB(userAccRepository);
-        //TODO: Setting authorities of SecurityContext by the authorities of the userEntity
     }
 
     public void setUserAccEntity(UserAcc userAccEntity) {
@@ -57,7 +57,10 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        if (userAccEntity != null)
+            return userAccEntity.getCopyOfAuthorities_AsEnumBasedAuthority();
+        else
+            return new HashSet<>();
     }
 
     @Override
@@ -70,8 +73,12 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
         return name;
     }
 
-    public void setAuthorities(ArrayList<GrantedAuthority> grantedAuthorities) {
-        this.authorities = grantedAuthorities;
+    public void setAuthorities(ArrayList<EnumBasedAuthority> grantedAuthorities) {
+
+        if (userAccEntity != null)
+            this.userAccEntity.setAuthorities_FromEnumBasedAuthority(grantedAuthorities);
+        else
+            throw new RuntimeException("userAccEntity is null!");
     }
 
     public void setName(String name) {

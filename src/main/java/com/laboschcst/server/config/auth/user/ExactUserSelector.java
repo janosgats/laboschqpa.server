@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -193,11 +192,13 @@ public class ExactUserSelector {
             attributes.put("key1", "val1");
             customOauth2User.setAttributes(attributes);
 
-            ArrayList<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+            ArrayList<EnumBasedAuthority> grantedAuthorities = new ArrayList<>();
             grantedAuthorities.add(new EnumBasedAuthority(Authority.Test1));
             grantedAuthorities.add(new EnumBasedAuthority(Authority.Test2));
-            grantedAuthorities.add(new EnumBasedAuthority(Authority.Test3));
+            grantedAuthorities.add(new EnumBasedAuthority(Authority.Admin));
             customOauth2User.setAuthorities(grantedAuthorities);
+
+            userAccRepository.save(userAccEntity);
         }
 
         return customOauth2User;
