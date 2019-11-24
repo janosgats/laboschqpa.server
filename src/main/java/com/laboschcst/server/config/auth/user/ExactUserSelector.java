@@ -186,8 +186,6 @@ public class ExactUserSelector {
         customOauth2User.setUserAccEntity(userAccEntity);
 
         {//This is just dummy data for testing
-            customOauth2User.setName("testname");
-
             Map<String, Object> attributes = new HashMap<>();
             attributes.put("key1", "val1");
             customOauth2User.setAttributes(attributes);

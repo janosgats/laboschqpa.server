@@ -29,7 +29,7 @@ public class UserAcc implements Serializable {
     @Column
     private Boolean enabled;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private UserAcc joinedInto;//The account which this account is joined in. Null if this account was not joined in another one.
 
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)

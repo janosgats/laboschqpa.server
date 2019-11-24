@@ -18,8 +18,6 @@ import java.util.Map;
 
 public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     static final long serialVersionUID = 42L;
-
-    private String name;
     private Map<String, Object> attributes;
 
     private transient UserAcc userAccEntity;
@@ -31,9 +29,9 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
 
     public void refreshUserEntityIfNull_FromDB(UserAccRepository userAccRepository) {
         if (userId == null)
-            userAccEntity = null;
+            this.setUserAccEntity(null);
         else
-            userAccEntity = userAccRepository.findById(userId).orElse(null);
+            this.setUserAccEntity(userAccRepository.findById(userId).orElse(null));
     }
 
     public void setUserId(Long userId) {
@@ -70,7 +68,7 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
 
     @Override
     public String getName() {
-        return name;
+        return userId != null ? userId.toString() : null;
     }
 
     public void setAuthorities(ArrayList<EnumBasedAuthority> grantedAuthorities) {
@@ -79,10 +77,6 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
             this.userAccEntity.setAuthorities_FromEnumBasedAuthority(grantedAuthorities);
         else
             throw new RuntimeException("userAccEntity is null!");
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void setAttributes(Map<String, Object> attributes) {

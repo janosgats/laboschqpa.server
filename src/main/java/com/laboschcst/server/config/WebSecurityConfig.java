@@ -1,15 +1,15 @@
 package com.laboschcst.server.config;
 
+import com.laboschcst.server.config.auth.filterchain.ReloadUserPerRequestHttpSessionSecurityContextRepository;
 import com.laboschcst.server.config.auth.authorities.Authority;
-import com.laboschcst.server.config.auth.filter.PrincipalUserEntityRefresherFromDBFilter;
 import com.laboschcst.server.config.auth.user.CustomOAuth2UserService;
 import com.laboschcst.server.config.auth.user.CustomOidcUserService;
 import com.laboschcst.server.repo.UserAccRepository;
 import com.laboschcst.server.service.SecretProviderService;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
+
     @Resource
     private Environment env;
 
@@ -47,8 +49,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                /*TODO: When hasAuthority() is checked, it uses the Authentication.authorities instead of the principal's authorities.
-                   This HAS to BE fixed according to this: https://stackoverflow.com/questions/23072235/reload-userdetails-object-from-database-every-request-in-spring-security*/
                 .antMatchers(AppConstants.adminBaseUrl + "**").hasAuthority(Authority.Admin.getStringValue())
                 .antMatchers("/", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuthAuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
                 .permitAll()
@@ -74,22 +74,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl(AppConstants.logOutSuccessUrl)
                 .invalidateHttpSession(true);
 
-        PrincipalUserEntityRefresherFromDBFilter filter = new PrincipalUserEntityRefresherFromDBFilter();
-        filter.setUserAccRepository(userAccRepository);
-
-        http.addFilterBefore(filter, FilterSecurityInterceptor.class);
+        http.addFilterBefore(
+                new SecurityContextPersistenceFilter(new ReloadUserPerRequestHttpSessionSecurityContextRepository(userAccRepository)),
+                SecurityContextPersistenceFilter.class);//Replacing original SecurityContextPersistenceFilter (by using FILTER_APPLIED flag with the same key as the original filter)
     }
-
-//    @Bean
-//    public FilterRegistrationBean principalUserEntityLoaderFilterRegistrationBean() {
-//        PrincipalUserEntityRefresherFromDBFilter filter = new PrincipalUserEntityRefresherFromDBFilter();
-//        filter.setUserAccRepository(userAccRepository);
-//
-//        FilterRegistrationBean<PrincipalUserEntityRefresherFromDBFilter> registrationBean = new FilterRegistrationBean<>();
-//        registrationBean.setFilter(filter);
-//        registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
-//        return registrationBean;
-//    }
 
     @Bean
     public CustomOAuth2UserService oauth2UserService() {
