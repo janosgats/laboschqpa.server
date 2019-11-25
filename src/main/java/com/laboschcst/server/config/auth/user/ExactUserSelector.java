@@ -31,10 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class ExactUserSelector {
@@ -120,15 +117,12 @@ public class ExactUserSelector {
                 } else {
                     if (userEmailAddressFromRequestTriedToLoadFromDB != null) {
                         //The e-mail from the request is belonging to a registered account. Adding externalAccountDetail to that account.
-
                         userAccEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUserAcc();
+
                         externalAccountDetail.setUserAcc(userAccEntity);
                     } else {
                         //Couldn't found anything to merge accounts by. Creating new account
-
-                        userAccEntity = new UserAcc();
-                        userAccEntity.setEnabled(true);
-                        userAccRepository.save(userAccEntity);
+                        userAccEntity = registerNewUser();
 
                         externalAccountDetail.setUserAcc(userAccEntity);
                         googleExternalAccountDetailRepository.save((GoogleExternalAccountDetail) externalAccountDetail);
@@ -147,16 +141,13 @@ public class ExactUserSelector {
                 } else {
                     if (userEmailAddressFromRequestTriedToLoadFromDB != null) {
                         //The e-mail from the request is belonging to a registered account. Adding externalAccountDetail to that account.
-
                         userAccEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUserAcc();
+
                         externalAccountDetail.setUserAcc(userAccEntity);
                         githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
                     } else {
                         //Couldn't found anything to merge accounts by. Creating new account
-
-                        userAccEntity = new UserAcc();
-                        userAccEntity.setEnabled(true);
-                        userAccRepository.save(userAccEntity);
+                        userAccEntity = registerNewUser();
 
                         externalAccountDetail.setUserAcc(userAccEntity);
                         githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
@@ -185,21 +176,17 @@ public class ExactUserSelector {
 
         customOauth2User.setUserAccEntity(userAccEntity);
 
-        {//This is just dummy data for testing
-            Map<String, Object> attributes = new HashMap<>();
-            attributes.put("key1", "val1");
-            customOauth2User.setAttributes(attributes);
-
-            ArrayList<EnumBasedAuthority> grantedAuthorities = new ArrayList<>();
-            grantedAuthorities.add(new EnumBasedAuthority(Authority.Test1));
-            grantedAuthorities.add(new EnumBasedAuthority(Authority.Test2));
-            grantedAuthorities.add(new EnumBasedAuthority(Authority.Admin));
-            customOauth2User.setAuthorities(grantedAuthorities);
-
-            userAccRepository.save(userAccEntity);
-        }
-
         return customOauth2User;
+    }
+
+    private UserAcc registerNewUser() {
+        UserAcc newUserAcc = new UserAcc();
+
+        newUserAcc.setEnabled(true);
+        newUserAcc.setAuthorities_FromEnumBasedAuthority(Set.of(new EnumBasedAuthority(Authority.User)));
+
+        userAccRepository.save(newUserAcc);
+        return newUserAcc;
     }
 
     /**

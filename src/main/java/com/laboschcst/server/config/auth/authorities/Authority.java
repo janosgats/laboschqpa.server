@@ -3,8 +3,7 @@ package com.laboschcst.server.config.auth.authorities;
 import com.laboschcst.server.exceptions.NotImplementedException;
 
 public enum Authority {
-    Test1("test1"),
-    Test2("test2"),
+    User("user"),
     Admin("admin");
 
     private String stringValue;
@@ -19,10 +18,8 @@ public enum Authority {
 
     public static Authority fromStringValue(String stringValue) {
         switch (stringValue) {
-            case "test1":
-                return Test1;
-            case "test2":
-                return Test2;
+            case "user":
+                return User;
             case "admin":
                 return Admin;
         }
