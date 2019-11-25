@@ -113,7 +113,7 @@ public class ExactUserSelector {
 
                 if (googleExternalAccountDetailOptional.isPresent()) {
                     userAccEntity = googleExternalAccountDetailOptional.get().getUserAcc();
-                    logger.info("Logged in existing user by matching externalAccountDetail from: " + clientRegistrationId);
+                    logger.debug("Logged in existing user by matching externalAccountDetail from: " + clientRegistrationId);
                 } else {
                     if (userEmailAddressFromRequestTriedToLoadFromDB != null) {
                         //The e-mail from the request is belonging to a registered account. Adding externalAccountDetail to that account.
@@ -137,7 +137,7 @@ public class ExactUserSelector {
 
                 if (githubExternalAccountDetailOptional.isPresent()) {
                     userAccEntity = githubExternalAccountDetailOptional.get().getUserAcc();
-                    logger.info("Logged in existing user by matching externalAccountDetail from: " + clientRegistrationId);
+                    logger.debug("Logged in existing user by matching externalAccountDetail from: " + clientRegistrationId);
                 } else {
                     if (userEmailAddressFromRequestTriedToLoadFromDB != null) {
                         //The e-mail from the request is belonging to a registered account. Adding externalAccountDetail to that account.

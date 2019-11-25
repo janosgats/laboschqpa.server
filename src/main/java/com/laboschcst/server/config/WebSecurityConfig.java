@@ -53,7 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuthAuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
                 .permitAll()
                 .anyRequest()
-                .authenticated()
+                .hasAnyAuthority(Authority.User.getStringValue(), Authority.Admin.getStringValue())
                 .and()
                 .oauth2Login()
                 .loginPage(AppConstants.loginPageUrl)
