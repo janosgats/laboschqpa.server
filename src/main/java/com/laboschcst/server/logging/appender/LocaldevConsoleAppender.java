@@ -1,10 +1,16 @@
 package com.laboschcst.server.logging.appender;
 
-import com.laboschcst.server.logging.LoggingHelper;
+import com.janosgats.logging.flexibleappender.FlexibleAppender;
+import com.janosgats.logging.flexibleappender.enableable.CompositeOrEnableable;
+import com.janosgats.logging.flexibleappender.enableable.EnvironmentVariableEnableable;
+import com.janosgats.logging.flexibleappender.enableable.JUnitEnableable;
+import com.janosgats.logging.flexibleappender.enableable.SystemPropertyEnableable;
+import com.janosgats.logging.flexibleappender.loglinebuilder.AbstractLogLineBuilder;
+import com.janosgats.logging.flexibleappender.loglinebuilder.specific.LocaldevConsoleLogLineBuilder;
+import com.janosgats.logging.flexibleappender.loglineoutput.AbstractLogLineOutput;
+import com.janosgats.logging.flexibleappender.loglineoutput.specific.StdOutLogLineOutput;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
-import org.apache.logging.log4j.core.LogEvent;
-import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
@@ -13,115 +19,27 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Plugin(name = "LocaldevConsoleAppender", category = "Core", elementType = "appender", printObject = true)
-public class LocaldevConsoleAppender extends AbstractAppender {
-
-    private final DateTimeFormatter dateTimeFormatter;
-
-    private boolean enableAppender = false;
+public class LocaldevConsoleAppender extends FlexibleAppender {
 
     private LocaldevConsoleAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, Property[] properties) {
         super(name, filter, layout, ignoreExceptions, properties);
 
-        dateTimeFormatter = DateTimeFormatter.ofPattern("dd HH:mm:ss.SSS");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
 
-        try {
-            this.setEnabled(Boolean.parseBoolean(System.getenv("LOGGING_ENABLE_LOCALDEV_CONSOLE_APPENDER")));
-        } catch (Exception e) {
-            this.setEnabled(false);
-            System.out.println("Error reading and parsing value from env var: LOGGING_ENABLE_LOCALDEV_CONSOLE_APPENDER");
-            e.printStackTrace();
-        }
-    }
+        CompositeOrEnableable compositeOrEnableable = new CompositeOrEnableable();
+        compositeOrEnableable.getAbstractEnableables().add(new EnvironmentVariableEnableable("LOGGING_ENABLE_LOCALDEV_CONSOLE_APPENDER"));
+        compositeOrEnableable.getAbstractEnableables().add(new SystemPropertyEnableable("LOGGING_ENABLE_LOCALDEV_CONSOLE_APPENDER"));
+        compositeOrEnableable.getAbstractEnableables().add(new JUnitEnableable());
 
-    @Override
-    public void append(LogEvent logEvent) {
-        if(!this.isEnabled())
-            return;
+        AbstractLogLineBuilder logLineBuilder = new LocaldevConsoleLogLineBuilder(dateTimeFormatter, 2);
 
-        Instant javaTimeInstant = Instant.ofEpochMilli(logEvent.getInstant().getEpochMillisecond());
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(javaTimeInstant, ZoneId.systemDefault());
+        AbstractLogLineOutput logLineOutput = new StdOutLogLineOutput();
 
-        String timeCodeString = dateTimeFormatter.format(localDateTime);
-
-        StringBuilder logBuilder = new StringBuilder();
-
-        logBuilder
-            .append("[")
-            .append(timeCodeString)
-            .append("] [")
-            .append(logEvent.getLevel())
-            .append("] [")
-            .append(logEvent.getThreadName())
-            .append(",")
-            .append(logEvent.getThreadId())
-            .append(",")
-            .append(logEvent.getThreadPriority())
-            .append("] [");
-        appendFormattedLoggerName(logBuilder, logEvent.getLoggerName());
-        logBuilder.append("] ");
-
-
-        if (logEvent.getMarker() != null) {
-            logBuilder.append("[")
-                .append(logEvent.getMarker())
-                .append("] ");
-        }
-
-        logBuilder.append("> ")
-            .append(logEvent.getMessage().toString())
-            .append(" ");
-
-        if (logEvent.getThrown() != null) {
-            logBuilder
-                .append(">>>>>>>>>>>>>>\n")
-                .append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
-                .append(">>>>>>>>>>>>>>>> A Thrown is present in the LogEvent at: " + timeCodeString + " >>>>>>>>>>>>>>>>\n\n")
-                .append(LoggingHelper.getStackTraceAsString(logEvent.getThrown()))
-                .append("\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ");
-        }
-
-        System.out.println(logBuilder.toString());
-    }
-
-    private void appendFormattedLoggerName(StringBuilder stringBuilder, String loggerName) {
-        String[] nameParts = loggerName.split("\\.");
-
-        int i = 0;
-        for (; i < nameParts.length - 2; ++i) {
-            stringBuilder.append(nameParts[i].charAt(0));
-
-            if (nameParts[i].length() >= 2)
-                stringBuilder.append(nameParts[i].charAt(1));
-
-            if (nameParts[i].length() >= 3)
-                stringBuilder.append(nameParts[i].charAt(2));
-
-            stringBuilder.append(".");
-        }
-
-        for (; i < nameParts.length - 1; ++i) {
-            stringBuilder
-                .append(nameParts[i])
-                .append(".");
-        }
-
-        stringBuilder
-            .append(nameParts[i]);
-    }
-
-    public boolean isEnabled() {
-        return enableAppender;
-    }
-
-    public void setEnabled(boolean enabled) {
-        enableAppender = enabled;
-        System.out.println("Logging Setup->" + this.getClass().getSimpleName() + "::isEnabled: " + this.isEnabled());
+        super.setUpAppender(compositeOrEnableable, logLineBuilder, logLineOutput);
     }
 
     @PluginFactory
@@ -131,7 +49,7 @@ public class LocaldevConsoleAppender extends AbstractAppender {
         @PluginElement("Filter") final Filter filter,
         @PluginAttribute("otherAttribute") String otherAttribute) {
         if (name == null) {
-            LOGGER.error("No name provided for LocaldevConsoleAppender");
+            System.out.println("No name provided for LocaldevConsoleAppender");
             return null;
         }
         if (layout == null) {
