@@ -5,7 +5,6 @@ import com.laboschcst.server.config.auth.authorities.Authority;
 import com.laboschcst.server.config.auth.user.CustomOAuth2UserService;
 import com.laboschcst.server.config.auth.user.CustomOidcUserService;
 import com.laboschcst.server.repo.UserAccRepository;
-import com.laboschcst.server.service.SecretProviderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -39,9 +38,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
     private Environment env;
-
-    @Resource
-    SecretProviderService secretProviderService;
 
     @Resource
     UserAccRepository userAccRepository;
@@ -116,15 +112,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     private ClientRegistration getRegistration(String client) {
-        //String clientId = env.getProperty("oauth2.provider." + client + ".client.client-id");
-        String clientId = secretProviderService.getSecret("oauth2.provider." + client + ".client.client-id");
+        String clientId = env.getProperty("oauth2.provider." + client + ".client.client-id");
 
         if (clientId == null) {
             return null;
         }
 
-        //String clientSecret = env.getProperty("oauth2.provider." + client + ".client.client-secret");
-        String clientSecret = secretProviderService.getSecret("oauth2.provider." + client + ".client.client-secret");
+        String clientSecret = env.getProperty("oauth2.provider." + client + ".client.client-secret");
 
         if (client.equals("google")) {
             return CommonOAuth2Provider.GOOGLE.getBuilder(client)
