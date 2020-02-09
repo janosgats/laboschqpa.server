@@ -1,7 +1,7 @@
 package com.laboschcst.server.config.auth.user;
 
 import com.laboschcst.server.config.auth.authorities.EnumBasedAuthority;
-import com.laboschcst.server.entity.UserAcc;
+import com.laboschcst.server.entity.account.UserAcc;
 import com.laboschcst.server.exceptions.NotImplementedException;
 import com.laboschcst.server.repo.UserAccRepository;
 import org.springframework.security.core.GrantedAuthority;

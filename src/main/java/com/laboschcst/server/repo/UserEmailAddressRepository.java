@@ -1,7 +1,7 @@
 package com.laboschcst.server.repo;
 
-import com.laboschcst.server.entity.UserAcc;
-import com.laboschcst.server.entity.UserEmailAddress;
+import com.laboschcst.server.entity.account.UserAcc;
+import com.laboschcst.server.entity.account.UserEmailAddress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

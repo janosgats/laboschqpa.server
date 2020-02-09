@@ -1,10 +1,11 @@
-package com.laboschcst.server.entity;
+package com.laboschcst.server.entity.account;
 
 import com.laboschcst.server.config.auth.authorities.Authority;
 import com.laboschcst.server.config.auth.authorities.EnumBasedAuthority;
-import com.laboschcst.server.entity.externalaccount.ExternalAccountDetail;
-import com.laboschcst.server.entity.externalaccount.GithubExternalAccountDetail;
-import com.laboschcst.server.entity.externalaccount.GoogleExternalAccountDetail;
+import com.laboschcst.server.entity.ProfileDetails;
+import com.laboschcst.server.entity.account.externalaccountdetail.ExternalAccountDetail;
+import com.laboschcst.server.entity.account.externalaccountdetail.GithubExternalAccountDetail;
+import com.laboschcst.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

@@ -1,14 +1,11 @@
 package com.laboschcst.server.controller;
 
 import com.laboschcst.server.config.auth.user.CustomOauth2User;
-import com.laboschcst.server.entity.AccountJoinInitiation;
-import com.laboschcst.server.entity.UserAcc;
-import com.laboschcst.server.entity.UserEmailAddress;
+import com.laboschcst.server.entity.account.AccountJoinInitiation;
+import com.laboschcst.server.entity.account.UserAcc;
+import com.laboschcst.server.entity.account.UserEmailAddress;
 import com.laboschcst.server.exceptions.DisplayAsUserAlertException;
-import com.laboschcst.server.repo.AccountJoinInitiationRepository;
-import com.laboschcst.server.repo.ExternalAccountDetailRepository;
-import com.laboschcst.server.repo.UserEmailAddressRepository;
-import com.laboschcst.server.repo.UserAccRepository;
+import com.laboschcst.server.repo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +25,9 @@ import java.util.Optional;
 @Controller
 public class AccountJoinController {
     private static final Logger logger = LoggerFactory.getLogger(AccountJoinController.class);
+
     @Autowired
-    UserEmailAddressRepository userEmailAddressRepository;
-    @Autowired
-    UserAccRepository userAccRepository;
-    @Autowired
-    ExternalAccountDetailRepository externalAccountDetailRepository;
-    @Autowired
-    AccountJoinInitiationRepository accountJoinInitiationRepository;
+    Repos repos;
     @Autowired
     TransactionTemplate transactionTemplate;
 
@@ -44,7 +36,7 @@ public class AccountJoinController {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                authenticationPrincipal.refreshUserEntityIfNull_FromDB(userAccRepository);
+                authenticationPrincipal.refreshUserEntityIfNull_FromDB(repos.userAccRepository);
 
                 addExisting_JoinInitiation_ToModel(model, authenticationPrincipal.getUserAccEntity());
                 addWaitingForApproval_JoinInitiations_ToModel(model, authenticationPrincipal.getUserAccEntity());
@@ -72,7 +64,7 @@ public class AccountJoinController {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                authenticationPrincipal.refreshUserEntityIfNull_FromDB(userAccRepository);
+                authenticationPrincipal.refreshUserEntityIfNull_FromDB(repos.userAccRepository);
                 addExisting_JoinInitiation_ToModel(model, authenticationPrincipal.getUserAccEntity());
                 addWaitingForApproval_JoinInitiations_ToModel(model, authenticationPrincipal.getUserAccEntity());
             }
@@ -81,7 +73,7 @@ public class AccountJoinController {
     }
 
     public Boolean handleMainSwitch(Model model, String action, String subAction, String targetEmailAddress, Long initiationId, CustomOauth2User authenticationPrincipal) {
-        authenticationPrincipal.refreshUserEntityIfNull_FromDB(userAccRepository);
+        authenticationPrincipal.refreshUserEntityIfNull_FromDB(repos.userAccRepository);
 
         if (authenticationPrincipal.getUserAccEntity() == null)
             throw new RuntimeException("Your account seems missing.");
@@ -105,7 +97,7 @@ public class AccountJoinController {
             if (currentUserAcc.getInitiatedAccountJoinInitiation() == null)
                 throw new DisplayAsUserAlertException("There aren't any join requests initiated by you!");
 
-            accountJoinInitiationRepository.delete(currentUserAcc.getInitiatedAccountJoinInitiation());
+            repos.accountJoinInitiationRepository.delete(currentUserAcc.getInitiatedAccountJoinInitiation());
             currentUserAcc.setInitiatedAccountJoinInitiation(null);
 
         } catch (DisplayAsUserAlertException e) {
@@ -121,7 +113,7 @@ public class AccountJoinController {
             if (targetEmailAddress == null || targetEmailAddress.isBlank())
                 throw new DisplayAsUserAlertException("Your given e-mail address is blank!");
 
-            Optional<UserEmailAddress> targetedUserEmailAddress = userEmailAddressRepository.findByEmail(targetEmailAddress);
+            Optional<UserEmailAddress> targetedUserEmailAddress = repos.userEmailAddressRepository.findByEmail(targetEmailAddress);
             if (targetedUserEmailAddress.isEmpty())
                 throw new DisplayAsUserAlertException("E-mail address is not found!");
 
@@ -143,7 +135,7 @@ public class AccountJoinController {
             AccountJoinInitiation accountJoinInitiation = new AccountJoinInitiation();
             accountJoinInitiation.setInitiatorUserAcc(currentUserAcc);
             accountJoinInitiation.setApproverUserAcc(targetedUserAcc);
-            accountJoinInitiationRepository.save(accountJoinInitiation);
+            repos.accountJoinInitiationRepository.save(accountJoinInitiation);
 
             currentUserAcc.setInitiatedAccountJoinInitiation(accountJoinInitiation);
 
@@ -161,7 +153,7 @@ public class AccountJoinController {
             if (subAction == null || initiationId == null)
                 return true;
 
-            Optional<AccountJoinInitiation> accountJoinInitiationOptional = accountJoinInitiationRepository.findById(initiationId);
+            Optional<AccountJoinInitiation> accountJoinInitiationOptional = repos.accountJoinInitiationRepository.findById(initiationId);
             if (accountJoinInitiationOptional.isEmpty())
                 throw new DisplayAsUserAlertException("Join request is not found.");
 
@@ -188,7 +180,7 @@ public class AccountJoinController {
                         if (init.getId().equals(initiationId))
                             currentUserAcc.getAccountJoinInitiationsToApprove().remove(init);
                     });
-                    accountJoinInitiationRepository.delete(accountJoinInitiation);
+                    repos.accountJoinInitiationRepository.delete(accountJoinInitiation);
                     break;
                 default:
                     logger.info("No subAction found for judgeInitiation post request on account/joinOther.");
@@ -202,11 +194,13 @@ public class AccountJoinController {
         return false;
     }
 
-    void joinUserAccounts(UserAcc fromUserAcc, UserAcc toUserAcc, AccountJoinInitiation accountJoinInitiation) {
-        if (fromUserAcc.equalsById(toUserAcc))
+    void joinUserAccounts(UserAcc fromUserAcc, UserAcc intoUserAcc, AccountJoinInitiation accountJoinInitiation) {
+        if (fromUserAcc.equalsById(intoUserAcc))
             throw new RuntimeException("Error joining User Accounts: fromUser and toUser are the same account!");
-        logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        fromUserAcc.setJoinedInto(toUserAcc);
+
+        logger.info("Started joining UserAccounts: from " + fromUserAcc.getId() + " into " + intoUserAcc.getId() + ".");
+
+        fromUserAcc.setJoinedInto(intoUserAcc);
         fromUserAcc.setEnabled(false);
 
         // toUser.getUserEmailAddresses().addAll(fromUser.getUserEmailAddresses());
@@ -216,7 +210,7 @@ public class AccountJoinController {
 //            userEmailAddressRepository.save(userEmailAddress);
 //        });
 
-        userEmailAddressRepository.updateBelongingUser(fromUserAcc, toUserAcc);
+        repos.userEmailAddressRepository.updateBelongingUser(fromUserAcc, intoUserAcc);
 
         //  fromUser.getUserEmailAddresses().clear();
 
@@ -225,20 +219,22 @@ public class AccountJoinController {
 //            externalAccountDetailRepository.save(externalAccountDetail);
 //        });
 
-        externalAccountDetailRepository.updateBelongingUser(fromUserAcc, toUserAcc);
+        repos.externalAccountDetailRepository.updateBelongingUser(fromUserAcc, intoUserAcc);
 
+        repos.newsPostRepository.updateOwnerOnAccountJoin(fromUserAcc.getId(), intoUserAcc.getId());
 
 //        accountJoinInitiationRepository.deleteAll(fromUser.getAccountJoinInitiationsToApprove());
 //        if (fromUser.getInitiatedAccountJoinInitiation() != null)
 //            accountJoinInitiationRepository.delete(fromUser.getInitiatedAccountJoinInitiation());
 
-        accountJoinInitiationRepository.deleteByInitiatorUserOrApproverUser(fromUserAcc);
+        repos.accountJoinInitiationRepository.deleteByInitiatorUserOrApproverUser(fromUserAcc);
 
-        userAccRepository.save(fromUserAcc);
-        userAccRepository.save(toUserAcc);
+        repos.userAccRepository.save(fromUserAcc);
+        repos.userAccRepository.save(intoUserAcc);
 
-        accountJoinInitiationRepository.deleteById_DoNOTThrowExceptionIfNotExists(accountJoinInitiation.getId());
-        logger.info("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+        repos.accountJoinInitiationRepository.deleteById_DoNOTThrowExceptionIfNotExists(accountJoinInitiation.getId());
+
+        logger.info("UserAccounts joined: from " + fromUserAcc.getId() + " into " + intoUserAcc.getId() + ".");
     }
 
     private void addWaitingForApproval_JoinInitiations_ToModel(Model model, UserAcc currentUserAcc) {

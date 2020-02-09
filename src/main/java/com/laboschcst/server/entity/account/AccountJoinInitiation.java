@@ -1,4 +1,4 @@
-package com.laboschcst.server.entity;
+package com.laboschcst.server.entity.account;
 
 import javax.persistence.*;
 

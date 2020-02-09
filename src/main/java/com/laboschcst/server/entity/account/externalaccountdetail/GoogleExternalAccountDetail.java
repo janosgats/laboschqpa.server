@@ -1,4 +1,4 @@
-package com.laboschcst.server.entity.externalaccount;
+package com.laboschcst.server.entity.account.externalaccountdetail;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

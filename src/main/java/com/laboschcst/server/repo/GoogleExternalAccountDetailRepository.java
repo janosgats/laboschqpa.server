@@ -1,6 +1,6 @@
 package com.laboschcst.server.repo;
 
-import com.laboschcst.server.entity.externalaccount.GoogleExternalAccountDetail;
+import com.laboschcst.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

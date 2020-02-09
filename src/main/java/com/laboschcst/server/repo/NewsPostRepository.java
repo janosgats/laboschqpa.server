@@ -1,0 +1,17 @@
+package com.laboschcst.server.repo;
+
+import com.laboschcst.server.entity.account.UserAcc;
+import com.laboschcst.server.entity.usergeneratedcontent.NewsPost;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface NewsPostRepository extends JpaRepository<NewsPost, Long> {
+
+    @Modifying
+    @Query(value = "update `news_post` np set np.current_owner_user_id = :intoUserAccountId where np.current_owner_user_id = :fromUserAccountId",
+            nativeQuery = true)
+    int updateOwnerOnAccountJoin(@Param("fromUserAccountId") Long fromUserAccountId,
+                                 @Param("intoUserAccountId") Long intoUserAccountId);
+}

@@ -1,6 +1,6 @@
-package com.laboschcst.server.entity.externalaccount;
+package com.laboschcst.server.entity.account.externalaccountdetail;
 
-import com.laboschcst.server.entity.UserAcc;
+import com.laboschcst.server.entity.account.UserAcc;
 
 import javax.persistence.*;
 

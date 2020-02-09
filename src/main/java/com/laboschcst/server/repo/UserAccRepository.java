@@ -1,6 +1,6 @@
 package com.laboschcst.server.repo;
 
-import com.laboschcst.server.entity.UserAcc;
+import com.laboschcst.server.entity.account.UserAcc;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

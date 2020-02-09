@@ -2,7 +2,7 @@ package com.laboschcst.server.controller;
 
 import com.laboschcst.server.config.AppConstants;
 import com.laboschcst.server.config.auth.user.CustomOauth2User;
-import com.laboschcst.server.entity.UserAcc;
+import com.laboschcst.server.entity.account.UserAcc;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
