@@ -3,6 +3,7 @@ package com.laboschcst.server.api.service;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.laboschcst.server.entity.ProfileDetails;
+import com.laboschcst.server.exceptions.NotImplementedException;
 import com.laboschcst.server.repo.Repos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,24 @@ public class UserService {
         resultJsonObject.add("nickName", new JsonPrimitive(profileDetails.getNickName()));
 
         return resultJsonObject;
+    }
 
+    public JsonObject setProfileDetails(JsonObject requestBody) {
+throw new NotImplementedException();
+//        Long initiatorUserAccId = requestBody.get("initiatorUserAccId").getAsLong();
+//        Long userAccId = requestBody.get("userAccId").getAsLong();
+//        Optional<ProfileDetails> profileDetailsOptional = repos.profileDetailsRepository.findByUserAccId(userAccId);
+//
+//        if (profileDetailsOptional.isEmpty())
+//            throw new RuntimeException("Cannot find ProfileDetails for userAccId: " + userAccId);
+//
+//        ProfileDetails profileDetails = profileDetailsOptional.get();
+//
+//        resultJsonObject.add("userAccId", new JsonPrimitive(profileDetails.getUserAcc().getId()));
+//        resultJsonObject.add("firstName", new JsonPrimitive(profileDetails.getFirstName()));
+//        resultJsonObject.add("lastName", new JsonPrimitive(profileDetails.getLastName()));
+//        resultJsonObject.add("nickName", new JsonPrimitive(profileDetails.getNickName()));
+
+       // return new JsonObject();
     }
 }

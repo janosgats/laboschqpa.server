@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 public interface NewsPostRepository extends JpaRepository<NewsPost, Long> {
 
     @Modifying
-    @Query(value = "update `news_post` np set np.current_owner_user_id = :intoUserAccountId where np.current_owner_user_id = :fromUserAccountId",
+    @Query(value = "update `news_post` np inner join `user_generated_content` ugc on np.id = ugc.id set ugc.current_owner_user_id = :intoUserAccountId where ugc.current_owner_user_id = :fromUserAccountId",
             nativeQuery = true)
     int updateOwnerOnAccountJoin(@Param("fromUserAccountId") Long fromUserAccountId,
                                  @Param("intoUserAccountId") Long intoUserAccountId);
