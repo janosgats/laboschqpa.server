@@ -16,7 +16,7 @@ import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends HttpSessionSecurityContextRepository {
-    private static final Logger logger = LoggerFactory.getLogger(ReloadUserPerRequestHttpSessionSecurityContextRepository.class);
+    private static final Logger loggerOfChildClass = LoggerFactory.getLogger(ReloadUserPerRequestHttpSessionSecurityContextRepository.class);
 
     private UserAccRepository userAccRepository;
 
@@ -26,11 +26,11 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
 
     @Override
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
-        logger.trace("Entering custom SecurityContext loader.");
+        loggerOfChildClass.trace("Entering custom SecurityContext loader.");
         SecurityContext loadedSecurityContext = super.loadContext(requestResponseHolder);
 
         if (loadedSecurityContext.getAuthentication() == null || loadedSecurityContext.getAuthentication().getPrincipal() == null) {
-            logger.debug("No user in session authentication. Returning 'loadedSecurityContext'.");
+            loggerOfChildClass.debug("No user in session authentication. Returning 'loadedSecurityContext'.");
             return loadedSecurityContext;//No user in session auth so we cannot load it from DB.
         }
 
@@ -45,7 +45,7 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
             Long userIdFromSession = originalCustomOauth2User.getUserId();
 
             if (userIdFromSession != null) {
-                logger.debug("Loading user from DB with ID: " + userIdFromSession);
+                loggerOfChildClass.debug("Loading user from DB with ID: " + userIdFromSession);
                 Optional<UserAcc> userFromDBOptional = userAccRepository.findById(userIdFromSession);
 
                 if (userFromDBOptional.isPresent()) {
@@ -74,7 +74,7 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
         }
 
         if (shouldBeUnauthenticated) {
-            logger.info("UnAuthenticating user.");
+            loggerOfChildClass.info("UnAuthenticating user.");
             loadedSecurityContext.setAuthentication(null);
 
             HttpSession session = requestResponseHolder.getRequest().getSession();
@@ -82,7 +82,7 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
                 session.invalidate();
         }
 
-        logger.trace("End of custom SecurityContext loader.");
+        loggerOfChildClass.trace("End of custom SecurityContext loader.");
         return loadedSecurityContext;
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AdminController {
     @GetMapping(AppConstants.adminBaseUrl + "**")
-    private String getAdminDeeperTest() {
+    public String getAdminDeeperTest() {
         return "admin test page: any deep";
     }
 }

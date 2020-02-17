@@ -16,12 +16,12 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/api/user/profileDetails")
-    JsonObject getProfileDetails(@RequestParam(name = "userAccId") Long userAccId) {
+    public JsonObject getProfileDetails(@RequestParam(name = "userAccId") Long userAccId) {
         return apiSupplierExecutor.executeAndGetJsonObjectOrCatch(() -> userService.getProfileDetails(userAccId));
     }
 
     @PostMapping("/api/user/profileDetails")
-    JsonObject getProfileDetails(@RequestBody JsonObject requestBody) {
+    public JsonObject getProfileDetails(@RequestBody JsonObject requestBody) {
         return apiSupplierExecutor.executeAndGetJsonObjectOrCatch(() -> userService.setProfileDetails(requestBody));
     }
 }

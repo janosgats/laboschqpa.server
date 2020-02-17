@@ -32,7 +32,7 @@ public class AccountJoinController {
     TransactionTemplate transactionTemplate;
 
     @GetMapping("/account/joinOther")
-    String getJoinOther(Model model, @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public String getJoinOther(Model model, @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -48,7 +48,7 @@ public class AccountJoinController {
     }
 
     @PostMapping("/account/joinOther")
-    String postJoinInitiate(Model model, @RequestParam("action") String action, @RequestParam(name = "subAction", required = false) String subAction, @RequestParam(name = "targetEmailAddress", required = false) String targetEmailAddress, @RequestParam(name = "initiationId", required = false) Long initiationId, @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public String postJoinInitiate(Model model, @RequestParam("action") String action, @RequestParam(name = "subAction", required = false) String subAction, @RequestParam(name = "targetEmailAddress", required = false) String targetEmailAddress, @RequestParam(name = "initiationId", required = false) Long initiationId, @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         Boolean redirectToBaseJoinPage = transactionTemplate.execute(new TransactionCallback<Boolean>() {
             @Override
             public Boolean doInTransaction(TransactionStatus transactionStatus) {

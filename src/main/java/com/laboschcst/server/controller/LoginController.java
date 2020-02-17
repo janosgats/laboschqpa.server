@@ -16,7 +16,7 @@ import java.util.Map;
 @Controller
 public class LoginController {
 
-    @RequestMapping(AppConstants.loginPageUrl)
+    @GetMapping(AppConstants.loginPageUrl)
     public String getLoginPage(Model model) {
         Map<String, String> oauth2AuthenticationUrls = new HashMap<>();
 
@@ -44,7 +44,7 @@ public class LoginController {
         return "loginFailure";
     }
 
-    @RequestMapping("/")
+    @GetMapping("/")
     public String getRootForward(Model model) {
         return "rootIndex";
     }

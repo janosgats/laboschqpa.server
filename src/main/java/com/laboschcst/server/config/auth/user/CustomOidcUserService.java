@@ -11,7 +11,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     ExactUserSelector exactUserSelector;
 
     @Override
-    public OidcUser loadUser(OidcUserRequest oidcUserRequest) throws OAuth2AuthenticationException {
+    public OidcUser loadUser(OidcUserRequest oidcUserRequest) {
         return exactUserSelector.getExactUser(oidcUserRequest);
     }
 }
