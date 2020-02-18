@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.laboschcst.server.api.ApiSupplierExecutor;
 
 @RestController
+@RequestMapping(path = "/api/user")
 public class UserController {
     @Autowired
     ApiSupplierExecutor apiSupplierExecutor;
@@ -16,13 +17,13 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/api/user/profileDetails")
+    @GetMapping("/profileDetails")
     public ResponseEntity<JsonObject> getProfileDetails(@RequestParam(name = "userAccId") Long userAccId) {
         return apiSupplierExecutor.executeAndGetJsonObjectOrCatch(() -> userService.getProfileDetails(userAccId));
     }
 
-    @PostMapping("/api/user/profileDetails")
-    public ResponseEntity<JsonObject> getProfileDetails(@RequestBody JsonObject requestBody) {
+    @PostMapping("/profileDetails")
+    public ResponseEntity<JsonObject> postProfileDetails(@RequestBody JsonObject requestBody) {
         return apiSupplierExecutor.executeAndGetJsonObjectOrCatch(() -> userService.setProfileDetails(requestBody));
     }
 }
