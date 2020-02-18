@@ -3,6 +3,7 @@ package com.laboschcst.server.api.controller;
 import com.google.gson.JsonObject;
 import com.laboschcst.server.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.laboschcst.server.api.ApiSupplierExecutor;
@@ -16,12 +17,12 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/api/user/profileDetails")
-    public JsonObject getProfileDetails(@RequestParam(name = "userAccId") Long userAccId) {
+    public ResponseEntity<JsonObject> getProfileDetails(@RequestParam(name = "userAccId") Long userAccId) {
         return apiSupplierExecutor.executeAndGetJsonObjectOrCatch(() -> userService.getProfileDetails(userAccId));
     }
 
     @PostMapping("/api/user/profileDetails")
-    public JsonObject getProfileDetails(@RequestBody JsonObject requestBody) {
+    public ResponseEntity<JsonObject> getProfileDetails(@RequestBody JsonObject requestBody) {
         return apiSupplierExecutor.executeAndGetJsonObjectOrCatch(() -> userService.setProfileDetails(requestBody));
     }
 }

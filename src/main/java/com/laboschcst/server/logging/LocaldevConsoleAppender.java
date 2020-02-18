@@ -1,4 +1,4 @@
-package com.laboschcst.server.logging.appender;
+package com.laboschcst.server.logging;
 
 import com.janosgats.logging.flexibleappender.FlexibleAppender;
 import com.janosgats.logging.flexibleappender.enableable.CompositeOrEnableable;

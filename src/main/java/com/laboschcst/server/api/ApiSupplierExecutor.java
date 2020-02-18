@@ -1,9 +1,9 @@
 package com.laboschcst.server.api;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
@@ -12,19 +12,12 @@ import java.util.function.Supplier;
 public class ApiSupplierExecutor {
     private static final Logger logger = LoggerFactory.getLogger(ApiSupplierExecutor.class);
 
-    public JsonObject executeAndGetJsonObjectOrCatch(Supplier<JsonObject> jsonObjectSupplier) {
-        JsonObject outJsonObject = new JsonObject();
-
+    public <T> ResponseEntity<T> executeAndGetJsonObjectOrCatch(Supplier<T> supplier) {
         try {
-            JsonObject resultJsonObject = jsonObjectSupplier.get();
-
-            outJsonObject.add("result", resultJsonObject);
-            outJsonObject.add("success", new JsonPrimitive(true));
+            return new ResponseEntity<>(supplier.get(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Exception caught in executeAndGetJsonObject()!", e);
-            outJsonObject.add("success", new JsonPrimitive(false));
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return outJsonObject;
     }
 }
