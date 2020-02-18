@@ -19,11 +19,11 @@ public class UserController {
 
     @GetMapping("/profileDetails")
     public ResponseEntity<JsonObject> getProfileDetails(@RequestParam(name = "userAccId") Long userAccId) {
-        return apiSupplierExecutor.executeAndGetJsonObjectOrCatch(() -> userService.getProfileDetails(userAccId));
+        return apiSupplierExecutor.executeAndGet(() -> userService.getProfileDetails(userAccId));
     }
 
     @PostMapping("/profileDetails")
     public ResponseEntity<JsonObject> postProfileDetails(@RequestBody JsonObject requestBody) {
-        return apiSupplierExecutor.executeAndGetJsonObjectOrCatch(() -> userService.setProfileDetails(requestBody));
+        return apiSupplierExecutor.executeAndGet(() -> userService.setProfileDetails(requestBody));
     }
 }

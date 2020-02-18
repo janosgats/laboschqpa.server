@@ -12,11 +12,11 @@ import java.util.function.Supplier;
 public class ApiSupplierExecutor {
     private static final Logger logger = LoggerFactory.getLogger(ApiSupplierExecutor.class);
 
-    public <T> ResponseEntity<T> executeAndGetJsonObjectOrCatch(Supplier<T> supplier) {
+    public <T> ResponseEntity<T> executeAndGet(Supplier<T> supplier) {
         try {
             return new ResponseEntity<>(supplier.get(), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Exception caught in executeAndGetJsonObject()!", e);
+            logger.error("Exception caught while executing api request!", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
