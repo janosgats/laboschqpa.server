@@ -62,13 +62,10 @@ public class SecretPropertyLoadConfig {
     }
 
     private static Path getDbConfigFilePath(Environment env) {
-        String secretScopeToLoad = "k8s_dev";
-        if (Arrays.asList(env.getActiveProfiles()).contains("local_bare"))
-            secretScopeToLoad = "local_bare";
-        else if (Arrays.asList(env.getActiveProfiles()).contains("prod"))
-            secretScopeToLoad = "prod";
-
-        return FileSystems.getDefault().getPath("dbconfig", "dbconfig-" + secretScopeToLoad + ".properties");
+        if (Arrays.asList(env.getActiveProfiles()).contains("nodocker"))
+            return FileSystems.getDefault().getPath("dbconfig", "dbconfig-nodocker.properties");
+        else
+            return FileSystems.getDefault().getPath("dbconfig", "dbconfig.properties");
     }
 }
 
