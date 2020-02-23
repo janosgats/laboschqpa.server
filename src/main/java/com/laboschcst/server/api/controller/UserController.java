@@ -1,29 +1,27 @@
 package com.laboschcst.server.api.controller;
 
-import com.google.gson.JsonObject;
+import com.laboschcst.server.api.dto.ProfileDetailsDto;
 import com.laboschcst.server.api.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import com.laboschcst.server.exceptions.NotImplementedException;
+import org.codehaus.jackson.node.ObjectNode;
 import org.springframework.web.bind.annotation.*;
-
-import com.laboschcst.server.api.ApiSupplierExecutor;
 
 @RestController
 @RequestMapping(path = "/api/user")
 public class UserController {
-    @Autowired
-    ApiSupplierExecutor apiSupplierExecutor;
+    private final UserService userService;
 
-    @Autowired
-    UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/profileDetails")
-    public ResponseEntity<JsonObject> getProfileDetails(@RequestParam(name = "userAccId") Long userAccId) {
-        return apiSupplierExecutor.executeAndGet(() -> userService.getProfileDetails(userAccId));
+    public ProfileDetailsDto getProfileDetails(@RequestParam(name = "userAccId") Long userAccId) {
+        return userService.getProfileDetails(userAccId);
     }
 
     @PostMapping("/profileDetails")
-    public ResponseEntity<JsonObject> postProfileDetails(@RequestBody JsonObject requestBody) {
-        return apiSupplierExecutor.executeAndGet(() -> userService.setProfileDetails(requestBody));
+    public String postProfileDetails(@RequestBody ObjectNode requestBody) {
+        throw new NotImplementedException("No post implemented for this method yet!");
     }
 }

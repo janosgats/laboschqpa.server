@@ -21,6 +21,14 @@ public abstract class UserGeneratedContent {
     @JoinColumn(name = "current_owner_user_id", nullable = false)
     private UserAcc currentOwnerUser;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "original_editor_user_id", nullable = false)
+    private UserAcc originalEditorUser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "current_editor_user_id", nullable = false)
+    private UserAcc currentEditorUser;
+
     @Column(name = "creation_time")
     private Instant creationTime;
 
@@ -61,5 +69,21 @@ public abstract class UserGeneratedContent {
 
     public void setEditTime(Instant editTime) {
         this.editTime = editTime;
+    }
+
+    public UserAcc getOriginalEditorUser() {
+        return originalEditorUser;
+    }
+
+    public void setOriginalEditorUser(UserAcc lastEditorUser) {
+        this.originalEditorUser = lastEditorUser;
+    }
+
+    public UserAcc getCurrentEditorUser() {
+        return currentEditorUser;
+    }
+
+    public void setCurrentEditorUser(UserAcc currentEditorUser) {
+        this.currentEditorUser = currentEditorUser;
     }
 }

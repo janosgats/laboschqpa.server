@@ -1,10 +1,14 @@
 package com.laboschcst.server.entity.usergeneratedcontent;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.laboschcst.server.api.serialization.NewsPostSerializer;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "news_post")
 @Inheritance(strategy = InheritanceType.JOINED)
+@JsonSerialize(using = NewsPostSerializer.class)
 public class NewsPost extends UserGeneratedContent {
     @Column(name = "content")
     private String content;
