@@ -8,6 +8,12 @@ RUN mkdir -p ${APP_HOME}
 
 WORKDIR ${APP_HOME}
 
+HEALTHCHECK --interval=15s \
+            --retries=3 \
+            --start-period=1m \
+            --timeout=5s \
+            CMD curl --fail http://localhost:8080 || exit 1
+
 EXPOSE 30005
 EXPOSE 8080
 CMD ["java", "-jar", "-Dspring.profiles.active=k8s_dev",  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:30005", "laboschcst.server.jar"]
