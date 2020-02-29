@@ -3,7 +3,7 @@ services:
   - docker
 cache:
   directories:
-    - /root/.m2/repository
+    - $HOME/.m2
 
 before_install:
   - docker build -t gjani/laboschcst-server -f docker/Dockerfile-k8s_dev-travis_build .
