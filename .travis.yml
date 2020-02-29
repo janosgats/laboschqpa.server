@@ -1,6 +1,8 @@
 sudo: required
 service:
   - docker
-
+cache:
+  directories:
+    - /root/.m2/repository
 before_install:
   - docker build -t gjani/laboschcst-server -f docker/Dockerfile-k8s_dev-travis_build .
