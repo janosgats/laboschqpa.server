@@ -1,9 +1,9 @@
 package com.laboschcst.server.api.controller;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.laboschcst.server.api.dto.ProfileDetailsDto;
 import com.laboschcst.server.api.service.UserService;
 import com.laboschcst.server.exceptions.NotImplementedException;
-import org.codehaus.jackson.node.ObjectNode;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

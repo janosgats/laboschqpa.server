@@ -1,8 +1,11 @@
 package com.laboschcst.server.config.auth.authorities;
 
+import com.laboschcst.server.enums.Authority;
 import org.springframework.security.core.GrantedAuthority;
 
 public class EnumBasedAuthority implements GrantedAuthority {
+    private static final long serialVersionUID = 1L;
+
     private Authority authority;
 
     public EnumBasedAuthority(Authority authority) {
@@ -10,7 +13,7 @@ public class EnumBasedAuthority implements GrantedAuthority {
     }
 
     public EnumBasedAuthority(String authorityStringValue) {
-        this.authority = Authority.valueOf(authorityStringValue);
+        this.authority = Authority.fromStringValue(authorityStringValue);
     }
 
     @Override

@@ -1,6 +1,9 @@
-package com.laboschcst.server.config.auth.authorities;
+package com.laboschcst.server.enums;
 
 import com.laboschcst.server.exceptions.NotImplementedException;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 public enum Authority {
     User("user"),
@@ -17,14 +20,14 @@ public enum Authority {
     }
 
     public static Authority fromStringValue(String stringValue) {
-        switch (stringValue) {
-            case "user":
-                return User;
-            case "admin":
-                return Admin;
-        }
+        Optional<Authority> authorityOptional = Arrays.stream(Authority.values())
+                .filter(en -> en.getStringValue().equals(stringValue))
+                .findFirst();
 
-        throw new NotImplementedException("Enum from this string value is not implemented");
+        if (authorityOptional.isEmpty())
+            throw new NotImplementedException("Enum from this string value is not implemented");
+
+        return authorityOptional.get();
     }
 
     @Override

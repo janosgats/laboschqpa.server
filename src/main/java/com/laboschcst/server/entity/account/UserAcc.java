@@ -1,11 +1,11 @@
 package com.laboschcst.server.entity.account;
 
-import com.laboschcst.server.config.auth.authorities.Authority;
+import com.laboschcst.server.enums.Authority;
 import com.laboschcst.server.config.auth.authorities.EnumBasedAuthority;
-import com.laboschcst.server.entity.ProfileDetails;
 import com.laboschcst.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschcst.server.entity.account.externalaccountdetail.GithubExternalAccountDetail;
 import com.laboschcst.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
+import com.laboschcst.server.enums.attributeconverter.AuthorityAttributeConverter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -38,9 +38,9 @@ public class UserAcc implements Serializable {
     private Set<UserEmailAddress> userEmailAddresses = new HashSet<>();
 
     @ElementCollection(targetClass = Authority.class, fetch = FetchType.EAGER)
-    @JoinTable(name = "granted_authority", joinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(name = "granted_authority", joinColumns = @JoinColumn(name = "user_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "granted_authority"}))
     @Column(name = "granted_authority", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = AuthorityAttributeConverter.class)
     private Set<Authority> authorities = new HashSet<>();
 
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)

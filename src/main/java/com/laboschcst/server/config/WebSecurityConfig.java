@@ -1,7 +1,7 @@
 package com.laboschcst.server.config;
 
 import com.laboschcst.server.config.auth.filterchain.ReloadUserPerRequestHttpSessionSecurityContextRepository;
-import com.laboschcst.server.config.auth.authorities.Authority;
+import com.laboschcst.server.enums.Authority;
 import com.laboschcst.server.config.auth.user.CustomOAuth2UserService;
 import com.laboschcst.server.config.auth.user.CustomOidcUserService;
 import com.laboschcst.server.repo.UserAccRepository;

@@ -2,7 +2,7 @@ package com.laboschcst.server.config.auth.user;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.laboschcst.server.config.auth.authorities.Authority;
+import com.laboschcst.server.enums.Authority;
 import com.laboschcst.server.config.auth.authorities.EnumBasedAuthority;
 import com.laboschcst.server.entity.account.UserAcc;
 import com.laboschcst.server.entity.account.UserEmailAddress;

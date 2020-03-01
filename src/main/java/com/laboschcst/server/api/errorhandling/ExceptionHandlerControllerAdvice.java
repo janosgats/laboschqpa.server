@@ -1,6 +1,8 @@
 package com.laboschcst.server.api.errorhandling;
 
+import com.laboschcst.server.exceptions.ConflictingRequestDataApiException;
 import com.laboschcst.server.exceptions.ContentNotFoundApiException;
+import com.laboschcst.server.exceptions.UnAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,8 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
     private static final Logger loggerOfChild = LoggerFactory.getLogger(ExceptionHandlerControllerAdvice.class);
 
     private final ApiErrorResponseBody contentNotFoundErrorResponseBody = new ApiErrorResponseBody("Content not found.");
+    private final ApiErrorResponseBody conflictingRequestDataErrorResponseBody = new ApiErrorResponseBody("Conflicting request data.");
+    private final ApiErrorResponseBody unAuthorizedErrorResponseBody = new ApiErrorResponseBody("You are not authorized for the requested operation.");
     private final ApiErrorResponseBody genericExceptionErrorResponseBody = new ApiErrorResponseBody("Error while executing API request.");
 
     @ExceptionHandler(ContentNotFoundApiException.class)
@@ -22,6 +26,20 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
             Exception e, WebRequest request) {
         loggerOfChild.error("ContentNotFoundApiException caught while executing api request!", e);
         return new ResponseEntity<>(contentNotFoundErrorResponseBody, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ConflictingRequestDataApiException.class)
+    protected ResponseEntity<ApiErrorResponseBody> handleConflictingRequestData(
+            Exception e, WebRequest request) {
+        loggerOfChild.error("ConflictingRequestDataApiException caught while executing api request!", e);
+        return new ResponseEntity<>(conflictingRequestDataErrorResponseBody, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(UnAuthorizedException.class)
+    protected ResponseEntity<ApiErrorResponseBody> handleUnAuthorized(
+            Exception e, WebRequest request) {
+        loggerOfChild.error("UnAuthorizedException caught while executing api request!", e);
+        return new ResponseEntity<>(unAuthorizedErrorResponseBody, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
