@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public enum Authority {
     User("user"),
+    Editor("editor"),
     Admin("admin");
 
     private String stringValue;

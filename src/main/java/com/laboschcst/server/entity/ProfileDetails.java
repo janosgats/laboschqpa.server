@@ -5,7 +5,7 @@ import com.laboschcst.server.entity.account.UserAcc;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "profile_details")
+@Table(name = "profile_details", indexes = {@Index(columnList = "user_acc_id")})
 public class ProfileDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,7 +13,7 @@ public class ProfileDetails {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_acc_id", unique = true)
+    @JoinColumn(name = "user_acc_id", unique = true, nullable = false)
     private UserAcc userAcc;
 
     @Column(name = "first_name")

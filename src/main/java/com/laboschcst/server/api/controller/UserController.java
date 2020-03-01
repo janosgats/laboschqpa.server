@@ -1,9 +1,10 @@
 package com.laboschcst.server.api.controller;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.laboschcst.server.api.dto.ProfileDetailsDto;
 import com.laboschcst.server.api.service.UserService;
-import com.laboschcst.server.exceptions.NotImplementedException;
+import com.laboschcst.server.config.auth.user.CustomOauth2User;
+import com.laboschcst.server.util.AuthorizationHelper;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +22,11 @@ public class UserController {
     }
 
     @PostMapping("/profileDetails")
-    public String postProfileDetails(@RequestBody ObjectNode requestBody) {
-        throw new NotImplementedException("No post implemented for this method yet!");
+    public void postProfileDetails(@RequestBody ProfileDetailsDto profileDetailsDto,
+                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        if (!profileDetailsDto.getUserAccId().equals(authenticationPrincipal.getUserId()))
+            AuthorizationHelper.assertHasAdminAuthority(authenticationPrincipal);
+
+        userService.saveProfileDetails(profileDetailsDto);
     }
 }
