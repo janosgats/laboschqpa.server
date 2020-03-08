@@ -26,13 +26,10 @@ public class SecretPropertyLoadConfig {
 
     public static void loadSecretProperties(Environment env) {
         try {
-            Path apiKeysFilePath = getApiKeysFilePath(env);
-            logger.info("Path of api-keys properties: " + apiKeysFilePath.toAbsolutePath());
-            Path dbconfigFilePath = getDbConfigFilePath(env);
-            logger.info("Path of dbconfig properties: " + dbconfigFilePath.toAbsolutePath());
+            Path secretsFilePath = getSecretsFilePath(env);
+            logger.info("Path of secrets.properties: " + secretsFilePath.toAbsolutePath());
 
-            setSystemPropertiesLoadedFromPropertiesFile(apiKeysFilePath);
-            setSystemPropertiesLoadedFromPropertiesFile(dbconfigFilePath);
+            setSystemPropertiesLoadedFromPropertiesFile(secretsFilePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -57,15 +54,8 @@ public class SecretPropertyLoadConfig {
         lines.close();
     }
 
-    private static Path getApiKeysFilePath(Environment env) {
-        return FileSystems.getDefault().getPath(Objects.requireNonNull(env.getProperty("secret.api-keys.file.location")));
-    }
-
-    private static Path getDbConfigFilePath(Environment env) {
-        if (Arrays.asList(env.getActiveProfiles()).contains("nodocker"))
-            return FileSystems.getDefault().getPath("dbconfig", "dbconfig-nodocker.properties");
-        else
-            return FileSystems.getDefault().getPath("dbconfig", "dbconfig.properties");
+    private static Path getSecretsFilePath(Environment env) {
+        return FileSystems.getDefault().getPath(Objects.requireNonNull(env.getProperty("secret.secrets.file.location")));
     }
 }
 
