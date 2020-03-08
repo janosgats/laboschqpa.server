@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContext;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes = {TestConfig.class}, properties = "spring.main.allow-bean-definition-overriding=true")
-class PayoutgatewayApplicationContextTest {
+class CsillagturaServerApplicationContextTest {
 
     @Autowired
     private ApplicationContext applicationContext;
