@@ -1,8 +1,10 @@
 package com.laboschcst.server.api.errorhandling;
 
-import com.laboschcst.server.exceptions.ConflictingRequestDataApiException;
-import com.laboschcst.server.exceptions.ContentNotFoundApiException;
-import com.laboschcst.server.exceptions.UnAuthorizedException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laboschcst.server.exceptions.*;
+import com.laboschcst.server.model.FieldValidationError;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -14,9 +16,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.List;
+
 @ControllerAdvice
 public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHandler {
     private static final Logger loggerOfChild = LoggerFactory.getLogger(ExceptionHandlerControllerAdvice.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final ApiErrorResponseBody contentNotFoundErrorResponseBody = new ApiErrorResponseBody("Content not found.");
     private final ApiErrorResponseBody conflictingRequestDataErrorResponseBody = new ApiErrorResponseBody("Conflicting request data.");
@@ -31,11 +36,32 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
         return new ResponseEntity<>(cannotParseIncomingHttpRequestErrorResponseBody, headers, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(FieldValidationFailedException.class)
+    protected ResponseEntity<FieldValidationFailedApiResponse> handleFieldValidationFailed(
+            FieldValidationFailedException ex, WebRequest request) {
+        try {
+            loggerOfChild.trace("InputFieldsNeedWorkException handled in ControllerAdvice: " + objectMapper.writeValueAsString(ex.getFieldValidationErrors()));
+        } catch (JsonProcessingException e) {
+            loggerOfChild.trace("InputFieldsNeedWorkException handled in ControllerAdvice.");
+        }
+
+        return new ResponseEntity<>(
+                new FieldValidationFailedApiResponse(ex.getFieldValidationErrors()),
+                HttpStatus.NOT_ACCEPTABLE);
+    }
+
     @ExceptionHandler(ContentNotFoundApiException.class)
     protected ResponseEntity<ApiErrorResponseBody> handleContentNotFound(
             Exception e, WebRequest request) {
         loggerOfChild.error("ContentNotFoundApiException caught while executing api request!", e);
         return new ResponseEntity<>(contentNotFoundErrorResponseBody, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(TeamUserRelationException.class)
+    protected ResponseEntity<ApiErrorResponseBody> handleClientCausedErrors(
+            TeamUserRelationException e, WebRequest request) {
+        loggerOfChild.debug("TeamUserRelationException caught while executing api request!", e);
+        return new ResponseEntity<>(new ApiErrorResponseBody(e.getMessage()), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ConflictingRequestDataApiException.class)
@@ -57,5 +83,14 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
             Exception e, WebRequest request) {
         loggerOfChild.error("Exception caught while executing api request!", e);
         return new ResponseEntity<>(genericExceptionErrorResponseBody, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Data
+    public static class FieldValidationFailedApiResponse {
+        private List<FieldValidationError> fieldValidationErrors;
+
+        public FieldValidationFailedApiResponse(List<FieldValidationError> fieldErrors) {
+            this.fieldValidationErrors = fieldErrors;
+        }
     }
 }

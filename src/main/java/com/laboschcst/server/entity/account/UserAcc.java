@@ -1,11 +1,14 @@
 package com.laboschcst.server.entity.account;
 
+import com.laboschcst.server.entity.Team;
 import com.laboschcst.server.enums.Authority;
 import com.laboschcst.server.config.auth.authorities.EnumBasedAuthority;
 import com.laboschcst.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschcst.server.entity.account.externalaccountdetail.GithubExternalAccountDetail;
 import com.laboschcst.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
+import com.laboschcst.server.enums.TeamRole;
 import com.laboschcst.server.enums.attributeconverter.AuthorityAttributeConverter;
+import com.laboschcst.server.enums.attributeconverter.TeamRoleAttributeConverter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -27,11 +30,20 @@ public class UserAcc implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column
+    @Column(name = "enabled")
     private Boolean enabled;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private UserAcc joinedInto;//The account which this account is joined in. Null if this account was not joined in another one.
+
+    @Convert(converter = TeamRoleAttributeConverter.class)
+    @Column(name = "team_role")
+    private TeamRole teamRole = TeamRole.NOTHING;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
+
 
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -139,5 +151,21 @@ public class UserAcc implements Serializable {
                 .map((ga) -> Authority.fromStringValue(ga.getAuthority()))
                 .collect(Collectors.toSet())
         );
+    }
+
+    public TeamRole getTeamRole() {
+        return teamRole;
+    }
+
+    public void setTeamRole(TeamRole teamRole) {
+        this.teamRole = teamRole;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }

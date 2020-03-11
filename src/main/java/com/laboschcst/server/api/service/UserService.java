@@ -1,6 +1,7 @@
 package com.laboschcst.server.api.service;
 
 import com.laboschcst.server.api.dto.ProfileDetailsDto;
+import com.laboschcst.server.api.validator.ProfileDetailsValidator;
 import com.laboschcst.server.entity.ProfileDetails;
 import com.laboschcst.server.entity.account.UserAcc;
 import com.laboschcst.server.exceptions.ContentNotFoundApiException;
@@ -33,6 +34,8 @@ public class UserService {
     }
 
     public void saveProfileDetails(ProfileDetailsDto profileDetailsDto) {
+        new ProfileDetailsValidator(profileDetailsDto);
+
         Optional<UserAcc> userAccOptional = repos.userAccRepository.findById(profileDetailsDto.getUserAccId());
 
         if (userAccOptional.isEmpty())
