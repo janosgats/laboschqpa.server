@@ -49,12 +49,29 @@ public class TeamController {
 
     @PostMapping("/kickFromTeam")
     public void postKickFromTeam(@RequestParam("userAccIdToKick") Long userAccIdToKick,
-                                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+                                 @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         teamService.kickFromTeam(userAccIdToKick, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/archiveAndLeaveTeam")
     public void postArchiveAndLeaveTeam(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         teamService.archiveAndLeaveTeam(authenticationPrincipal.getUserId());
+    }
+
+    @PostMapping("/giveLeaderRights")
+    public void postGiveLeaderRights(@RequestParam("userAccIdToGiveLeaderRights") Long userAccIdToGiveLeaderRights,
+                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.giveLeaderRights(userAccIdToGiveLeaderRights, authenticationPrincipal.getUserId());
+    }
+
+    @PostMapping("/takeAwayLeaderRights")
+    public void postTakeAwayLeaderRights(@RequestParam("userAccIdToTakeAwayLeaderRights") Long userAccIdToTakeAwayLeaderRights,
+                                         @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.takeAwayLeaderRights(userAccIdToTakeAwayLeaderRights, authenticationPrincipal.getUserId());
+    }
+
+    @PostMapping("/resignFromLeadership")
+    public void postResignFromLeadership(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.resignFromLeadership(authenticationPrincipal.getUserId());
     }
 }

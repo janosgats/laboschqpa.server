@@ -9,7 +9,9 @@ import com.laboschcst.server.entity.account.externalaccountdetail.GoogleExternal
 import com.laboschcst.server.enums.TeamRole;
 import com.laboschcst.server.enums.attributeconverter.AuthorityAttributeConverter;
 import com.laboschcst.server.enums.attributeconverter.TeamRoleAttributeConverter;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -22,6 +24,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "userAcc")
 public class UserAcc implements Serializable {

@@ -149,6 +149,50 @@ public class TeamService {
         });
     }
 
+    public void giveLeaderRights(Long userAccIdToGiveLeaderRights, Long initiatorUserAccId) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserAcc userAccToGiveLeaderRights = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToGiveLeaderRights);
+                UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
+
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
+                stateMachine.giveLeaderRights();
+
+                repos.userAccRepository.save(userAccToGiveLeaderRights);
+            }
+        });
+    }
+
+    public void takeAwayLeaderRights(Long userAccIdToTakeAwayLeaderRights, Long initiatorUserAccId) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserAcc userAccToTakeAwayLeaderRights = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToTakeAwayLeaderRights);
+                UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
+
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
+                stateMachine.takeAwayLeaderRights();
+
+                repos.userAccRepository.save(userAccToTakeAwayLeaderRights);
+            }
+        });
+    }
+
+    public void resignFromLeadership(Long userAccId) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(userAccId);
+
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                stateMachine.resignFromLeadership();
+
+                repos.userAccRepository.save(userAcc);
+            }
+        });
+    }
+
     private UserAcc readEnabledUserAccFromDbWithPessimisticLock(Long userAccId) {
         Optional<UserAcc> userAccOptional = repos.userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId);
         if (userAccOptional.isEmpty())

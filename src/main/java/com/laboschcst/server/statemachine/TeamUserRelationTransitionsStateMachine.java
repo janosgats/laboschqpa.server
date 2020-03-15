@@ -138,6 +138,38 @@ public class TeamUserRelationTransitionsStateMachine {
         logger.debug("UserAcc {} left its team.", alteredUserAcc.getId());
     }
 
+    public void giveLeaderRights() {
+        assertInitiatorIsLeaderOfTeamOfTheAltered_and_initiatorIsDifferentThanAltered();
+
+        if (alteredUserAcc.getTeamRole() != TeamRole.MEMBER)
+            throw new TeamUserRelationException("The user have to be a member of the team to give him leader rights!");
+
+        alteredUserAcc.setTeamRole(TeamRole.LEADER);
+    }
+
+    public void takeAwayLeaderRights() {
+        assertInitiatorIsLeaderOfTeamOfTheAltered_and_initiatorIsDifferentThanAltered();
+
+        if (alteredUserAcc.getTeamRole() != TeamRole.LEADER)
+            throw new TeamUserRelationException("The user is not a leader so you can't take away leader rights!");
+
+        alteredUserAcc.setTeamRole(TeamRole.MEMBER);
+    }
+
+    public void resignFromLeadership() {
+        assertInitiatorIsSameAsAltered();
+
+        if (alteredUserAcc.getTeamRole() != TeamRole.LEADER)
+            throw new TeamUserRelationException("You aren't a leader!");
+
+        if (repos.userAccRepository.getCountOfEnabledLeadersInTeam(alteredUserAcc.getTeam()) > 1) {
+            //There is at least one other Leader in the team
+            alteredUserAcc.setTeamRole(TeamRole.MEMBER);
+        } else {
+            throw new TeamUserRelationException("There is no other leader in the team. If you want to resign, make someone else leader!");
+        }
+    }
+
     private void assertInitiatorIsSameAsAltered() {
         if (!initiatorUserAcc.getId().equals(alteredUserAcc.getId()))
             throw new TeamUserRelationException("You can only do this operation for you own account!");

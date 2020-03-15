@@ -1,10 +1,12 @@
 package com.laboschcst.server.repo;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
+@Builder
 @Service
 public class Repos {
     public AccountJoinInitiationRepository accountJoinInitiationRepository;
