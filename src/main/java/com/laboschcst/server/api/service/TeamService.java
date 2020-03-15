@@ -6,6 +6,7 @@ import com.laboschcst.server.entity.Team;
 import com.laboschcst.server.entity.account.UserAcc;
 import com.laboschcst.server.exceptions.ContentNotFoundApiException;
 import com.laboschcst.server.repo.Repos;
+import com.laboschcst.server.statemachine.StateMachineFactory;
 import com.laboschcst.server.statemachine.TeamUserRelationTransitionsStateMachine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class TeamService {
     private final Repos repos;
     private final TransactionTemplate transactionTemplate;
+    private final StateMachineFactory stateMachineFactory;
 
     public void createNewTeam(TeamDto teamDto, Long creatorUserId) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -29,7 +31,7 @@ public class TeamService {
 
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(creatorUserId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
                 stateMachine.createNewTeam(teamDto);
 
                 repos.teamRepository.save(userAcc.getTeam());
@@ -45,7 +47,7 @@ public class TeamService {
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(userAccId);
                 Team team = readNotArchivedTeamFromDbWithPessimisticLock(teamId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
                 stateMachine.applyToTeam(team);
 
                 repos.userAccRepository.save(userAcc);
@@ -62,7 +64,7 @@ public class TeamService {
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 UserAcc userAccToCancel = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToCancel);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAccToCancel, userAccToCancel);
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToCancel, userAccToCancel);
                 stateMachine.cancelApplicationToTeam();
 
                 repos.userAccRepository.save(userAccToCancel);
@@ -77,7 +79,7 @@ public class TeamService {
                 UserAcc userAccToDecline = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToDecline);
                 UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAccToDecline, initiatorUserAcc);
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToDecline, initiatorUserAcc);
                 stateMachine.declineApplicationToTeam();
 
                 repos.userAccRepository.save(userAccToDecline);
@@ -92,10 +94,57 @@ public class TeamService {
                 UserAcc userAccToApprove = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToApprove);
                 UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAccToApprove, initiatorUserAcc);
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToApprove, initiatorUserAcc);
                 stateMachine.approveApplication();
 
                 repos.userAccRepository.save(userAccToApprove);
+            }
+        });
+    }
+
+    public void leaveTeam(Long userAccId) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(userAccId);
+
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                stateMachine.leaveTeam();
+
+                repos.userAccRepository.save(userAcc);
+            }
+        });
+    }
+
+
+    public void kickFromTeam(Long userAccIdToKick, Long initiatorUserAccId) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserAcc userAccToKick = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToKick);
+                UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
+
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToKick, initiatorUserAcc);
+                stateMachine.kickFromTeam();
+
+                repos.userAccRepository.save(userAccToKick);
+            }
+        });
+    }
+
+    public void archiveAndLeaveTeam(Long userAccId) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(userAccId);
+
+                Team teamToArchive = userAcc.getTeam();
+
+                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                stateMachine.archiveAndLeaveTeam();
+
+                repos.teamRepository.save(teamToArchive);
+                repos.userAccRepository.save(userAcc);
             }
         });
     }

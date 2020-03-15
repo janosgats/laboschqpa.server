@@ -41,4 +41,20 @@ public class TeamController {
                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         teamService.approveApplicationToTeam(userAccIdToApprove, authenticationPrincipal.getUserId());
     }
+
+    @PostMapping("/leaveTeam")
+    public void postLeaveTeam(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.leaveTeam(authenticationPrincipal.getUserId());
+    }
+
+    @PostMapping("/kickFromTeam")
+    public void postKickFromTeam(@RequestParam("userAccIdToKick") Long userAccIdToKick,
+                                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.kickFromTeam(userAccIdToKick, authenticationPrincipal.getUserId());
+    }
+
+    @PostMapping("/archiveAndLeaveTeam")
+    public void postArchiveAndLeaveTeam(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.archiveAndLeaveTeam(authenticationPrincipal.getUserId());
+    }
 }
