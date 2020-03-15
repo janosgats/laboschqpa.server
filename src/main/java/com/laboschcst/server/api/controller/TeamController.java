@@ -26,8 +26,19 @@ public class TeamController {
     }
 
     @PostMapping("/cancelApplicationToTeam")
-    public void postCancelApplicationToTeam(@RequestParam("userAccIdToDecline") Long userAccIdToDecline,
-                                            @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.cancelApplicationToTeam(userAccIdToDecline, authenticationPrincipal.getUserId());
+    public void postCancelApplicationToTeam(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.cancelApplicationToTeam(authenticationPrincipal.getUserId());
+    }
+
+    @PostMapping("/declineApplicationToTeam")
+    public void postDeclineApplicationToTeam(@RequestParam("userAccIdToDecline") Long userAccIdToDecline,
+                                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.declineApplicationToTeam(userAccIdToDecline, authenticationPrincipal.getUserId());
+    }
+
+    @PostMapping("/approveApplicationToTeam")
+    public void postApproveApplicationToTeam(@RequestParam("userAccIdToApprove") Long userAccIdToApprove,
+                                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        teamService.approveApplicationToTeam(userAccIdToApprove, authenticationPrincipal.getUserId());
     }
 }

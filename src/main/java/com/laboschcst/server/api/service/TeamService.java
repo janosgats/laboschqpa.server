@@ -4,9 +4,7 @@ import com.laboschcst.server.api.dto.TeamDto;
 import com.laboschcst.server.api.validator.TeamValidator;
 import com.laboschcst.server.entity.Team;
 import com.laboschcst.server.entity.account.UserAcc;
-import com.laboschcst.server.enums.TeamRole;
 import com.laboschcst.server.exceptions.ContentNotFoundApiException;
-import com.laboschcst.server.exceptions.UnAuthorizedException;
 import com.laboschcst.server.repo.Repos;
 import com.laboschcst.server.statemachine.TeamUserRelationTransitionsStateMachine;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +29,7 @@ public class TeamService {
 
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(creatorUserId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAcc);
+                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAcc, userAcc);
                 stateMachine.createNewTeam(teamDto);
 
                 repos.teamRepository.save(userAcc.getTeam());
@@ -47,7 +45,7 @@ public class TeamService {
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(userAccId);
                 Team team = readNotArchivedTeamFromDbWithPessimisticLock(teamId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAcc);
+                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAcc, userAcc);
                 stateMachine.applyToTeam(team);
 
                 repos.userAccRepository.save(userAcc);
@@ -55,23 +53,49 @@ public class TeamService {
         });
     }
 
-    public void cancelApplicationToTeam(Long userAccIdToDecline, Long initiatorUserAccId) {
+    /**
+     * Canceling own application.
+     */
+    public void cancelApplicationToTeam(Long userAccIdToCancel) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserAcc userAccToCancel = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToCancel);
+
+                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAccToCancel, userAccToCancel);
+                stateMachine.cancelApplicationToTeam();
+
+                repos.userAccRepository.save(userAccToCancel);
+            }
+        });
+    }
+
+    public void declineApplicationToTeam(Long userAccIdToDecline, Long initiatorUserAccId) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 UserAcc userAccToDecline = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToDecline);
                 UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
-                if (initiatorUserAcc.getId().equals(userAccToDecline.getId())
-                        || (initiatorUserAcc.getTeam().getId().equals(userAccToDecline.getTeam().getId()) && initiatorUserAcc.getTeamRole() == TeamRole.LEADER)) {
-                    //NOT(Leader of the applied team or the user himself)
-                    throw new UnAuthorizedException("You aren't allowed to decline the application!");
-                }
-
-                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAccToDecline);
-                stateMachine.cancelApplicationToTeam();
+                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAccToDecline, initiatorUserAcc);
+                stateMachine.declineApplicationToTeam();
 
                 repos.userAccRepository.save(userAccToDecline);
+            }
+        });
+    }
+
+    public void approveApplicationToTeam(Long userAccIdToApprove, Long initiatorUserAccId) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserAcc userAccToApprove = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToApprove);
+                UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
+
+                TeamUserRelationTransitionsStateMachine stateMachine = new TeamUserRelationTransitionsStateMachine(userAccToApprove, initiatorUserAcc);
+                stateMachine.approveApplication();
+
+                repos.userAccRepository.save(userAccToApprove);
             }
         });
     }
