@@ -4,6 +4,7 @@ import com.laboschcst.server.entity.Team;
 import com.laboschcst.server.entity.account.UserAcc;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.LockModeType;
@@ -17,6 +18,7 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
     @Query("select count(userAcc.id) from UserAcc userAcc where userAcc.team = :team and userAcc.teamRole = 3 and userAcc.enabled = true")
     Integer getCountOfEnabledLeadersInTeam(Team team);
 
+    @Modifying
     @Query("update UserAcc userAcc set userAcc.team = null, userAcc.teamRole = 0 where userAcc.team = :team")
     void kickEveryoneFromTeam(Team team);
 }

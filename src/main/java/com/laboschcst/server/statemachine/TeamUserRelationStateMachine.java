@@ -136,7 +136,7 @@ public class TeamUserRelationStateMachine {
         initiatorUserAcc.getTeam().setArchived(true);
         repos.userAccRepository.kickEveryoneFromTeam(initiatorUserAcc.getTeam());
 
-        logger.debug("UserAcc {} left its team.", alteredUserAcc.getId());
+        logger.debug("UserAcc {} archived and left its team.", alteredUserAcc.getId());
     }
 
     public void giveLeaderRights() {
