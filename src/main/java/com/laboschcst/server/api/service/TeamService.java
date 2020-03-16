@@ -7,7 +7,7 @@ import com.laboschcst.server.entity.account.UserAcc;
 import com.laboschcst.server.exceptions.ContentNotFoundApiException;
 import com.laboschcst.server.repo.Repos;
 import com.laboschcst.server.statemachine.StateMachineFactory;
-import com.laboschcst.server.statemachine.TeamUserRelationTransitionsStateMachine;
+import com.laboschcst.server.statemachine.TeamUserRelationStateMachine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -31,7 +31,7 @@ public class TeamService {
 
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(creatorUserId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.createNewTeam(teamDto);
 
                 repos.teamRepository.save(userAcc.getTeam());
@@ -47,7 +47,7 @@ public class TeamService {
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(userAccId);
                 Team team = readNotArchivedTeamFromDbWithPessimisticLock(teamId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.applyToTeam(team);
 
                 repos.userAccRepository.save(userAcc);
@@ -64,7 +64,7 @@ public class TeamService {
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 UserAcc userAccToCancel = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToCancel);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToCancel, userAccToCancel);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToCancel, userAccToCancel);
                 stateMachine.cancelApplicationToTeam();
 
                 repos.userAccRepository.save(userAccToCancel);
@@ -79,7 +79,7 @@ public class TeamService {
                 UserAcc userAccToDecline = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToDecline);
                 UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToDecline, initiatorUserAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToDecline, initiatorUserAcc);
                 stateMachine.declineApplicationToTeam();
 
                 repos.userAccRepository.save(userAccToDecline);
@@ -94,7 +94,7 @@ public class TeamService {
                 UserAcc userAccToApprove = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToApprove);
                 UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToApprove, initiatorUserAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToApprove, initiatorUserAcc);
                 stateMachine.approveApplication();
 
                 repos.userAccRepository.save(userAccToApprove);
@@ -108,7 +108,7 @@ public class TeamService {
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(userAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.leaveTeam();
 
                 repos.userAccRepository.save(userAcc);
@@ -124,7 +124,7 @@ public class TeamService {
                 UserAcc userAccToKick = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToKick);
                 UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToKick, initiatorUserAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToKick, initiatorUserAcc);
                 stateMachine.kickFromTeam();
 
                 repos.userAccRepository.save(userAccToKick);
@@ -140,7 +140,7 @@ public class TeamService {
 
                 Team teamToArchive = userAcc.getTeam();
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.archiveAndLeaveTeam();
 
                 repos.teamRepository.save(teamToArchive);
@@ -156,7 +156,7 @@ public class TeamService {
                 UserAcc userAccToGiveLeaderRights = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToGiveLeaderRights);
                 UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
                 stateMachine.giveLeaderRights();
 
                 repos.userAccRepository.save(userAccToGiveLeaderRights);
@@ -171,7 +171,7 @@ public class TeamService {
                 UserAcc userAccToTakeAwayLeaderRights = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToTakeAwayLeaderRights);
                 UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
                 stateMachine.takeAwayLeaderRights();
 
                 repos.userAccRepository.save(userAccToTakeAwayLeaderRights);
@@ -185,7 +185,7 @@ public class TeamService {
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(userAccId);
 
-                TeamUserRelationTransitionsStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
+                TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.resignFromLeadership();
 
                 repos.userAccRepository.save(userAcc);

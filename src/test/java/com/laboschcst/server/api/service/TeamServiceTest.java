@@ -8,7 +8,7 @@ import com.laboschcst.server.repo.Repos;
 import com.laboschcst.server.repo.TeamRepository;
 import com.laboschcst.server.repo.UserAccRepository;
 import com.laboschcst.server.statemachine.StateMachineFactory;
-import com.laboschcst.server.statemachine.TeamUserRelationTransitionsStateMachine;
+import com.laboschcst.server.statemachine.TeamUserRelationStateMachine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 class TeamServiceTest {
 
     @Mock
-    TeamUserRelationTransitionsStateMachine teamUserRelationTransitionsStateMachineMock;
+    TeamUserRelationStateMachine teamUserRelationStateMachineMock;
     @Mock
     StateMachineFactory stateMachineFactoryMock;
     @Mock
@@ -48,7 +48,7 @@ class TeamServiceTest {
         teamService = new TeamService(repos, transactionTemplateMock, stateMachineFactoryMock);
 
         lenient().when(transactionTemplateMock.execute(any())).then(transactionCallback -> ((TransactionCallbackWithoutResult) transactionCallback.getArgument(0)).doInTransaction(new SimpleTransactionStatus()));
-        lenient().when(stateMachineFactoryMock.buildTeamUserRelationTransitionsStateMachine(any(), any())).thenReturn(teamUserRelationTransitionsStateMachineMock);
+        lenient().when(stateMachineFactoryMock.buildTeamUserRelationStateMachine(any(), any())).thenReturn(teamUserRelationStateMachineMock);
     }
 
     @Test
@@ -61,8 +61,8 @@ class TeamServiceTest {
 
         teamService.createNewTeam(teamDto, creatorUserId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(creatorUser, creatorUser);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).createNewTeam(teamDto);
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(creatorUser, creatorUser);
+        verify(teamUserRelationStateMachineMock, times(1)).createNewTeam(teamDto);
 
         verify(teamRepositoryMock, times(1)).save(creatorUser.getTeam());
         verify(userAccRepositoryMock, times(1)).save(creatorUser);
@@ -79,8 +79,8 @@ class TeamServiceTest {
 
         teamService.applyToTeam(team.getId(), userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).applyToTeam(team);
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).applyToTeam(team);
 
         verify(userAccRepositoryMock, times(1)).save(userAcc);
     }
@@ -118,8 +118,8 @@ class TeamServiceTest {
 
         teamService.cancelApplicationToTeam(userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).cancelApplicationToTeam();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).cancelApplicationToTeam();
 
         verify(userAccRepositoryMock, times(1)).save(userAcc);
     }
@@ -136,8 +136,8 @@ class TeamServiceTest {
 
         teamService.declineApplicationToTeam(userAccIdToDecline, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAccToDecline, initiatorUserAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).declineApplicationToTeam();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToDecline, initiatorUserAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).declineApplicationToTeam();
 
         verify(userAccRepositoryMock, times(1)).save(userAccToDecline);
     }
@@ -154,8 +154,8 @@ class TeamServiceTest {
 
         teamService.approveApplicationToTeam(userAccIdToApprove, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAccToApprove, initiatorUserAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).approveApplication();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToApprove, initiatorUserAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).approveApplication();
 
         verify(userAccRepositoryMock, times(1)).save(userAccToApprove);
     }
@@ -169,8 +169,8 @@ class TeamServiceTest {
 
         teamService.leaveTeam(userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).leaveTeam();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).leaveTeam();
 
         verify(userAccRepositoryMock, times(1)).save(userAcc);
     }
@@ -187,8 +187,8 @@ class TeamServiceTest {
 
         teamService.kickFromTeam(userAccIdToKick, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAccToKick, initiatorUserAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).kickFromTeam();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToKick, initiatorUserAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).kickFromTeam();
 
         verify(userAccRepositoryMock, times(1)).save(userAccToKick);
     }
@@ -202,8 +202,8 @@ class TeamServiceTest {
 
         teamService.archiveAndLeaveTeam(userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).archiveAndLeaveTeam();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).archiveAndLeaveTeam();
 
         verify(teamRepositoryMock, times(1)).save(userAcc.getTeam());
         verify(userAccRepositoryMock, times(1)).save(userAcc);
@@ -221,8 +221,8 @@ class TeamServiceTest {
 
         teamService.giveLeaderRights(userAccIdToGiveLeaderRights, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).giveLeaderRights();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).giveLeaderRights();
 
         verify(userAccRepositoryMock, times(1)).save(userAccToGiveLeaderRights);
     }
@@ -239,8 +239,8 @@ class TeamServiceTest {
 
         teamService.takeAwayLeaderRights(userAccIdToTakeAwayLeaderRights, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).takeAwayLeaderRights();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).takeAwayLeaderRights();
 
         verify(userAccRepositoryMock, times(1)).save(userAccToTakeAwayLeaderRights);
     }
@@ -254,8 +254,8 @@ class TeamServiceTest {
 
         teamService.resignFromLeadership(userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationTransitionsStateMachine(userAcc, userAcc);
-        verify(teamUserRelationTransitionsStateMachineMock, times(1)).resignFromLeadership();
+        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamUserRelationStateMachineMock, times(1)).resignFromLeadership();
 
         verify(userAccRepositoryMock, times(1)).save(userAcc);
     }

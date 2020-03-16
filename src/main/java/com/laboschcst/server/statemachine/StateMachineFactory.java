@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class StateMachineFactory {
     private final Repos repos;
 
-    public TeamUserRelationTransitionsStateMachine buildTeamUserRelationTransitionsStateMachine(UserAcc alteredUserAcc, UserAcc initiatorUserAcc) {
-        return new TeamUserRelationTransitionsStateMachine(alteredUserAcc, initiatorUserAcc, repos);
+    public TeamUserRelationStateMachine buildTeamUserRelationStateMachine(UserAcc alteredUserAcc, UserAcc initiatorUserAcc) {
+        return new TeamUserRelationStateMachine(alteredUserAcc, initiatorUserAcc, repos);
     }
 }

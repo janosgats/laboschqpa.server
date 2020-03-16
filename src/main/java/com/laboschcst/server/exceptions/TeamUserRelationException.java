@@ -1,11 +1,17 @@
 package com.laboschcst.server.exceptions;
 
+import com.laboschcst.server.enums.TeamUserRelationError;
+
 public class TeamUserRelationException extends RuntimeException {
-    public TeamUserRelationException() {
+    private TeamUserRelationError teamUserRelationError = null;
+
+    public TeamUserRelationException(TeamUserRelationError teamUserRelationError) {
+        this.teamUserRelationError = teamUserRelationError;
     }
 
-    public TeamUserRelationException(String message) {
+    public TeamUserRelationException(String message, TeamUserRelationError teamUserRelationError) {
         super(message);
+        this.teamUserRelationError = teamUserRelationError;
     }
 
     public TeamUserRelationException(String message, Throwable cause) {
@@ -18,5 +24,9 @@ public class TeamUserRelationException extends RuntimeException {
 
     public TeamUserRelationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public TeamUserRelationError getTeamUserRelationError() {
+        return teamUserRelationError;
     }
 }
