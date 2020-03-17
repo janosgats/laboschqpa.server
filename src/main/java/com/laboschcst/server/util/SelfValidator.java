@@ -18,7 +18,7 @@ public abstract class SelfValidator<T> {
         validator = factory.getValidator();
     }
 
-    protected void validateSelf() {
+    public void validateSelf() {
         Set<ConstraintViolation<T>> violations = validator.validate((T) this);
         if (!violations.isEmpty()) {
             throw new FieldValidationFailedException(violations.stream()

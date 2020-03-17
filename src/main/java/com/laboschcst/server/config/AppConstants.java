@@ -21,6 +21,8 @@ public class AppConstants {
 
     public static final String errorPageUrl = "/error/";//This HAS TO HAVE a "/" (slash) character at the end!
 
+    public static final String apiInternalUrl = "/api/internal/";//This HAS TO HAVE a "/" (slash) character at the end!
+
     public static final List<String> oAuth2ProviderRegistrationIds = Arrays.asList("google", "github");
 
     public static void preFillModel(Model model) {
