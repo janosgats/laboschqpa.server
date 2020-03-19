@@ -1,5 +1,6 @@
 package com.laboschcst.server.api.dto;
 
+import com.laboschcst.server.enums.FileAccessType;
 import com.laboschcst.server.util.SelfValidator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,4 +18,6 @@ public class InternalResourceDto extends SelfValidator<InternalResourceDto> {
     @Min(1)
     @NotNull
     private Long storedFileId;
+    @NotNull
+    private FileAccessType fileAccessType;
 }
