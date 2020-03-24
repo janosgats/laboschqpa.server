@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class StoredFileDto {
     private Long id;
     private StoredFileStatus status;
-    private String directoryPath;
+    private String path;
     private Long originalUploaderUserId;
     private Long currentUploaderUserId;
     private Long size;
@@ -22,7 +22,7 @@ public class StoredFileDto {
     public StoredFileDto(StoredFile storedFile) {
         this.id = storedFile.getId();
         this.status = storedFile.getStatus();
-        this.directoryPath = storedFile.getDirectoryPath();
+        this.path = storedFile.getPath();
         this.originalUploaderUserId = storedFile.getOriginalUploaderUser().getId();
         this.currentUploaderUserId = storedFile.getCurrentUploaderUser().getId();
         this.size = storedFile.getSize();

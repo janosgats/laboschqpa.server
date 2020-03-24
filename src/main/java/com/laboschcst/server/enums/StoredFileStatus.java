@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum StoredFileStatus {
-    SAVED_TO_DATABASE(0),
+    ADDED_TO_DATABASE(0),
     UPLOADING(1),
     PROCESSING(2),
     AVAILABLE(3);

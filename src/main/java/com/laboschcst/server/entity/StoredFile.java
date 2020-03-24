@@ -26,8 +26,8 @@ public class StoredFile {
     @Column(name = "status", nullable = false)
     private StoredFileStatus status;
 
-    @Column(name = "directory_path", nullable = false)
-    private String directoryPath;//Generated as: "/YYYY/MM/DD/"
+    @Column(name = "path", nullable = false)
+    private String path;//Generated as: "<YYYY>/<MM>/<DD>/file<id>.sf"
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "original_uploader_user_id", nullable = false)
