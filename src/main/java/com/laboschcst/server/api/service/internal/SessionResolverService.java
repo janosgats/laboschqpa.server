@@ -24,11 +24,13 @@ public class SessionResolverService {
             StoredFile storedFile = storedFileOptional.get();
 
             return IsUserAuthorizedToResourceResponseDto.builder()
+                    .authenticated(true)
                     .authorized(storedFile.getCurrentUploaderUser().getId().equals(authenticationPrincipal.getUserId()))//TODO: Do proper triage of authorization here
                     .storedFileDto(new StoredFileDto(storedFile))
                     .build();
         } else {
             return IsUserAuthorizedToResourceResponseDto.builder()
+                    .authenticated(true)
                     .authorized(false)
                     .storedFileDto(null)
                     .build();

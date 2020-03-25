@@ -11,7 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class IsUserAuthorizedToResourceResponseDto extends SelfValidator<IsUserAuthorizedToResourceResponseDto> {
-    private boolean authorized;
+    @Builder.Default
+    private boolean authenticated = true;
+    @Builder.Default
+    private boolean authorized = false;
 
     private StoredFileDto storedFileDto;
 }
