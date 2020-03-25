@@ -24,7 +24,7 @@ HEALTHCHECK --interval=15s \
             --timeout=5s \
             CMD curl --fail http://localhost:8080 || exit 1
 
-CMD ["java", "-jar", "-Dspring.profiles.active=k8s_dev", "laboschcst.server.jar"]
+CMD ["java", "-jar", "-Dspring.profiles.active=k8s_dev", "laboschqpa.server.jar"]
 
-COPY --from=builder_image --chown=spring-user:spring-user /app/target/laboschcst.server.jar ${APP_HOME}/laboschcst.server.jar
+COPY --from=builder_image --chown=spring-user:spring-user /app/target/laboschqpa.server.jar ${APP_HOME}/laboschqpa.server.jar
 USER spring-user
