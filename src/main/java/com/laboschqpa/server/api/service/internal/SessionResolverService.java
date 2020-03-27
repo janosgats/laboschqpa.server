@@ -1,38 +1,31 @@
 package com.laboschqpa.server.api.service.internal;
 
-import com.laboschqpa.server.api.dto.InternalResourceDto;
+import com.laboschqpa.server.api.dto.IndexedFileServingRequestDto;
 import com.laboschqpa.server.api.dto.IsUserAuthorizedToResourceResponseDto;
-import com.laboschqpa.server.api.dto.StoredFileDto;
 import com.laboschqpa.server.config.auth.user.CustomOauth2User;
-import com.laboschqpa.server.entity.StoredFile;
-import com.laboschqpa.server.repo.StoredFileRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class SessionResolverService {
-    private final StoredFileRepository storedFileRepository;
+    private static final Logger logger = LoggerFactory.getLogger(SessionResolverService.class);
 
-    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(InternalResourceDto internalResourceDto, CustomOauth2User authenticationPrincipal) {
-        internalResourceDto.validateSelf();
+    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(IndexedFileServingRequestDto indexedFileServingRequestDto, CustomOauth2User authenticationPrincipal) {
+        indexedFileServingRequestDto.validateSelf();
+        logger.debug("Authorizing IndexedFileServingRequestDto: {}", indexedFileServingRequestDto);
 
-        Optional<StoredFile> storedFileOptional = storedFileRepository.findById(internalResourceDto.getStoredFileId());
-        if (storedFileOptional.isPresent()) {
-            StoredFile storedFile = storedFileOptional.get();
-
+        if (true) {
             return IsUserAuthorizedToResourceResponseDto.builder()
                     .authenticated(true)
-                    .authorized(storedFile.getCurrentUploaderUser().getId().equals(authenticationPrincipal.getUserId()))//TODO: Do proper triage of authorization here
-                    .storedFileDto(new StoredFileDto(storedFile))
+                    .authorized(true)//TODO: Do proper triage of authorization here
                     .build();
         } else {
             return IsUserAuthorizedToResourceResponseDto.builder()
                     .authenticated(true)
                     .authorized(false)
-                    .storedFileDto(null)
                     .build();
         }
 

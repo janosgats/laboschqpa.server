@@ -2,10 +2,7 @@ package com.laboschqpa.server.api.dto;
 
 import com.laboschqpa.server.enums.FileAccessType;
 import com.laboschqpa.server.util.SelfValidator;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -14,10 +11,10 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InternalResourceDto extends SelfValidator<InternalResourceDto> {
+@ToString
+public class IndexedFileServingRequestDto extends SelfValidator<IndexedFileServingRequestDto> {
     @Min(1)
-    @NotNull
-    private Long storedFileId;
+    private Long indexedFileId;
     @NotNull
     private FileAccessType fileAccessType;
 }
