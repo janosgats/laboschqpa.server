@@ -6,9 +6,11 @@ import com.laboschqpa.server.exceptions.NotImplementedException;
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum FileAccessType {
+public enum
+FileAccessType {
     READ(0),
-    DELETE(1);
+    DELETE(1),
+    UPLOAD(2);
 
     private Integer value;
 
