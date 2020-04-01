@@ -4,7 +4,12 @@ services:
   - docker
 
 before_install:
-  - DOCKER_BUILDKIT=1 docker build -t gjani/laboschqpa-server -f docker/Dockerfile-k8s_dev-travis_build .
+  - IMAGE_NAME_CACHE_BUILDER=gjani/laboschqpa-server:builder
+  - IMAGE_NAME_CACHE_FINAL=gjani/laboschqpa-server
+  - docker build --target=builder_image -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
+  - docker push ${IMAGE_NAME_CACHE_BUILDER}
+  - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -f docker/Dockerfile-k8s_dev-travis_build .
+  - docker push ${IMAGE_NAME_CACHE_FINAL}
 
 install: skip
 script: skip
