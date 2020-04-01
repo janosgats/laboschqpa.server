@@ -5,9 +5,9 @@ services:
 
 before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - IMAGE_NAME_CACHE_BUILDER=gjani/laboschqpa-server:builder
-  - IMAGE_NAME_CACHE_FINAL=gjani/laboschqpa-server
-  - docker build --target=builder_image -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
+  - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
+  - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
+  - docker build --target=builder_image --cache-from ${IMAGE_NAME_CACHE_BUILDER} -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
   - docker push ${IMAGE_NAME_CACHE_BUILDER}
   - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -f docker/Dockerfile-k8s_dev-travis_build .
   - docker push ${IMAGE_NAME_CACHE_FINAL}
