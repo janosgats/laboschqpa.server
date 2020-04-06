@@ -33,7 +33,7 @@ public class ApiInternalAuthInterServiceFilter implements Filter {
                 if (!isAuthInterServiceHeaderValid(authInterServiceHeader))
                     throw new UnAuthorizedException("AuthInterService header is invalid.");
             } else {
-                logger.trace("AuthInterService is NOT required.");
+                logger.trace("AuthInterService is NOT required. URL: {}", httpServletRequest.getRequestURI());
             }
 
             chain.doFilter(request, response);
