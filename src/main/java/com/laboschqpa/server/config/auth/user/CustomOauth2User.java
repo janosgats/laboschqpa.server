@@ -11,10 +11,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     static final long serialVersionUID = 42L;
@@ -27,12 +24,6 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
         return userAccEntity;
     }
 
-    public void refreshUserEntityIfNull_FromDB(UserAccRepository userAccRepository) {
-        if (userId == null)
-            this.setUserAccEntity(null);
-        else
-            this.setUserAccEntity(userAccRepository.findById(userId).orElse(null));
-    }
 
     public void setUserId(Long userId) {
         this.userId = userId;
@@ -40,7 +31,19 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
 
     public void setUserIdAndLoadFromDb(Long userId, UserAccRepository userAccRepository) {
         this.userId = userId;
-        refreshUserEntityIfNull_FromDB(userAccRepository);
+        refreshUserAccEntityFromDB(userAccRepository);
+    }
+
+    public void refreshUserAccEntityFromDB(UserAccRepository userAccRepository) {
+        if (userId == null)
+            this.setUserAccEntity(null);
+        else {
+            Optional<UserAcc> userAccOptional = userAccRepository.findById(userId);
+            if (userAccOptional.isEmpty())
+                throw new RuntimeException("User account with Id " + userId + " not found in DB. Cannot refresh userAccEntity!");
+
+            this.setUserAccEntity(userAccOptional.get());
+        }
     }
 
     public void setUserAccEntity(UserAcc userAccEntity) {

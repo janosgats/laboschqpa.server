@@ -60,7 +60,7 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
                         } else if (originalAuthentication instanceof OAuth2AuthenticationToken) {
                             newAuthentication = new OAuth2AuthenticationToken(originalCustomOauth2User, originalCustomOauth2User.getAuthorities(), ((OAuth2AuthenticationToken) originalAuthentication).getAuthorizedClientRegistrationId());
                         } else {
-                            throw new RuntimeException("Not expected authentication type of originalAuthentication!");
+                            throw new RuntimeException("Unexpected authentication type of originalAuthentication: " + originalAuthentication.getClass().getName());
                         }
 
                         loadedSecurityContext.setAuthentication(newAuthentication);

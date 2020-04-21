@@ -36,7 +36,7 @@ public class AccountJoinController {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                authenticationPrincipal.refreshUserEntityIfNull_FromDB(repos.userAccRepository);
+                authenticationPrincipal.refreshUserAccEntityFromDB(repos.userAccRepository);
 
                 addExisting_JoinInitiation_ToModel(model, authenticationPrincipal.getUserAccEntity());
                 addWaitingForApproval_JoinInitiations_ToModel(model, authenticationPrincipal.getUserAccEntity());
@@ -64,7 +64,7 @@ public class AccountJoinController {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                authenticationPrincipal.refreshUserEntityIfNull_FromDB(repos.userAccRepository);
+                authenticationPrincipal.refreshUserAccEntityFromDB(repos.userAccRepository);
                 addExisting_JoinInitiation_ToModel(model, authenticationPrincipal.getUserAccEntity());
                 addWaitingForApproval_JoinInitiations_ToModel(model, authenticationPrincipal.getUserAccEntity());
             }
@@ -73,7 +73,7 @@ public class AccountJoinController {
     }
 
     public Boolean handleMainSwitch(Model model, String action, String subAction, String targetEmailAddress, Long initiationId, CustomOauth2User authenticationPrincipal) {
-        authenticationPrincipal.refreshUserEntityIfNull_FromDB(repos.userAccRepository);
+        authenticationPrincipal.refreshUserAccEntityFromDB(repos.userAccRepository);
 
         if (authenticationPrincipal.getUserAccEntity() == null)
             throw new RuntimeException("Your account seems missing.");
