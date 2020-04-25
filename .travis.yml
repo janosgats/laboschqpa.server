@@ -1,7 +1,7 @@
 os: linux
 language: java
 #env:
-#  - $DEPLOY_TO_KSZK=true
+#  - DEPLOY_TO_KSZK=true
 
 install: skip
 script: skip
