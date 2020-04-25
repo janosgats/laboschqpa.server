@@ -5,11 +5,11 @@ services:
 env:
   - $DEPLOY_TO_KSZK=false
 
-  - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
+  - $SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
 
-  - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
-  - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
-  - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
+  - $IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
+  - $IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
+  - $IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
 
 jobs:
   include:
