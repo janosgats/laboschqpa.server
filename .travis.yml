@@ -30,7 +30,8 @@ jobs:
         - docker push ${IMAGE_NAME_TAG}
 
     - stage: DeployToKSZK
-      if: env(DEPLOY_TO_KSZK) = "true"
+      if: branch = master
+      #if: env(DEPLOY_TO_KSZK) = "true"
       script: skip
       before_install:
         - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
