@@ -7,12 +7,10 @@ env:
 
 jobs:
   include:
-    - stage: InitialSteps
-      script: chmod +x ./pipeline/stages/docker-build.sh
     - stage: DockerBuild
-      script: ./pipeline/stages/docker-build.sh
+      script: chmod +x ./pipeline/stages/docker-build.sh && ./pipeline/stages/docker-build.sh
     - stage: DeployToKSZK
-      script: sh -c "[ \"$DEPLOY_TO_KSZK\" = \"true\" ] && ./pipeline/deploy-to-kszk.sh || echo Skipping deploy to KSZK."
+      script: sh -c "[ \"$DEPLOY_TO_KSZK\" = \"true\" ] && (chmod +x ./pipeline/stages/deploy-to-kszk.sh && ./pipeline/stages/deploy-to-kszk.sh ) || echo Skipping deploy to KSZK."
 
 install: skip
 script: skip
