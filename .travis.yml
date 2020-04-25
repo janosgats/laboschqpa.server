@@ -5,8 +5,6 @@ services:
 env:
   - $DEPLOY_TO_KSZK=false
 
-before_install:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
 
   - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder

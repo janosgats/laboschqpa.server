@@ -1,3 +1,5 @@
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
 (docker pull ${IMAGE_NAME_CACHE_BUILDER} || true) & (docker pull ${IMAGE_NAME_CACHE_FINAL} || true) & wait
 
 docker build --target=builder_image --cache-from ${IMAGE_NAME_CACHE_BUILDER} -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
