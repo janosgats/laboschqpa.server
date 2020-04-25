@@ -2,6 +2,8 @@ os: linux
 language: java
 services:
   - docker
+env:
+  - $DEPLOY_TO_KSZK=false
 
 before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
@@ -20,5 +22,6 @@ before_install:
   - docker push ${IMAGE_NAME_CACHE_FINAL}
   - docker push ${IMAGE_NAME_TAG}
 
-install: skip
+install:
+  - [ "$DEPLOY_TO_KSZK" = true ] && ./pipeline/deploy-to-kszk.sh
 script: skip

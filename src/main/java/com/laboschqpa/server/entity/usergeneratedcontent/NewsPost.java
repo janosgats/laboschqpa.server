@@ -11,7 +11,7 @@ import javax.persistence.*;
 @JsonSerialize(using = NewsPostSerializer.class)
 public class NewsPost extends UserGeneratedContent {
     @Column(name = "content")
-    private String content;
+    private String content;//Possibly Markdown
 
     public String getContent() {
         return content;
