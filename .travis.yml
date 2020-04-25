@@ -23,5 +23,5 @@ before_install:
   - docker push ${IMAGE_NAME_TAG}
 
 install:
-  - [ "$DEPLOY_TO_KSZK" = true ] && ./pipeline/deploy-to-kszk.sh
+  - bash [ "$DEPLOY_TO_KSZK" = true ] && ./pipeline/deploy-to-kszk.sh
 script: skip
