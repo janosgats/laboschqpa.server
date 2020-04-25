@@ -1,3 +1,5 @@
+./pipeline/set-up-env-vars.sh
+
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 (docker pull ${IMAGE_NAME_CACHE_BUILDER} || true) & (docker pull ${IMAGE_NAME_CACHE_FINAL} || true) & wait
