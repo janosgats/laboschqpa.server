@@ -7,6 +7,8 @@ env:
 
 jobs:
   include:
+    - stage: InitialSteps
+      script: chmod +x ./pipeline/stages/docker-build.sh
     - stage: DockerBuild
       script: ./pipeline/stages/docker-build.sh
     - stage: DeployToKSZK
