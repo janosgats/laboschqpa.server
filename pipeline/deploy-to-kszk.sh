@@ -1,0 +1,1 @@
+echo "Test message in deploy-to-kszk.h"
