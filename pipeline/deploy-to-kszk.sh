@@ -1,1 +1,2 @@
-echo "Test message in deploy-to-kszk.h"
+echo "Started script to deploy to KSZK"
+
