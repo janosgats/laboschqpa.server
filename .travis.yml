@@ -2,27 +2,60 @@ os: linux
 language: java
 services:
   - docker
-env:
-  - $DEPLOY_TO_KSZK=false
-
-before_install:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
-
-  - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
-  - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
-  - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
-
-  - docker pull ${IMAGE_NAME_CACHE_BUILDER} || true
-  - docker pull ${IMAGE_NAME_CACHE_FINAL} || true
-
-  - docker build --target=builder_image --cache-from ${IMAGE_NAME_CACHE_BUILDER} -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
-  - docker push ${IMAGE_NAME_CACHE_BUILDER}
-  - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_TAG} -f docker/Dockerfile-k8s_dev-travis_build .
-  - docker push ${IMAGE_NAME_CACHE_FINAL}
-  - docker push ${IMAGE_NAME_TAG}
-
-  - sh -c "[ \"$DEPLOY_TO_KSZK\" = \"true\" ] && (chmod +x ./pipeline/deploy-to-kszk.sh && ./pipeline/deploy-to-kszk.sh ) || echo Skipping deploy to KSZK."
+#env:
+#  - $DEPLOY_TO_KSZK=true
 
 install: skip
 script: skip
+
+#before_install:
+#  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+#  - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
+#
+#  - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
+#  - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
+#  - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
+#
+#  - docker pull ${IMAGE_NAME_CACHE_BUILDER} || true
+#  - docker pull ${IMAGE_NAME_CACHE_FINAL} || true
+#
+#  - docker build --target=builder_image --cache-from ${IMAGE_NAME_CACHE_BUILDER} -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
+#  - docker push ${IMAGE_NAME_CACHE_BUILDER}
+#  - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_TAG} -f docker/Dockerfile-k8s_dev-travis_build .
+#  - docker push ${IMAGE_NAME_CACHE_FINAL}
+#  - docker push ${IMAGE_NAME_TAG}
+#
+#  - sh -c "[ \"$DEPLOY_TO_KSZK\" = \"true\" ] && (chmod +x ./pipeline/deploy-to-kszk.sh && ./pipeline/deploy-to-kszk.sh ) || echo Skipping deploy to KSZK."
+
+jobs:
+  include:
+    - stage: DockerBuild
+      script: skip
+      before_install:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
+
+        - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
+        - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
+        - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
+      install:
+        - docker pull ${IMAGE_NAME_CACHE_BUILDER} || true
+        - docker pull ${IMAGE_NAME_CACHE_FINAL} || true
+
+        - docker build --target=builder_image --cache-from ${IMAGE_NAME_CACHE_BUILDER} -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
+        - docker push ${IMAGE_NAME_CACHE_BUILDER}
+        - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_TAG} -f docker/Dockerfile-k8s_dev-travis_build .
+        - docker push ${IMAGE_NAME_CACHE_FINAL}
+        - docker push ${IMAGE_NAME_TAG}
+
+    - stage: DeployToKSZK
+      script: skip
+      before_install:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
+
+        - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
+        - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
+        - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
+      install:
+        - sh -c "[ \"$DEPLOY_TO_KSZK\" = \"true\" ] && (chmod +x ./pipeline/deploy-to-kszk.sh && ./pipeline/deploy-to-kszk.sh ) || echo Skipping deploy to KSZK."
