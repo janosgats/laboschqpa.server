@@ -2,6 +2,7 @@ os: linux
 language: minimal
 env:
   global:
+#    - SKIP_DOCKER_BUILD=true
 #    - FORCE_DEPLOY_TO_KSZK=true
     - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::10}
     - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:${SHORT_COMMIT_HASH}
@@ -12,6 +13,7 @@ script: skip
 jobs:
   include:
     - stage: DockerBuild
+      if: env(SKIP_DOCKER_BUILD) != "true"
       services:
         - docker
       script: skip
