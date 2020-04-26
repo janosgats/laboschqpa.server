@@ -45,12 +45,12 @@ jobs:
         - echo "Configuring kubectl"
         - echo $KSZK_SECRET_CA > ca-KSZK.pem
         - kubectl config set-cluster KSZK --server=https://api.k8s.sch.bme.hu --certificate-authority=ca-KSZK.pem
-        - kubectl config set-credentials $KSZK_SECRET_SCH_ACCOUNT  \
-          --auth-provider=oidc  \
-          --auth-provider-arg=idp-issuer-url=https://auth.k8s.sch.bme.hu/  \
-          --auth-provider-arg=client-id=oidc-auth-client  \
-          --auth-provider-arg=client-secret=$KSZK_SECRET_AUTH_PROVIDER_CLIENT_SECRET \
-          --auth-provider-arg=refresh-token=$KSZK_SECRET_AUTH_PROVIDER_REFRESH_TOKEN \
+        - kubectl config set-credentials $KSZK_SECRET_SCH_ACCOUNT  \\
+          --auth-provider=oidc  \\
+          --auth-provider-arg=idp-issuer-url=https://auth.k8s.sch.bme.hu/  \\
+          --auth-provider-arg=client-id=oidc-auth-client  \\
+          --auth-provider-arg=client-secret=$KSZK_SECRET_AUTH_PROVIDER_CLIENT_SECRET \\
+          --auth-provider-arg=refresh-token=$KSZK_SECRET_AUTH_PROVIDER_REFRESH_TOKEN \\
           --auth-provider-arg=id-token=$KSZK_SECRET_AUTH_PROVIDER_ID_TOKEN
         - kubectl config set-context KSZK --cluster=KSZK --user=$KSZK_SECRET_SCH_ACCOUNT
         - kubectl config use-context KSZK
