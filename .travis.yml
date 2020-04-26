@@ -2,8 +2,8 @@ os: linux
 language: java
 env:
   global:
-    - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
-    - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
+    - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::10}
+    - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:${SHORT_COMMIT_HASH}
 #    - DEPLOY_TO_KSZK=true
 
 install: skip
