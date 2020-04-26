@@ -2,9 +2,9 @@ os: linux
 language: java
 env:
   global:
+#    - FORCE_DEPLOY_TO_KSZK=true
     - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::10}
     - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:${SHORT_COMMIT_HASH}
-#    - DEPLOY_TO_KSZK=true
 
 install: skip
 script: skip
@@ -32,7 +32,7 @@ jobs:
 
     - stage: DeployToKSZK
 #      if: branch = master
-      if: env(DEPLOY_TO_KSZK) = "true"
+      if: env(FORCE_DEPLOY_TO_KSZK) = "true"
       script: skip
       install:
         - echo "Installing kubectl"
