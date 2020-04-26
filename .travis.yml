@@ -54,6 +54,7 @@ jobs:
           --auth-provider-arg=id-token=$KSZK_SECRET_AUTH_PROVIDER_ID_TOKEN
         - kubectl config set-context KSZK --cluster=KSZK --user=$KSZK_SECRET_SCH_ACCOUNT
         - kubectl config use-context KSZK
+        - export KUBECONFIG=/etc/kubernetes/kubelet.conf
 
         - echo "Starting deployment"
         - kubectl -n=csillagtura-sch-bme-hu get secrets
