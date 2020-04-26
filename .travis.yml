@@ -21,8 +21,7 @@ jobs:
         - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
         - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
       install:
-        - docker pull ${IMAGE_NAME_CACHE_BUILDER} || true
-        - docker pull ${IMAGE_NAME_CACHE_FINAL} || true
+        - ( docker pull ${IMAGE_NAME_CACHE_BUILDER} || true ) & ( docker pull ${IMAGE_NAME_CACHE_FINAL} || true ) & wait
 
         - docker build --target=builder_image --cache-from ${IMAGE_NAME_CACHE_BUILDER} -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
         - docker push ${IMAGE_NAME_CACHE_BUILDER}
@@ -34,7 +33,7 @@ jobs:
 #      if: branch = master
       if: env(FORCE_DEPLOY_TO_KSZK) = "true"
       script: skip
-      install:
+      before_install:
         - echo "Installing kubectl"
         - curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/$(uname | awk '{print tolower($0)}')/amd64/kubectl
         - chmod +x ./kubectl
@@ -53,5 +52,6 @@ jobs:
         - kubectl config set-context KSZK --cluster=KSZK --user=$KSZK_SECRET_SCH_ACCOUNT
         - kubectl config use-context KSZK
 
+      install:
         - echo "Starting deployment"
         - kubectl --insecure-skip-tls-verify -n=csillagtura-sch-bme-hu set image deployments/server server=${IMAGE_NAME_TAG}
