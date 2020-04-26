@@ -1,7 +1,7 @@
 os: linux
 language: java
-env:
-  - DEPLOY_TO_KSZK=true
+#env:
+#  - DEPLOY_TO_KSZK=true
 
 install: skip
 script: skip
@@ -56,4 +56,4 @@ jobs:
         - kubectl config use-context KSZK
 
         - echo "Starting deployment"
-        - kubectl --insecure-skip-tls-verify -n=csillagtura-sch-bme-hu get secrets
+        - kubectl --insecure-skip-tls-verify -n=csillagtura-sch-bme-hu set image deployments/server server=${IMAGE_NAME_TAG}
