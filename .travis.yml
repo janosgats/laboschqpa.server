@@ -1,5 +1,5 @@
 os: linux
-language: java
+language: minimal
 env:
   global:
 #    - FORCE_DEPLOY_TO_KSZK=true
@@ -52,7 +52,6 @@ jobs:
           --auth-provider-arg=id-token=$KSZK_SECRET_AUTH_PROVIDER_ID_TOKEN
         - kubectl config set-context KSZK --cluster=KSZK --user=$KSZK_SECRET_SCH_ACCOUNT
         - kubectl config use-context KSZK
-
       install:
         - echo "Starting deployment"
         - kubectl --insecure-skip-tls-verify -n=csillagtura-sch-bme-hu set image deployments/server server=${IMAGE_NAME_TAG}
