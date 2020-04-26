@@ -1,7 +1,10 @@
 os: linux
 language: java
-#env:
-#  - DEPLOY_TO_KSZK=true
+env:
+  global:
+    - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
+    - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
+#    - DEPLOY_TO_KSZK=true
 
 install: skip
 script: skip
@@ -14,11 +17,9 @@ jobs:
       script: skip
       before_install:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
 
         - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
         - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
-        - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
       install:
         - docker pull ${IMAGE_NAME_CACHE_BUILDER} || true
         - docker pull ${IMAGE_NAME_CACHE_FINAL} || true
@@ -33,9 +34,6 @@ jobs:
 #      if: branch = master
       if: env(DEPLOY_TO_KSZK) = "true"
       script: skip
-      before_install:
-        - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::7}
-        - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:$(date -u +%Y%m%d-%H%M%S)_${SHORT_COMMIT_HASH}
       install:
         - echo "Installing kubectl"
         - curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/$(uname | awk '{print tolower($0)}')/amd64/kubectl
