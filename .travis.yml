@@ -56,4 +56,4 @@ jobs:
         - kubectl config use-context KSZK
 
         - echo "Starting deployment"
-        - kubectl -n=csillagtura-sch-bme-hu get secrets
+        - kubectl --insecure-skip-tls-verif -n=csillagtura-sch-bme-hu get secrets
