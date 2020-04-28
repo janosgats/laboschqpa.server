@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Getter
-public class AuthorizationHelper {
+public class PrincipalAuthorizationHelper {
 
     private final CustomOauth2User authenticationPrincipal;
 

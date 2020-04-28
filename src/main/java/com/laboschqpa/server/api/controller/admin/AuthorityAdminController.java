@@ -3,7 +3,7 @@ package com.laboschqpa.server.api.controller.admin;
 import com.laboschqpa.server.api.service.admin.AuthorityAdminService;
 import com.laboschqpa.server.config.auth.user.CustomOauth2User;
 import com.laboschqpa.server.enums.Authority;
-import com.laboschqpa.server.service.AuthorizationHelper;
+import com.laboschqpa.server.service.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ public class AuthorityAdminController {
     @GetMapping("userAuthority")
     public Set<String> getUserAuthorities(@RequestParam("userAccId") Long userAccId,
                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new AuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
         return authorityAdminService.getUserAuthorities(userAccId).stream().map(Authority::getStringValue).collect(Collectors.toSet());
     }
 
@@ -28,7 +28,7 @@ public class AuthorityAdminController {
     public void postAddUserAuthority(@RequestParam("userAccId") Long userAccId,
                                      @RequestParam("authority") String authorityStringValue,
                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new AuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
         authorityAdminService.addUserAuthority(userAccId, Authority.fromStringValue(authorityStringValue));
     }
 
@@ -36,7 +36,7 @@ public class AuthorityAdminController {
     public void deleteUserAuthority(@RequestParam("userAccId") Long userAccId,
                                     @RequestParam("authority") String authorityStringValue,
                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new AuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
         authorityAdminService.deleteUserAuthority(userAccId, Authority.fromStringValue(authorityStringValue));
     }
 }

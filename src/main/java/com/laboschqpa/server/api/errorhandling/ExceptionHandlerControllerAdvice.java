@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 @ControllerAdvice
@@ -57,10 +58,14 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
         return new ResponseEntity<>(contentNotFoundErrorResponseBody, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(TeamUserRelationException.class)
+    @ExceptionHandler({TeamUserRelationException.class,
+            LogInException.class,
+            RegistrationException.class,
+            InvalidAuthenticationPrincipalException.class,
+            ConstraintViolationException.class})
     protected ResponseEntity<ApiErrorResponseBody> handleClientCausedErrors(
-            TeamUserRelationException e, WebRequest request) {
-        loggerOfChild.debug("TeamUserRelationException caught while executing api request!", e);
+            Exception e, WebRequest request) {
+        loggerOfChild.debug("handleClientCausedErrors() caught exception while executing api request!", e);
         return new ResponseEntity<>(new ApiErrorResponseBody(e.getMessage()), HttpStatus.CONFLICT);
     }
 

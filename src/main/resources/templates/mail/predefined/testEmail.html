@@ -1,0 +1,19 @@
+<html lang="hu" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div th:remove="all">
+        <div th:fragment="mailSubject" th:remove="tag"> Qpa web test message </div>
+    </div>
+
+    <p>Test message from qpa web.</p>
+    <p>Test message: </p>
+    <p th:text="${testMessage}"></p>
+    <br>
+    <p th:text="'Time: ' + ${time}"></p>
+    <p>Test characters: aáeéiíoóöőuúüűAÁEÉIÍOÓÖŐUÚÜŰ</p>
+
+    <div th:replace="mail/fragments/signature.html"></div>
+</body>
+</html>

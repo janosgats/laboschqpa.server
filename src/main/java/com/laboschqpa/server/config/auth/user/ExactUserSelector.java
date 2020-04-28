@@ -2,6 +2,7 @@ package com.laboschqpa.server.config.auth.user;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.laboschqpa.server.entity.RegistrationRequest;
 import com.laboschqpa.server.enums.Authority;
 import com.laboschqpa.server.config.auth.authorities.EnumBasedAuthority;
 import com.laboschqpa.server.entity.account.UserAcc;
@@ -9,17 +10,19 @@ import com.laboschqpa.server.entity.account.UserEmailAddress;
 import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GithubExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
-import com.laboschqpa.server.repo.GithubExternalAccountDetailRepository;
-import com.laboschqpa.server.repo.GoogleExternalAccountDetailRepository;
-import com.laboschqpa.server.repo.UserEmailAddressRepository;
-import com.laboschqpa.server.repo.UserAccRepository;
+import com.laboschqpa.server.enums.RegistrationRequestPhase;
+import com.laboschqpa.server.exceptions.InvalidAuthenticationPrincipalException;
+import com.laboschqpa.server.exceptions.LogInException;
+import com.laboschqpa.server.exceptions.RegistrationException;
+import com.laboschqpa.server.repo.*;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -28,35 +31,79 @@ import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpSession;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
+@RequiredArgsConstructor
 @Component
 public class ExactUserSelector {
-    Logger logger = LoggerFactory.getLogger(ExactUserSelector.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExactUserSelector.class);
 
-    @Autowired
-    UserEmailAddressRepository userEmailAddressRepository;
-
-    @Autowired
-    GoogleExternalAccountDetailRepository googleExternalAccountDetailRepository;
-
-    @Autowired
-    GithubExternalAccountDetailRepository githubExternalAccountDetailRepository;
-
-    @Autowired
-    UserAccRepository userAccRepository;
+    private final UserEmailAddressRepository userEmailAddressRepository;
+    private final GoogleExternalAccountDetailRepository googleExternalAccountDetailRepository;
+    private final GithubExternalAccountDetailRepository githubExternalAccountDetailRepository;
+    private final UserAccRepository userAccRepository;
+    private final RegistrationRequestRepository registrationRequestRepository;
 
     @Value("${oauth2.provider.github.resource.user-info-uri}")
     private String gitHubUserInfoUri;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public CustomOauth2User getExactUser(OAuth2UserRequest oAuth2UserRequest) {
         Assert.notNull(oAuth2UserRequest, "oAuth2UserRequest cannot be null!");
 
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            return loginUserInSessionWithEmptyAuthentication(oAuth2UserRequest);
+        } else {
+            return handleRequestWhenUserIsPossiblyAlreadyLoggedIn(oAuth2UserRequest);
+        }
+    }
+
+    private CustomOauth2User handleRequestWhenUserIsPossiblyAlreadyLoggedIn(OAuth2UserRequest oAuth2UserRequest) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        CustomOauth2User customOauth2User;
+
+        if (principal instanceof CustomOauth2User) {
+            customOauth2User = (CustomOauth2User) principal;
+        } else {
+            invalidateCurrentSession();
+            throw new InvalidAuthenticationPrincipalException("Authentication principal is not instance of CustomOauth2User");
+        }
+
+        if (!customOauth2User.getUserAccEntity().getEnabled()) {
+            throw new LogInException("The user account is not enabled!");
+        }
+
+        addLoginMethodToExistingUserAccount(customOauth2User.getUserAccEntity(), oAuth2UserRequest);
+
+        return customOauth2User;
+    }
+
+    private void invalidateCurrentSession() {
+        HttpSession session = getCurrentSession();
+        if (session != null) {
+            session.invalidate();
+            logger.trace("Session was invalidated.");
+        }
+    }
+
+    private HttpSession getCurrentSession() {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        return attr.getRequest().getSession(true);
+    }
+
+    private void addLoginMethodToExistingUserAccount(UserAcc existingUserAcc, OAuth2UserRequest oAuth2UserRequest) {
+
+    }
+
+    private CustomOauth2User loginUserInSessionWithEmptyAuthentication(OAuth2UserRequest oAuth2UserRequest) {
         CustomOauth2User customOauth2User = new CustomOauth2User();
 
         String clientRegistrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
@@ -94,11 +141,11 @@ public class ExactUserSelector {
                 emailAddressFromRequest = tryToGetGithubEmail(gitHubResponseJsonObject);
                 break;
             default:
-                throw new RuntimeException("clientRegistrationId not found");
+                throw new LogInException("clientRegistrationId not found");
         }
 
         if (externalAccountDetail == null)
-            throw new RuntimeException("Cannot log in! Cannot found external account ID in Google OAuth2/Oidc resource.");
+            throw new LogInException("Cannot log in! Cannot found external account ID in Google OAuth2/Oidc resource.");
 
 
         UserEmailAddress userEmailAddressFromRequestTriedToLoadFromDB = load_UserEmailAddressFromRequest_FromDB_IfPresent(emailAddressFromRequest);
@@ -120,14 +167,33 @@ public class ExactUserSelector {
                         userAccEntity = userEmailAddressFromRequestTriedToLoadFromDB.getUserAcc();
 
                         externalAccountDetail.setUserAcc(userAccEntity);
-                    } else {
-                        //Couldn't found anything to merge accounts by. Creating new account
-                        userAccEntity = registerNewUser();
-
-                        externalAccountDetail.setUserAcc(userAccEntity);
                         googleExternalAccountDetailRepository.save((GoogleExternalAccountDetail) externalAccountDetail);
+                        logger.debug("Logged in existing user by merging externalAccountDetail.");
+                    } else {
+                        //Couldn't found anything to merge accounts by.
 
-                        logger.info("Registered new user from: " + clientRegistrationId);
+                        HttpSession session = getCurrentSession();
+                        Long registrationRequestId = (Long) session.getAttribute("registrationRequestId");
+                        if (registrationRequestId != null) {
+                            RegistrationRequest registrationRequest = getRegistrationRequestFromIdIfPresent(registrationRequestId);
+
+                            if (registrationRequest == null || registrationRequest.getPhase() != RegistrationRequestPhase.EMAIL_VERIFIED) {
+                                throw new RegistrationException("Cannot found existing account neither registration request with verified e-mail!");
+                            }
+
+                            userAccEntity = registerNewUser();
+
+                            externalAccountDetail.setUserAcc(userAccEntity);
+                            googleExternalAccountDetailRepository.save((GoogleExternalAccountDetail) externalAccountDetail);
+
+                            session.removeAttribute("registrationRequestId");
+                            registrationRequest.setPhase(RegistrationRequestPhase.REGISTERED);
+                            registrationRequestRepository.save(registrationRequest);
+
+                            logger.info("Registered new user from: " + clientRegistrationId);
+                        } else {
+                            throw new LogInException("Cannot find existing user account or e-mail that this login can be merged to!");
+                        }
                     }
                 }
                 break;
@@ -145,24 +211,41 @@ public class ExactUserSelector {
 
                         externalAccountDetail.setUserAcc(userAccEntity);
                         githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
+                        logger.debug("Logged in existing user by merging externalAccountDetail.");
                     } else {
                         //Couldn't found anything to merge accounts by. Creating new account
-                        userAccEntity = registerNewUser();
+                        HttpSession session = getCurrentSession();
+                        Long registrationRequestId = (Long) session.getAttribute("registrationRequestId");
+                        if (registrationRequestId != null) {
+                            RegistrationRequest registrationRequest = getRegistrationRequestFromIdIfPresent(registrationRequestId);
 
-                        externalAccountDetail.setUserAcc(userAccEntity);
-                        githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
+                            if (registrationRequest == null || registrationRequest.getPhase() != RegistrationRequestPhase.EMAIL_VERIFIED) {
+                                throw new RegistrationException("Cannot found existing account neither registration request with verified e-mail!");
+                            }
 
-                        logger.info("Registered new user from: " + clientRegistrationId);
+                            userAccEntity = registerNewUser();
+
+                            externalAccountDetail.setUserAcc(userAccEntity);
+                            githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
+
+                            session.removeAttribute("registrationRequestId");
+                            registrationRequest.setPhase(RegistrationRequestPhase.REGISTERED);
+                            registrationRequestRepository.save(registrationRequest);
+
+                            logger.info("Registered new user from: " + clientRegistrationId);
+                        } else {
+                            throw new LogInException("Cannot find existing user account or e-mail that this login can be merged to!");
+                        }
                     }
                 }
                 break;
         }
 
         if (userAccEntity == null)
-            throw new RuntimeException("Cannot log in! 'userEntity' is null but it should have been created or loaded already.");
+            throw new LogInException("Cannot log in! 'userEntity' is null but it should have been created or loaded already.");
 
         if (!userAccEntity.getEnabled())
-            throw new RuntimeException("Account is disabled.");
+            throw new LogInException("Account is disabled.");
 
         if (userEmailAddressFromRequestTriedToLoadFromDB == null) {
             //Saving the new e-mail address to the loaded/registered userEntity
@@ -203,6 +286,11 @@ public class ExactUserSelector {
             }
         }
         return null;
+    }
+
+    private RegistrationRequest getRegistrationRequestFromIdIfPresent(long registrationRequestId) {
+        Optional<RegistrationRequest> registrationRequestOptional = registrationRequestRepository.findById(registrationRequestId);
+        return registrationRequestOptional.orElse(null);
     }
 
     private String tryToGetGoogleEmail(Map<String, Object> claims) {

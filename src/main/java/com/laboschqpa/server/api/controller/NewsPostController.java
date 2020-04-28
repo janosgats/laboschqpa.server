@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.laboschqpa.server.api.service.NewsPostService;
 import com.laboschqpa.server.config.auth.user.CustomOauth2User;
 import com.laboschqpa.server.entity.usergeneratedcontent.NewsPost;
-import com.laboschqpa.server.service.AuthorizationHelper;
+import com.laboschqpa.server.service.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -30,21 +30,21 @@ public class NewsPostController {
     @PostMapping("/createNew")
     public void postCreateNewsPost(@RequestBody ObjectNode createNewsPostContent,
                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new AuthorizationHelper(authenticationPrincipal).assertHasEditorOrAdminAuthority();
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasEditorOrAdminAuthority();
         newsPostService.createNewsPost(createNewsPostContent, authenticationPrincipal.getUserAccEntity());
     }
 
     @PostMapping("/edit")
     public void postEditNewsPost(@RequestBody ObjectNode editNewsPostContent,
                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new AuthorizationHelper(authenticationPrincipal).assertHasEditorOrAdminAuthority();
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasEditorOrAdminAuthority();
         newsPostService.editNewsPost(editNewsPostContent, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
     public void deleteNewsPost(@RequestParam(name = "newsPostId") Long newsPostId,
                                @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new AuthorizationHelper(authenticationPrincipal).assertHasEditorOrAdminAuthority();
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasEditorOrAdminAuthority();
         newsPostService.deleteNewsPost(newsPostId, authenticationPrincipal.getUserAccEntity());
     }
 }
