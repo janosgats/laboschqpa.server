@@ -1,4 +1,4 @@
-package com.laboschqpa.server.service;
+package com.laboschqpa.server.service.email;
 
 import com.laboschqpa.server.exceptions.EmailSendingException;
 import lombok.RequiredArgsConstructor;
@@ -57,10 +57,9 @@ public class EmailMessageFactoryService {
             return helper;
         }
 
-        public MimeMessageHelper createRegistrationRequestMail(Long registrationRequestId, String registrationRequestKey) {
+        public MimeMessageHelper createRegistrationRequestMessage(String emailVerificationUrl) {
             final Context ctx = new Context();
-            ctx.setVariable("registrationRequestId", registrationRequestId);
-            ctx.setVariable("registrationRequestKey", registrationRequestKey);
+            ctx.setVariable("emailVerificationUrl", emailVerificationUrl);
 
             final MimeMessageHelper helper = createCommonMimeMessageWithHelper();
             setBodyAndSubjectFromThymeleafTemplate(helper, "mail/predefined/registrationRequest", ctx);

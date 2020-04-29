@@ -1,0 +1,43 @@
+<html lang="hu" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .button {
+            display: inline-block;
+            border-radius: 4px;
+            background-color: #f4511e;
+            border: none;
+            color: #ffffff;
+            text-align: center;
+            font-size: 28px;
+            padding: 20px;
+            width: 200px;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .button span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div th:remove="all">
+        <div th:fragment="mailSubject" th:remove="tag"> Üdv köztünk, brácsa </div>
+    </div>
+
+        <a th:href="${emailVerificationUrl}">
+            <button class="button"
+                    style="vertical-align:middle; width: 320px; margin: 0 auto; display: block">
+                <span> Irány az accountom </span>
+            </button>
+        </a>
+
+        <p>Ha a fenti gomb nem működne, nyisd meg ezt a linket a regisztráció folytatásához: <a th:href="${emailVerificationUrl}" th:text="${emailVerificationUrl}">asd</a></p>
+
+    <div th:replace="mail/fragments/signature.html"></div>
+</body>
+</html>

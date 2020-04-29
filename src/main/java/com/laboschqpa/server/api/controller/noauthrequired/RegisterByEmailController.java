@@ -10,19 +10,19 @@ import javax.validation.constraints.Email;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(AppConstants.apiNoAuthRequiredUrl + "registerbyemail")
+@RequestMapping(AppConstants.apiNoAuthRequiredUrl + "registerByEmail")
 @Validated
 public class RegisterByEmailController {
     private final RegisterByEmailService registerByEmailService;
 
-    @GetMapping("/submitemail")
+    @GetMapping("/submitEmail")
     public void getSubmitEmail(@Email @RequestParam("email") String email) {
         registerByEmailService.onSubmitEmailToRegister(email);
     }
 
-    @GetMapping("/verifyemail")
-    public void getVerifyEmail(@RequestParam("registrationRequestId") Long registrationRequestId,
-                                @RequestParam("registrationRequestKey") String registrationRequestKey) {
+    @GetMapping("/verifyEmail")
+    public void getVerifyEmail(@RequestParam("id") Long registrationRequestId,
+                                @RequestParam("key") String registrationRequestKey) {
         registerByEmailService.onVisitingPageFromEmailLink(registrationRequestId, registrationRequestKey);
     }
 }

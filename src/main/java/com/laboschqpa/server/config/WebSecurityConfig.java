@@ -1,6 +1,9 @@
 package com.laboschqpa.server.config;
 
-import com.laboschqpa.server.config.auth.filterchain.ReloadUserPerRequestHttpSessionSecurityContextRepository;
+import com.laboschqpa.server.config.filterchain.AddLoginMethodFilter;
+import com.laboschqpa.server.config.filterchain.ApiInternalAuthInterServiceFilter;
+import com.laboschqpa.server.config.filterchain.JoinFlowExceptionHandlerFilter;
+import com.laboschqpa.server.config.filterchain.ReloadUserPerRequestHttpSessionSecurityContextRepository;
 import com.laboschqpa.server.enums.Authority;
 import com.laboschqpa.server.config.auth.user.CustomOAuth2UserService;
 import com.laboschqpa.server.config.auth.user.CustomOidcUserService;
@@ -24,8 +27,10 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -46,7 +51,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers(AppConstants.adminBaseUrl + "**").hasAuthority(Authority.Admin.getStringValue())
-                .antMatchers("/", AppConstants.apiNoAuthRequiredUrl + "**", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuthAuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
+                .antMatchers("/", AppConstants.apiNoAuthRequiredUrl + "**", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuth2AuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
                 .permitAll()
                 .anyRequest()
                 .hasAnyAuthority(Authority.User.getStringValue(), Authority.Admin.getStringValue())
@@ -54,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .oauth2Login()
                 .loginPage(AppConstants.loginPageUrl)
                 .authorizationEndpoint()
-                .baseUri(AppConstants.oAuthAuthorizationRequestBaseUri)
+                .baseUri(AppConstants.oAuth2AuthorizationRequestBaseUri)
                 .authorizationRequestRepository(authorizationRequestRepository())
                 .and()
                 .userInfoEndpoint().userService(oauth2UserService()).oidcUserService(oidcUserService())
@@ -70,9 +75,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl(AppConstants.logOutSuccessUrl)
                 .invalidateHttpSession(true);
 
-        http.addFilterBefore(
-                new SecurityContextPersistenceFilter(new ReloadUserPerRequestHttpSessionSecurityContextRepository(userAccRepository)),
+        insertCustomFilters(http);
+    }
+
+    private void insertCustomFilters(HttpSecurity http) {
+        http.addFilterAfter(new ApiInternalAuthInterServiceFilter(), WebAsyncManagerIntegrationFilter.class);
+
+        http.addFilterBefore(new SecurityContextPersistenceFilter(new ReloadUserPerRequestHttpSessionSecurityContextRepository(userAccRepository)),
                 SecurityContextPersistenceFilter.class);//Replacing original SecurityContextPersistenceFilter (by using FILTER_APPLIED flag with the same key as the original filter)
+
+        http.addFilterBefore(new AddLoginMethodFilter(AppConstants.oAuth2AuthorizationRequestBaseUri), OAuth2AuthorizationRequestRedirectFilter.class);
+
+        http.addFilterAfter(new JoinFlowExceptionHandlerFilter(), OAuth2AuthorizationRequestRedirectFilter.class);
     }
 
     @Bean

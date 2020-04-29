@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AppConstants {
-    public static final String oAuthAuthorizationRequestBaseUri = "/login/";//This HAS TO HAVE a "/" (slash) character at the end!
+    public static final String oAuth2AuthorizationRequestBaseUri = "/login/oauth2/";//This HAS TO HAVE a "/" (slash) character at the end!
     public static final String logOutUrl = "/logout";
     public static final String loginPageUrl = "/loginPage";
 
@@ -22,7 +22,7 @@ public class AppConstants {
     public static final String errorPageUrl = "/error/";//This HAS TO HAVE a "/" (slash) character at the end!
 
     public static final String apiInternalUrl = "/api/internal/";//This HAS TO HAVE a "/" (slash) character at the end!
-    public static final String apiNoAuthRequiredUrl = "/api/noauthrequired/";//This HAS TO HAVE a "/" (slash) character at the end!
+    public static final String apiNoAuthRequiredUrl = "/api/noAuthRequired/";//This HAS TO HAVE a "/" (slash) character at the end!
 
     public static final List<String> oAuth2ProviderRegistrationIds = Arrays.asList("google", "github");
 

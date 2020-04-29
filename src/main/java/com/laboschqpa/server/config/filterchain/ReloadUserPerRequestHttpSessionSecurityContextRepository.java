@@ -1,4 +1,4 @@
-package com.laboschqpa.server.config.auth.filterchain;
+package com.laboschqpa.server.config.filterchain;
 
 import com.laboschqpa.server.config.auth.user.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;

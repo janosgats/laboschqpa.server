@@ -4,9 +4,15 @@ import lombok.Data;
 
 @Data
 public class ApiErrorResponseBody {
-    private String error;
+    private String message;
+    private String key;
 
-    public ApiErrorResponseBody(String error) {
-        this.error = error;
+    public ApiErrorResponseBody(String message) {
+        this.message = message;
+    }
+
+    public ApiErrorResponseBody(String message, String key) {
+        this.message = message;
+        this.key = key;
     }
 }

@@ -8,13 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class ControllerSetup {
-
     @ModelAttribute
     public void initModel(HttpServletRequest request, Model model) {
         model.addAttribute("_csrf", request.getAttribute("_csrf"));
         AppConstants.preFillModel(model);
     }
-
-
-
 }

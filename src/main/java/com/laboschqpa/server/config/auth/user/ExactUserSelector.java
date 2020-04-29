@@ -13,8 +13,12 @@ import com.laboschqpa.server.entity.account.externalaccountdetail.GoogleExternal
 import com.laboschqpa.server.enums.RegistrationRequestPhase;
 import com.laboschqpa.server.exceptions.InvalidAuthenticationPrincipalException;
 import com.laboschqpa.server.exceptions.LogInException;
-import com.laboschqpa.server.exceptions.RegistrationException;
+import com.laboschqpa.server.exceptions.NotImplementedException;
+import com.laboschqpa.server.exceptions.joinflow.CannotFindValidRegistrationRequestJoinFlowException;
+import com.laboschqpa.server.exceptions.joinflow.CannotMergeToExistingAccountJoinFlowException;
+import com.laboschqpa.server.model.sessiondto.JoinFlowSessionDto;
 import com.laboschqpa.server.repo.*;
+import com.laboschqpa.server.util.SessionHelper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +35,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpSession;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -59,7 +60,7 @@ public class ExactUserSelector {
         Assert.notNull(oAuth2UserRequest, "oAuth2UserRequest cannot be null!");
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            return loginUserInSessionWithEmptyAuthentication(oAuth2UserRequest);
+            return logInNewUserIntoSession(oAuth2UserRequest);
         } else {
             return handleRequestWhenUserIsPossiblyAlreadyLoggedIn(oAuth2UserRequest);
         }
@@ -73,7 +74,7 @@ public class ExactUserSelector {
         if (principal instanceof CustomOauth2User) {
             customOauth2User = (CustomOauth2User) principal;
         } else {
-            invalidateCurrentSession();
+            SessionHelper.invalidateCurrentSession();
             throw new InvalidAuthenticationPrincipalException("Authentication principal is not instance of CustomOauth2User");
         }
 
@@ -86,24 +87,11 @@ public class ExactUserSelector {
         return customOauth2User;
     }
 
-    private void invalidateCurrentSession() {
-        HttpSession session = getCurrentSession();
-        if (session != null) {
-            session.invalidate();
-            logger.trace("Session was invalidated.");
-        }
-    }
-
-    private HttpSession getCurrentSession() {
-        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        return attr.getRequest().getSession(true);
-    }
-
     private void addLoginMethodToExistingUserAccount(UserAcc existingUserAcc, OAuth2UserRequest oAuth2UserRequest) {
-
+        throw new NotImplementedException("Implement addLoginMethodToExistingUserAccount() !");
     }
 
-    private CustomOauth2User loginUserInSessionWithEmptyAuthentication(OAuth2UserRequest oAuth2UserRequest) {
+    private CustomOauth2User logInNewUserIntoSession(OAuth2UserRequest oAuth2UserRequest) {
         CustomOauth2User customOauth2User = new CustomOauth2User();
 
         String clientRegistrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
@@ -172,13 +160,12 @@ public class ExactUserSelector {
                     } else {
                         //Couldn't found anything to merge accounts by.
 
-                        HttpSession session = getCurrentSession();
-                        Long registrationRequestId = (Long) session.getAttribute("registrationRequestId");
-                        if (registrationRequestId != null) {
-                            RegistrationRequest registrationRequest = getRegistrationRequestFromIdIfPresent(registrationRequestId);
+                        JoinFlowSessionDto joinFlowSessionDto = JoinFlowSessionDto.readFromCurrentSession();
+                        if (joinFlowSessionDto != null && joinFlowSessionDto.getRegistrationRequestId() != null) {
+                            RegistrationRequest registrationRequest = getRegistrationRequestFromIdIfPresent(joinFlowSessionDto.getRegistrationRequestId());
 
                             if (registrationRequest == null || registrationRequest.getPhase() != RegistrationRequestPhase.EMAIL_VERIFIED) {
-                                throw new RegistrationException("Cannot found existing account neither registration request with verified e-mail!");
+                                throw new CannotFindValidRegistrationRequestJoinFlowException("Cannot found existing account neither registration request with verified e-mail!");
                             }
 
                             userAccEntity = registerNewUser();
@@ -186,13 +173,14 @@ public class ExactUserSelector {
                             externalAccountDetail.setUserAcc(userAccEntity);
                             googleExternalAccountDetailRepository.save((GoogleExternalAccountDetail) externalAccountDetail);
 
-                            session.removeAttribute("registrationRequestId");
+                            joinFlowSessionDto.setRegistrationRequestId(null);
+                            joinFlowSessionDto.writeToCurrentSession();
                             registrationRequest.setPhase(RegistrationRequestPhase.REGISTERED);
                             registrationRequestRepository.save(registrationRequest);
 
                             logger.info("Registered new user from: " + clientRegistrationId);
                         } else {
-                            throw new LogInException("Cannot find existing user account or e-mail that this login can be merged to!");
+                            throw new CannotMergeToExistingAccountJoinFlowException("Cannot find existing user account or e-mail that this login can be merged to!");
                         }
                     }
                 }
@@ -214,13 +202,12 @@ public class ExactUserSelector {
                         logger.debug("Logged in existing user by merging externalAccountDetail.");
                     } else {
                         //Couldn't found anything to merge accounts by. Creating new account
-                        HttpSession session = getCurrentSession();
-                        Long registrationRequestId = (Long) session.getAttribute("registrationRequestId");
-                        if (registrationRequestId != null) {
-                            RegistrationRequest registrationRequest = getRegistrationRequestFromIdIfPresent(registrationRequestId);
+                        JoinFlowSessionDto joinFlowSessionDto = JoinFlowSessionDto.readFromCurrentSession();
+                        if (joinFlowSessionDto != null && joinFlowSessionDto.getRegistrationRequestId() != null) {
+                            RegistrationRequest registrationRequest = getRegistrationRequestFromIdIfPresent(joinFlowSessionDto.getRegistrationRequestId());
 
                             if (registrationRequest == null || registrationRequest.getPhase() != RegistrationRequestPhase.EMAIL_VERIFIED) {
-                                throw new RegistrationException("Cannot found existing account neither registration request with verified e-mail!");
+                                throw new CannotFindValidRegistrationRequestJoinFlowException("Cannot found existing account neither registration request with verified e-mail!");
                             }
 
                             userAccEntity = registerNewUser();
@@ -228,13 +215,14 @@ public class ExactUserSelector {
                             externalAccountDetail.setUserAcc(userAccEntity);
                             githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
 
-                            session.removeAttribute("registrationRequestId");
+                            joinFlowSessionDto.setRegistrationRequestId(null);
+                            joinFlowSessionDto.writeToCurrentSession();
                             registrationRequest.setPhase(RegistrationRequestPhase.REGISTERED);
                             registrationRequestRepository.save(registrationRequest);
 
                             logger.info("Registered new user from: " + clientRegistrationId);
                         } else {
-                            throw new LogInException("Cannot find existing user account or e-mail that this login can be merged to!");
+                            throw new CannotMergeToExistingAccountJoinFlowException("Cannot find existing user account or e-mail that this login can be merged to!");
                         }
                     }
                 }
