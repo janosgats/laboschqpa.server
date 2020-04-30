@@ -27,7 +27,7 @@ public enum TeamRole {
                 .findFirst();
 
         if (optional.isEmpty())
-            throw new NotImplementedException("Enum from this value is not implemented");
+            throw new NotImplementedException("Enum from this value is not implemented" + value);
 
         return optional.get();
     }

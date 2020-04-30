@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 
@@ -35,11 +36,17 @@ public class UserAccountLoginManager {
     private final UserAccRepository userAccRepository;
     private final RegistrationRequestRepository registrationRequestRepository;
     private final OAuth2ProviderServiceSelector oAuth2ProviderServiceSelector;
+    private final TransactionTemplate transactionTemplate;
 
     public CustomOauth2User getExactUser(OAuth2UserRequest oAuth2UserRequest) {
         if (oAuth2UserRequest == null) {
             throw new CorruptedContextAuthenticationException("OAuth2UserRequest is null!");
         }
+
+        return transactionTemplate.execute(s -> handleInTransaction(oAuth2UserRequest));
+    }
+
+    private CustomOauth2User handleInTransaction(OAuth2UserRequest oAuth2UserRequest) {
         ExplodedOAuth2UserRequestDto explodedRequest = explodeOAuth2UserRequest(oAuth2UserRequest);
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
