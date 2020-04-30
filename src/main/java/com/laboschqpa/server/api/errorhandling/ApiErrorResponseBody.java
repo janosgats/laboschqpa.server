@@ -28,9 +28,10 @@ public class ApiErrorResponseBody {
     public ObjectNode toJson() {
         ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
         objectNode.put("message", message);
-        objectNode.put("apiError", key.toString());
-        objectNode.put("apiErrorNumber", key.getErrorResponseNumber());
-
+        if (key != null) {
+            objectNode.put("apiError", key.toString());
+            objectNode.put("apiErrorNumber", key.getErrorResponseNumber());
+        }
         return objectNode;
     }
 }
