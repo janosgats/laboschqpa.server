@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.service.admin;
 
-import com.laboschqpa.server.service.email.EmailSenderService;
+import com.laboschqpa.server.service.emailsending.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

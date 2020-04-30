@@ -6,7 +6,7 @@ import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
 import com.laboschqpa.server.model.sessiondto.JoinFlowSessionDto;
 import com.laboschqpa.server.repo.RegistrationRequestRepository;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
-import com.laboschqpa.server.service.email.EmailSenderService;
+import com.laboschqpa.server.service.emailsending.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;

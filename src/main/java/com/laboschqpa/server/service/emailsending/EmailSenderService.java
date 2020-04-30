@@ -1,4 +1,4 @@
-package com.laboschqpa.server.service.email;
+package com.laboschqpa.server.service.emailsending;
 
 public interface EmailSenderService {
     void sendTestMail(String toEmail, String testMessage);

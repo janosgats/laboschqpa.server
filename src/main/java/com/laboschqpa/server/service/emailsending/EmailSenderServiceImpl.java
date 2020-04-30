@@ -1,4 +1,4 @@
-package com.laboschqpa.server.service.email;
+package com.laboschqpa.server.service.emailsending;
 
 import com.laboschqpa.server.exceptions.EmailSendingException;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.laboschqpa.server.config.userservice;
+package com.laboschqpa.server.service.loginauthentication;
 
 import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
 import com.laboschqpa.server.service.oauth2.AbstractOAuth2ProviderService;

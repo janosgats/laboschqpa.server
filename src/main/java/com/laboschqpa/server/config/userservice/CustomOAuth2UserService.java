@@ -1,5 +1,6 @@
 package com.laboschqpa.server.config.userservice;
 
+import com.laboschqpa.server.service.loginauthentication.UserAccountLoginManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -14,6 +15,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
-        return userAccountLoginManager.getExactUser(oAuth2UserRequest);
+        return userAccountLoginManager.getExactUserFromOAuth2UserRequest(oAuth2UserRequest);
     }
 }

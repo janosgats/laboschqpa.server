@@ -1,4 +1,4 @@
-package com.laboschqpa.server.service.email;
+package com.laboschqpa.server.service.emailsending;
 
 import com.laboschqpa.server.exceptions.EmailSendingException;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,6 @@ import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.HashSet;
 import java.util.Set;
 
 @RequiredArgsConstructor
