@@ -6,7 +6,7 @@ env:
 #    - FORCE_DEPLOY_TO_KSZK=true
     - PROJECT_IMAGE_NAME=laboschqpa-server
     - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::10}
-    - IMAGE_NAME_TAG=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:${SHORT_COMMIT_HASH}
+    - IMAGE_NAME_COMMIT=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:${SHORT_COMMIT_HASH}
     - IMAGE_NAME_BRANCH=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:${TRAVIS_BRANCH}
 
 install: skip
@@ -30,9 +30,9 @@ jobs:
 
         - docker build --target=builder_image --cache-from ${IMAGE_NAME_CACHE_BUILDER} -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
         - docker push ${IMAGE_NAME_CACHE_BUILDER}
-        - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_TAG} -f docker/Dockerfile-k8s_dev-travis_build .
+        - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} -f docker/Dockerfile-k8s_dev-travis_build .
         - docker push ${IMAGE_NAME_CACHE_FINAL}
-        - docker push ${IMAGE_NAME_TAG}
+        - docker push ${IMAGE_NAME_COMMIT}
         - docker push ${IMAGE_NAME_BRANCH}
 
     - stage: DeployToKSZK
@@ -59,4 +59,4 @@ jobs:
         - kubectl config use-context KSZK
       install:
         - echo "Starting deployment"
-        - kubectl --insecure-skip-tls-verify -n=csillagtura-sch-bme-hu set image deployments/server server=${IMAGE_NAME_TAG}
+        - kubectl --insecure-skip-tls-verify -n=csillagtura-sch-bme-hu set image deployments/server server=${IMAGE_NAME_COMMIT}
