@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.service.admin;
 
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.enums.Authority;
+import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.exceptions.ConflictingRequestDataApiException;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
 import com.laboschqpa.server.repo.Repos;

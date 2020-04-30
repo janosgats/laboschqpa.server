@@ -2,7 +2,7 @@ package com.laboschqpa.server.api.controller;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.laboschqpa.server.api.service.NewsPostService;
-import com.laboschqpa.server.config.auth.user.CustomOauth2User;
+import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.usergeneratedcontent.NewsPost;
 import com.laboschqpa.server.service.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package com.laboschqpa.server.api.service.internal;
 
 import com.laboschqpa.server.api.dto.IndexedFileServingRequestDto;
 import com.laboschqpa.server.api.dto.IsUserAuthorizedToResourceResponseDto;
-import com.laboschqpa.server.config.auth.user.CustomOauth2User;
+import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

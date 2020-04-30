@@ -1,7 +1,7 @@
 package com.laboschqpa.server.service;
 
-import com.laboschqpa.server.config.auth.user.CustomOauth2User;
-import com.laboschqpa.server.enums.Authority;
+import com.laboschqpa.server.config.userservice.CustomOauth2User;
+import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.exceptions.UnAuthorizedException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

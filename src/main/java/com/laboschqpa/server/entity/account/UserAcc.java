@@ -1,12 +1,12 @@
 package com.laboschqpa.server.entity.account;
 
 import com.laboschqpa.server.entity.Team;
-import com.laboschqpa.server.enums.Authority;
-import com.laboschqpa.server.config.auth.authorities.EnumBasedAuthority;
+import com.laboschqpa.server.enums.auth.Authority;
+import com.laboschqpa.server.config.helper.EnumBasedAuthority;
 import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GithubExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
-import com.laboschqpa.server.enums.TeamRole;
+import com.laboschqpa.server.enums.auth.TeamRole;
 import com.laboschqpa.server.enums.attributeconverter.AuthorityAttributeConverter;
 import com.laboschqpa.server.enums.attributeconverter.TeamRoleAttributeConverter;
 import lombok.AllArgsConstructor;

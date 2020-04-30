@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.service.admin;
 
-import com.laboschqpa.server.config.auth.user.CustomOauth2User;
+import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.exceptions.UsersAdminException;
 import com.laboschqpa.server.repo.UserAccRepository;

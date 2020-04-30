@@ -3,6 +3,7 @@ package com.laboschqpa.server.api.errorhandling;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laboschqpa.server.exceptions.*;
+import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
 import com.laboschqpa.server.model.FieldValidationError;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -59,9 +60,7 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
     }
 
     @ExceptionHandler({TeamUserRelationException.class,
-            LogInException.class,
-            RegistrationException.class,
-            InvalidAuthenticationPrincipalException.class,
+            RegistrationJoinFlowException.class,
             ConstraintViolationException.class})
     protected ResponseEntity<ApiErrorResponseBody> handleClientCausedErrors(
             Exception e, WebRequest request) {

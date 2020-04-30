@@ -1,10 +1,9 @@
 package com.laboschqpa.server.enums.attributeconverter;
 
-import com.laboschqpa.server.enums.Authority;
+import com.laboschqpa.server.enums.auth.Authority;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import java.util.Arrays;
 
 @Converter
 public class AuthorityAttributeConverter implements AttributeConverter<Authority, String> {

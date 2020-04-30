@@ -1,33 +1,23 @@
 package com.laboschqpa.server.enums;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.laboschqpa.server.exceptions.NotImplementedException;
-
-import java.util.Arrays;
-import java.util.Optional;
-
 public enum ApiErrorResponseKeys {
-    OAUTH2_AUTHORIZATION_REQUEST_FROM_ALREADY_LOGGED_IN_USER("OAUTH2_AUTHORIZATION_REQUEST_FROM_ALREADY_LOGGED_IN_USER");
+    OAUTH2_AUTHORIZATION_REQUEST_FROM_ALREADY_LOGGED_IN_USER(1),
+    AUTHN_CANNOT_FIND_EXISTING_ACCOUNT_AND_NO_REGISTRATION_SESSION_DATA_IS_SET(2),
+    AUTHN_CORRUPTED_CONTEXT(3),
+    AUTHN_DEFECTIVE_AUTH_PROVIDER_RESPONSE(4),
+    AUTHN_EMAIL_GOT_FROM_OAUTH2_RESPONSE_BELONGS_TO_ANOTHER_ACCOUNT(5),
+    AUTHN_INVALID_LOGIN_METHOD(6),
+    AUTHN_REGISTRATION_REQUEST_REFERRED_BY_SESSION_DATA_IS_INVALID(7),
+    AUTHN_USER_ACCOUNT_IS_DISABLED(8),
+    AUTHN_GENERIC_FAILURE(9);
 
-    private String errorResponseKey;
+    private Integer errorResponseNumber;
 
-    ApiErrorResponseKeys(String errorResponseKey) {
-        this.errorResponseKey = errorResponseKey;
+    ApiErrorResponseKeys(Integer errorResponseNumber) {
+        this.errorResponseNumber = errorResponseNumber;
     }
 
-    @JsonValue
-    public String getErrorResponseKey() {
-        return errorResponseKey;
-    }
-
-    public static ApiErrorResponseKeys fromErrorResponseKey(String errorResponseKey) {
-        Optional<ApiErrorResponseKeys> optional = Arrays.stream(ApiErrorResponseKeys.values())
-                .filter(en -> en.getErrorResponseKey().equals(errorResponseKey))
-                .findFirst();
-
-        if (optional.isEmpty())
-            throw new NotImplementedException("Enum from this value is not implemented");
-
-        return optional.get();
+    public Integer getErrorResponseNumber() {
+        return errorResponseNumber;
     }
 }

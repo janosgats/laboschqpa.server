@@ -10,7 +10,7 @@ import javax.validation.ValidatorFactory;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class SelfValidator<T> {
+public abstract class SelfValidator<T extends SelfValidator<T>> {
     private Validator validator;
 
     public SelfValidator() {
@@ -25,5 +25,10 @@ public abstract class SelfValidator<T> {
                     .map(violation -> new FieldValidationError(violation.getPropertyPath().toString(), violation.getMessage()))
                     .collect(Collectors.toList()));
         }
+    }
+
+    public boolean isValid() {
+        Set<ConstraintViolation<T>> violations = validator.validate((T) this);
+        return violations.isEmpty();
     }
 }

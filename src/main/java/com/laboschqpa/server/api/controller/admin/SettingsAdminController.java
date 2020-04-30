@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.controller.admin;
 
 import com.laboschqpa.server.api.service.admin.SettingsAdminService;
-import com.laboschqpa.server.config.auth.user.CustomOauth2User;
+import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.service.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

@@ -2,7 +2,7 @@ package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.entity.RegistrationRequest;
 import com.laboschqpa.server.enums.RegistrationRequestPhase;
-import com.laboschqpa.server.exceptions.RegistrationException;
+import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
 import com.laboschqpa.server.model.sessiondto.JoinFlowSessionDto;
 import com.laboschqpa.server.repo.RegistrationRequestRepository;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
@@ -10,10 +10,7 @@ import com.laboschqpa.server.service.email.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpSession;
 import java.security.SecureRandom;
 import java.util.Optional;
 
@@ -26,7 +23,7 @@ public class RegisterByEmailService {
 
     public void onSubmitEmailToRegister(String emailToRegister) {
         if (userEmailAddressRepository.findByEmail(emailToRegister).isPresent()) {
-            throw new RegistrationException("E-mail address is already in the system!");
+            throw new RegistrationJoinFlowException("E-mail address is already in the system!");
         }
 
         RegistrationRequest registrationRequest = new RegistrationRequest();
@@ -52,19 +49,19 @@ public class RegisterByEmailService {
     private RegistrationRequest getValidRegistrationRequest(Long registrationRequestId, String registrationRequestKey) {
         Optional<RegistrationRequest> registrationRequestOptional = registrationRequestRepository.findById(registrationRequestId);
         if (registrationRequestOptional.isEmpty()) {
-            throw new RegistrationException("Registration request cannot be found!");
+            throw new RegistrationJoinFlowException("Registration request cannot be found!");
         }
         RegistrationRequest registrationRequest = registrationRequestOptional.get();
 
         if (!registrationRequest.getPhase().equals(RegistrationRequestPhase.EMAIL_SUBMITTED) && !registrationRequest.getPhase().equals(RegistrationRequestPhase.EMAIL_VERIFIED)) {
-            throw new RegistrationException("Registration request is not in appropriate state for verifying the e-mail address. " +
+            throw new RegistrationJoinFlowException("Registration request is not in appropriate state for verifying the e-mail address. " +
                     "Please submit a new registration request if you don't have an account yet!");
         }
 
         if (registrationRequest.getKey().equals(registrationRequestKey)) {
             return registrationRequest;
         } else {
-            throw new RegistrationException("Registration request key is not matching!");
+            throw new RegistrationJoinFlowException("Registration request key is not matching!");
         }
     }
 }

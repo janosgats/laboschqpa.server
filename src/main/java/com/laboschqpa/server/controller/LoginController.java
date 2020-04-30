@@ -1,7 +1,7 @@
 package com.laboschqpa.server.controller;
 
-import com.laboschqpa.server.config.AppConstants;
-import com.laboschqpa.server.config.auth.user.CustomOauth2User;
+import com.laboschqpa.server.config.helper.AppConstants;
+import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

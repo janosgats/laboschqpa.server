@@ -1,6 +1,6 @@
 package com.laboschqpa.server.enums.attributeconverter;
 
-import com.laboschqpa.server.enums.TeamRole;
+import com.laboschqpa.server.enums.auth.TeamRole;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

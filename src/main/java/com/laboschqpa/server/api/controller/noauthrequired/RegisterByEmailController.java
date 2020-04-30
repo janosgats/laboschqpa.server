@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.controller.noauthrequired;
 
 import com.laboschqpa.server.api.service.RegisterByEmailService;
-import com.laboschqpa.server.config.AppConstants;
+import com.laboschqpa.server.config.helper.AppConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

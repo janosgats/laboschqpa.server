@@ -1,22 +1,25 @@
 package com.laboschqpa.server.config;
 
-import com.laboschqpa.server.config.filterchain.AddLoginMethodFilter;
-import com.laboschqpa.server.config.filterchain.ApiInternalAuthInterServiceFilter;
-import com.laboschqpa.server.config.filterchain.JoinFlowExceptionHandlerFilter;
-import com.laboschqpa.server.config.filterchain.ReloadUserPerRequestHttpSessionSecurityContextRepository;
-import com.laboschqpa.server.enums.Authority;
-import com.laboschqpa.server.config.auth.user.CustomOAuth2UserService;
-import com.laboschqpa.server.config.auth.user.CustomOidcUserService;
+import com.laboschqpa.server.config.authprovider.OAuth2ProviderRegistrationFactory;
+import com.laboschqpa.server.config.filterchain.*;
+import com.laboschqpa.server.config.filterchain.filter.AddLoginMethodFilter;
+import com.laboschqpa.server.config.filterchain.filter.ApiInternalAuthInterServiceFilter;
+import com.laboschqpa.server.config.filterchain.handler.CustomAuthenticationFailureHandler;
+import com.laboschqpa.server.config.filterchain.handler.CustomAuthenticationSuccessHandler;
+import com.laboschqpa.server.config.helper.AppConstants;
+import com.laboschqpa.server.enums.auth.Authority;
+import com.laboschqpa.server.config.userservice.CustomOAuth2UserService;
+import com.laboschqpa.server.config.userservice.CustomOidcUserService;
+import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
 import com.laboschqpa.server.repo.UserAccRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
@@ -34,7 +37,6 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @EnableWebSecurity
 @Configuration
@@ -42,10 +44,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     @Resource
-    private Environment env;
+    UserAccRepository userAccRepository;
 
     @Resource
-    UserAccRepository userAccRepository;
+    ApplicationContext applicationContext;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -62,13 +64,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .baseUri(AppConstants.oAuth2AuthorizationRequestBaseUri)
                 .authorizationRequestRepository(authorizationRequestRepository())
                 .and()
-                .userInfoEndpoint().userService(oauth2UserService()).oidcUserService(oidcUserService())
+                .userInfoEndpoint()
+                .userService(applicationContext.getBean(CustomOAuth2UserService.class))
+                .oidcUserService(applicationContext.getBean(CustomOidcUserService.class))
                 .and()
                 .tokenEndpoint()
                 .accessTokenResponseClient(accessTokenResponseClient())
                 .and()
-                .defaultSuccessUrl(AppConstants.defaultLoginSuccessUrl)
-                .failureUrl(AppConstants.defaultLoginFailureUrl)
+                .successHandler(customAuthenticationSuccessHandler())
+                .failureHandler(customAuthenticationFailureHandler())
                 .and()
                 .logout()
                 .logoutUrl(AppConstants.logOutUrl)
@@ -85,18 +89,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 SecurityContextPersistenceFilter.class);//Replacing original SecurityContextPersistenceFilter (by using FILTER_APPLIED flag with the same key as the original filter)
 
         http.addFilterBefore(new AddLoginMethodFilter(AppConstants.oAuth2AuthorizationRequestBaseUri), OAuth2AuthorizationRequestRedirectFilter.class);
-
-        http.addFilterAfter(new JoinFlowExceptionHandlerFilter(), OAuth2AuthorizationRequestRedirectFilter.class);
     }
 
     @Bean
-    public CustomOAuth2UserService oauth2UserService() {
-        return new CustomOAuth2UserService();
+    public ClientRegistrationRepository clientRegistrationRepository(OAuth2ProviderRegistrationFactory oAuth2ProviderRegistrationFactory) {
+        List<ClientRegistration> registrations = new ArrayList<>();
+        registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistrations.Google));
+        registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistrations.GitHub));
+
+        return new InMemoryClientRegistrationRepository(registrations);
     }
 
     @Bean
-    public CustomOidcUserService oidcUserService() {
-        return new CustomOidcUserService();
+    public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public CustomAuthenticationFailureHandler customAuthenticationFailureHandler() {
+        return new CustomAuthenticationFailureHandler();
     }
 
     @Bean
@@ -112,48 +123,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public OAuth2ClientContext oAuth2ClientContext() {
         return new DefaultOAuth2ClientContext();
-    }
-
-
-    @Bean
-    public ClientRegistrationRepository clientRegistrationRepository() {
-        List<ClientRegistration> registrations = AppConstants.oAuth2ProviderRegistrationIds.stream()
-                .map(this::getRegistration)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        return new InMemoryClientRegistrationRepository(registrations);
-    }
-
-    private ClientRegistration getRegistration(String client) {
-        String clientId = env.getProperty("oauth2.provider." + client + ".client.client-id");
-
-        if (clientId == null) {
-            return null;
-        }
-
-        String clientSecret = env.getProperty("oauth2.provider." + client + ".client.client-secret");
-
-        if (client.equals("google")) {
-            return CommonOAuth2Provider.GOOGLE.getBuilder(client)
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .build();
-        }
-
-        if (client.equals("github")) {
-            return CommonOAuth2Provider.GITHUB.getBuilder(client)
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .build();
-        }
-//
-//        if (client.equals("facebook")) {
-//            return CommonOAuth2Provider.FACEBOOK.getBuilder(client)
-//                    .clientId(clientId)
-//                    .clientSecret(clientSecret)
-//                    .build();
-//        }
-        return null;
     }
 }
