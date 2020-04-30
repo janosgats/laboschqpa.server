@@ -4,8 +4,10 @@ env:
   global:
 #    - SKIP_DOCKER_BUILD=true
 #    - FORCE_DEPLOY_TO_KSZK=true
+    - PROJECT_IMAGE_NAME=laboschqpa-server
     - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::10}
-    - IMAGE_NAME_TAG=${DOCKER_USERNAME}/laboschqpa-server:${SHORT_COMMIT_HASH}
+    - IMAGE_NAME_TAG=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:${SHORT_COMMIT_HASH}
+    - IMAGE_NAME_BRANCH=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:${TRAVIS_BRANCH}
 
 install: skip
 script: skip
@@ -20,8 +22,8 @@ jobs:
       before_install:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-        - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/laboschqpa-server:builder
-        - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/laboschqpa-server
+        - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:builder
+        - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}
       install:
         - docker pull ${IMAGE_NAME_CACHE_BUILDER} || true
         - docker pull ${IMAGE_NAME_CACHE_FINAL} || true
@@ -31,6 +33,7 @@ jobs:
         - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_TAG} -f docker/Dockerfile-k8s_dev-travis_build .
         - docker push ${IMAGE_NAME_CACHE_FINAL}
         - docker push ${IMAGE_NAME_TAG}
+        - docker push ${IMAGE_NAME_BRANCH}
 
     - stage: DeployToKSZK
 #      if: branch = master
