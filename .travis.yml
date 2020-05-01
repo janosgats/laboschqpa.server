@@ -37,7 +37,8 @@ jobs:
 
     - stage: DeployToKSZK
 #      if: branch = master
-      if: env(FORCE_DEPLOY_TO_KSZK) = "true"
+#      if: env(FORCE_DEPLOY_TO_KSZK) = "true"
+      if: branch = master OR env(FORCE_DEPLOY_TO_KSZK) = "true"
       script: skip
       before_install:
         - echo "Installing kubectl"
