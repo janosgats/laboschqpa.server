@@ -39,8 +39,17 @@ jobs:
 #      if: branch = master
 #      if: env(FORCE_DEPLOY_TO_KSZK) = "true"
       if: branch = master OR env(FORCE_DEPLOY_TO_KSZK) = "true"
+      language: python
       script: skip
       before_install:
+        - echo "Installing JMeter"
+        - cd pipeline
+        - chmod +x ./JMeterInstaller.py
+        - python ./JMeterInstaller.py
+        - apache-jmeter-3.0/bin/jmeter.sh -t ./travis-authsch-login.jmx -n
+        - KSZK_SECRET_AUTH_PROVIDER_REFRESH_TOKEN=$(cat authschAuthproviderRefreshtoken.txt)
+        - cd ..
+
         - echo "Installing kubectl"
         - curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/$(uname | awk '{print tolower($0)}')/amd64/kubectl
         - chmod +x ./kubectl
