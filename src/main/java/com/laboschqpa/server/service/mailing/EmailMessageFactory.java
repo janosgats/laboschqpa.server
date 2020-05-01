@@ -1,4 +1,4 @@
-package com.laboschqpa.server.service.emailsending;
+package com.laboschqpa.server.service.mailing;
 
 import com.laboschqpa.server.exceptions.EmailSendingException;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
-public class EmailMessageFactoryService {
-    final TemplateEngine templateEngine;
+public class EmailMessageFactory {
+    private final TemplateEngine templateEngine;
 
     public WithJavaMailSender withJavaMailSender(JavaMailSender javaMailSender) {
         return new WithJavaMailSender(javaMailSender);

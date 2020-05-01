@@ -1,4 +1,4 @@
-package com.laboschqpa.server.api.service;
+package com.laboschqpa.server.api.service.noauthrequired;
 
 import com.laboschqpa.server.entity.RegistrationRequest;
 import com.laboschqpa.server.enums.RegistrationRequestPhase;
@@ -6,7 +6,7 @@ import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
 import com.laboschqpa.server.model.sessiondto.JoinFlowSessionDto;
 import com.laboschqpa.server.repo.RegistrationRequestRepository;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
-import com.laboschqpa.server.service.emailsending.EmailSenderService;
+import com.laboschqpa.server.service.mailing.QpaEmailDispatcher;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.Optional;
 public class RegisterByEmailService {
     private final RegistrationRequestRepository registrationRequestRepository;
     private final UserEmailAddressRepository userEmailAddressRepository;
-    private final EmailSenderService emailSenderService;
+    private final QpaEmailDispatcher qpaEmailDispatcher;
 
     public void onSubmitEmailToRegister(String emailToRegister) {
         if (userEmailAddressRepository.findByEmail(emailToRegister).isPresent()) {
@@ -32,7 +32,7 @@ public class RegisterByEmailService {
         registrationRequest.setPhase(RegistrationRequestPhase.EMAIL_SUBMITTED);
         registrationRequestRepository.save(registrationRequest);
 
-        emailSenderService.sendRegistrationRequestMail(emailToRegister, registrationRequest.getId(), registrationRequest.getKey());
+        qpaEmailDispatcher.sendSyncRegistrationRequestMail(emailToRegister, registrationRequest.getId(), registrationRequest.getKey());
     }
 
     public void onVisitingPageFromEmailLink(Long registrationRequestId, String registrationRequestKey) {
