@@ -55,7 +55,11 @@ public class SecretPropertyLoadConfig {
     }
 
     private static Path getSecretsFilePath(Environment env) {
-        return FileSystems.getDefault().getPath(Objects.requireNonNull(env.getProperty("secret.secrets.file.location")));
+        return FileSystems.getDefault().getPath(
+                Objects.requireNonNull(
+                        env.getProperty("secret.secrets.file.location"),
+                        "Property cannot be null: secret.secrets.file.location"
+                ));
     }
 }
 
