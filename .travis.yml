@@ -43,7 +43,7 @@ jobs:
       script: skip
       before_install:
         - echo "Installing JMeter and getting gangway Refresh token"
-        - apt-get -y install unzip
+        - sudo apt-get -y install unzip
         - cd pipeline
         - wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-3.0.zip
         - unzip apache-jmeter-3.0.zip
