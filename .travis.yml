@@ -39,14 +39,15 @@ jobs:
 #      if: branch = master
 #      if: env(FORCE_DEPLOY_TO_KSZK) = "true"
       if: branch = master OR env(FORCE_DEPLOY_TO_KSZK) = "true"
-      language: python
+      language: java
       script: skip
       before_install:
-        - echo "Installing JMeter"
+        - echo "Installing JMeter and getting gangway Refresh token"
+        - apt-get -y install unzip
         - cd pipeline
-        - chmod +x ./JMeterInstaller.py
-        - python ./JMeterInstaller.py
-        - apache-jmeter-3.0/bin/jmeter.sh -t ./travis-authsch-login.jmx -n
+        - wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-3.0.zip
+        - unzip apache-jmeter-3.0.zip
+        - apache-jmeter-3.0/bin/jmeter.sh -t ./get-refresh-token-by-authsch-login.jmx -n
         - KSZK_SECRET_AUTH_PROVIDER_REFRESH_TOKEN=$(cat authschAuthproviderRefreshtoken.txt)
         - cd ..
 
