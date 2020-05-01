@@ -89,7 +89,7 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
                 throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
                         "E-mail got from OAuth2 response is saved in the system as a different User's e-mail address: "
                                 + userEmailAddressFromRequestTriedToLoadFromDB.getEmail()
-                                + " Please contact support!");
+                                + ". Please contact support!");
             }
         }
 

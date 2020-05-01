@@ -117,7 +117,7 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
             throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
                     "E-mail got from OAuth2 response is saved in the system as a different User's e-mail address: "
                             + userEmailAddress.getEmail()
-                            + " Please contact support!");
+                            + ". Please contact support!");
         }
     }
 
@@ -130,7 +130,7 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
             throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
                     "EAD got from OAuth2 response is saved in the system as a different User's EAD. "
                             + "Provider: " + providerRegistration
-                            + " Please contact support!");
+                            + ". Please contact support!");
         }
     }
 }
