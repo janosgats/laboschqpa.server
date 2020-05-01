@@ -48,7 +48,8 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
         final AbstractOAuth2ProviderService oAuth2ProviderService = explodedRequest.getOAuth2ProviderService();
         final ExtractedOAuth2UserRequestDataDto extractedOAuth2UserRequestDataDto = explodedRequest.getExtractedOAuth2UserRequestDataDto();
 
-        Pair<UserAccountResolutionSource, UserAcc> accountResolutionResult = resolveUserAccount(providerRegistration, oAuth2ProviderService, extractedOAuth2UserRequestDataDto);
+        final Pair<UserAccountResolutionSource, UserAcc> accountResolutionResult
+                = resolveUserAccount(providerRegistration, oAuth2ProviderService, extractedOAuth2UserRequestDataDto);
 
         return handleAccountResolutionResult(accountResolutionResult.getLeft(), accountResolutionResult.getRight(),
                 providerRegistration, oAuth2ProviderService, extractedOAuth2UserRequestDataDto);
@@ -81,25 +82,31 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
 
         final UserAccountResolutionSource accountResolutionSource = determineUserAccountResolvingResult(userFoundByExternalAccountDetail, userFoundByEmailAddress);
 
-        if (accountResolutionSource == ByBoth) {
-            log.trace("User is found both by EAD and by E-mail.");
-            if (!userAccEntityByEAD.getId().equals(userAccEntityByEmail.getId())) {
-                log.info("During login user into session: User is found both by EAD and by E-mail, but they are NOT the same user.");
-                //If the user is found by EAD and also by Email, than the two users HAVE TO BE THE SAME!
-                throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
-                        "E-mail got from OAuth2 response is saved in the system as a different User's e-mail address: "
-                                + userEmailAddressFromRequestTriedToLoadFromDB.getEmail()
-                                + ". Please contact support!");
-            }
-        }
-
         final UserAcc resolvedUserAccEntity;
-        if (userFoundByExternalAccountDetail) {
-            resolvedUserAccEntity = userAccEntityByEAD;
-        } else if (userFoundByEmailAddress) {
-            resolvedUserAccEntity = userAccEntityByEmail;
-        } else {
-            resolvedUserAccEntity = null;
+        switch (accountResolutionSource) {
+            case ByBoth:
+                log.trace("User is found both by EAD and by E-mail.");
+                if (!userAccEntityByEAD.getId().equals(userAccEntityByEmail.getId())) {
+                    log.info("During login user into session: User is found both by EAD and by E-mail, but they are NOT the same user.");
+                    //If the user is found by EAD and also by Email, than the two users HAVE TO BE THE SAME!
+                    throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
+                            "E-mail got from OAuth2 response is saved in the system as a different User's e-mail address: "
+                                    + userEmailAddressFromRequestTriedToLoadFromDB.getEmail()
+                                    + ". Please contact support!");
+                }
+                resolvedUserAccEntity = userAccEntityByEAD;
+                break;
+            case OnlyByExternalAccountDetail:
+                resolvedUserAccEntity = userAccEntityByEAD;
+                break;
+            case OnlyByEmail:
+                resolvedUserAccEntity = userAccEntityByEmail;
+                break;
+            case ByNeither:
+                resolvedUserAccEntity = null;
+                break;
+            default:
+                throw new IllegalStateException("This code part shouldn't have been reached!");
         }
 
         if (resolvedUserAccEntity != null) {
@@ -113,12 +120,12 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
         return Pair.of(accountResolutionSource, resolvedUserAccEntity);
     }
 
-    private CustomOauth2User handleAccountResolutionResult(final UserAccountResolutionSource accountResolvingResult,
+    private CustomOauth2User handleAccountResolutionResult(final UserAccountResolutionSource accountResolutionResult,
                                                            UserAcc userAccEntity,
                                                            final OAuth2ProviderRegistrations providerRegistration,
                                                            final AbstractOAuth2ProviderService oAuth2ProviderService,
                                                            final ExtractedOAuth2UserRequestDataDto extractedOAuth2UserRequestDataDto) {
-        switch (accountResolvingResult) {
+        switch (accountResolutionResult) {
             case ByBoth:
                 //Nothing to do here. Both E-mail and EAD is already saved for the user.
                 break;
