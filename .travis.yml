@@ -45,9 +45,9 @@ jobs:
         - echo "Installing JMeter and getting gangway Refresh token"
         - sudo apt-get -y install unzip
         - cd pipeline
-        - wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-3.0.zip
-        - unzip apache-jmeter-3.0.zip
-        - apache-jmeter-3.0/bin/jmeter.sh -t ./get-refresh-token-by-authsch-login.jmx -n
+        - wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.2.zip
+        - unzip apache-jmeter-5.2.zip
+        - apache-jmeter-5.2/bin/jmeter.sh -t ./get-refresh-token-by-authsch-login.jmx -n
         - KSZK_SECRET_AUTH_PROVIDER_REFRESH_TOKEN=$(cat authschAuthproviderRefreshtoken.txt)
         - cd ..
 
