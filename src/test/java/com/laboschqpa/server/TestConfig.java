@@ -1,5 +1,6 @@
 package com.laboschqpa.server;
 
+import com.timgroup.statsd.StatsDClient;
 import com.zaxxer.hikari.HikariDataSource;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -30,5 +31,10 @@ public class TestConfig {
     @Bean
     public JavaMailSender javaMailSender() {
         return Mockito.mock(JavaMailSender.class);
+    }
+
+    @Bean
+    public StatsDClient statsDClient() {
+        return Mockito.mock(StatsDClient.class);
     }
 }

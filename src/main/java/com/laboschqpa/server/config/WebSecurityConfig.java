@@ -4,6 +4,7 @@ import com.laboschqpa.server.config.authprovider.OAuth2ProviderRegistrationFacto
 import com.laboschqpa.server.config.filterchain.*;
 import com.laboschqpa.server.config.filterchain.filter.AddLoginMethodFilter;
 import com.laboschqpa.server.config.filterchain.filter.ApiInternalAuthInterServiceFilter;
+import com.laboschqpa.server.config.filterchain.filter.RequestCounterFilter;
 import com.laboschqpa.server.config.filterchain.handler.CustomAuthenticationFailureHandler;
 import com.laboschqpa.server.config.filterchain.handler.CustomAuthenticationSuccessHandler;
 import com.laboschqpa.server.config.helper.AppConstants;
@@ -83,7 +84,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     private void insertCustomFilters(HttpSecurity http) {
-        http.addFilterAfter(new ApiInternalAuthInterServiceFilter(), WebAsyncManagerIntegrationFilter.class);
+        http.addFilterAfter(applicationContext.getBean(RequestCounterFilter.class), WebAsyncManagerIntegrationFilter.class);
+
+        http.addFilterAfter(new ApiInternalAuthInterServiceFilter(), RequestCounterFilter.class);
 
         http.addFilterBefore(new SecurityContextPersistenceFilter(new ReloadUserPerRequestHttpSessionSecurityContextRepository(userAccRepository)),
                 SecurityContextPersistenceFilter.class);//Replacing original SecurityContextPersistenceFilter (by using FILTER_APPLIED flag with the same key as the original filter)
