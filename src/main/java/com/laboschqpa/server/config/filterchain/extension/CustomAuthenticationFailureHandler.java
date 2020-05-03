@@ -1,4 +1,4 @@
-package com.laboschqpa.server.config.filterchain.handler;
+package com.laboschqpa.server.config.filterchain.extension;
 
 import com.laboschqpa.server.api.errorhandling.ApiErrorResponseBody;
 import com.laboschqpa.server.enums.ApiErrorResponseKeys;
@@ -8,11 +8,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Log4j2
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {

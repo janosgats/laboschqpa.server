@@ -1,4 +1,4 @@
-package com.laboschqpa.server.config.filterchain.handler;
+package com.laboschqpa.server.config.filterchain.extension;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;

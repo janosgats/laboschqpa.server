@@ -1,12 +1,12 @@
 package com.laboschqpa.server.config;
 
 import com.laboschqpa.server.config.authprovider.OAuth2ProviderRegistrationFactory;
-import com.laboschqpa.server.config.filterchain.*;
+import com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHttpSessionSecurityContextRepository;
 import com.laboschqpa.server.config.filterchain.filter.AddLoginMethodFilter;
 import com.laboschqpa.server.config.filterchain.filter.ApiInternalAuthInterServiceFilter;
 import com.laboschqpa.server.config.filterchain.filter.RequestCounterFilter;
-import com.laboschqpa.server.config.filterchain.handler.CustomAuthenticationFailureHandler;
-import com.laboschqpa.server.config.filterchain.handler.CustomAuthenticationSuccessHandler;
+import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationFailureHandler;
+import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationSuccessHandler;
 import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.config.userservice.CustomOAuth2UserService;
@@ -86,12 +86,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private void insertCustomFilters(HttpSecurity http) {
         http.addFilterAfter(applicationContext.getBean(RequestCounterFilter.class), WebAsyncManagerIntegrationFilter.class);
 
-        http.addFilterAfter(new ApiInternalAuthInterServiceFilter(), RequestCounterFilter.class);
+        http.addFilterAfter(applicationContext.getBean((ApiInternalAuthInterServiceFilter.class)), RequestCounterFilter.class);
 
         http.addFilterBefore(new SecurityContextPersistenceFilter(new ReloadUserPerRequestHttpSessionSecurityContextRepository(userAccRepository)),
                 SecurityContextPersistenceFilter.class);//Replacing original SecurityContextPersistenceFilter (by using FILTER_APPLIED flag with the same key as the original filter)
 
-        http.addFilterBefore(new AddLoginMethodFilter(AppConstants.oAuth2AuthorizationRequestBaseUri), OAuth2AuthorizationRequestRedirectFilter.class);
+        http.addFilterBefore(applicationContext.getBean(AddLoginMethodFilter.class), OAuth2AuthorizationRequestRedirectFilter.class);
     }
 
     @Bean

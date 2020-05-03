@@ -1,10 +1,12 @@
 package com.laboschqpa.server.config.filterchain.filter;
 
 import com.laboschqpa.server.api.errorhandling.ApiErrorResponseBody;
+import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.enums.ApiErrorResponseKeys;
 import com.laboschqpa.server.util.ServletHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -12,13 +14,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 
+@Service
 public class AddLoginMethodFilter implements Filter {
     private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
     private final AntPathRequestMatcher oAuth2AuthorizationRequestMatcher;
 
-    public AddLoginMethodFilter(final String oAuth2AuthorizationRequestBaseUri) {
+    public AddLoginMethodFilter() {
         oAuth2AuthorizationRequestMatcher = new AntPathRequestMatcher(
-                oAuth2AuthorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
+                AppConstants.oAuth2AuthorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
     }
 
     @Override
