@@ -12,7 +12,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Service
 public class RequestCounterFilter implements Filter {
-    private static final String STATSD_REQUEST_COUNT_METRIC_NAME = "request.count";
+    private static final String STATSD_REQUEST_COUNT_METRIC_NAME = "request.countpersec";
     private static final Integer STATSD_SEND_INTERVAL = 20;//To produce less UDP requests
 
     private final StatsDClient statsDClient;
