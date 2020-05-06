@@ -13,25 +13,22 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class AppConfig {
-    @Value("${appconfig.statsd.prefix}")
-    private String statsdPrefix;
+    @Value("${appName}")
+    private String appName;
 
     @Value("${appconfig.statsd.host}")
     private String statsdHost;
     @Value("${appconfig.statsd.port}")
     private Integer statsdPort;
 
-    @Value("${management.metrics.export.graphite.tags-as-prefix}")
-    private String graphiteCommonTagsAsPrefix;
-
     @Bean
     public StatsDClient statsDClient() {
-        return new NonBlockingStatsDClient(statsdPrefix, statsdHost, statsdPort, new LoggingStatsDClientErrorHandler());
+        return new NonBlockingStatsDClient(appName, statsdHost, statsdPort, new LoggingStatsDClientErrorHandler());
     }
 
     @Bean
     public MeterRegistryCustomizer<MeterRegistry> commonTags() {
-        return r -> r.config().commonTags(graphiteCommonTagsAsPrefix, statsdPrefix);
+        return r -> r.config().commonTags("appName", appName, "actuator", "actuator");
     }
 
     @Bean
