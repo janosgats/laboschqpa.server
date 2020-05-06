@@ -15,6 +15,7 @@ import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
 import com.laboschqpa.server.repo.UserAccRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,30 +51,39 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     ApplicationContext applicationContext;
 
+    @Value("${management.endpoints.web.base-path}")
+    private String springBootActuatorBaseUrl;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers(AppConstants.adminBaseUrl + "**").hasAuthority(Authority.Admin.getStringValue())
+                .antMatchers(AppConstants.adminBaseUrl + "**", springBootActuatorBaseUrl + "**")
+                .hasAuthority(Authority.Admin.getStringValue())
                 .antMatchers("/", AppConstants.apiNoAuthRequiredUrl + "**", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuth2AuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
                 .permitAll()
                 .anyRequest()
                 .hasAnyAuthority(Authority.User.getStringValue(), Authority.Admin.getStringValue())
+
                 .and()
                 .oauth2Login()
                 .loginPage(AppConstants.loginPageUrl)
                 .authorizationEndpoint()
                 .baseUri(AppConstants.oAuth2AuthorizationRequestBaseUri)
                 .authorizationRequestRepository(authorizationRequestRepository())
+
                 .and()
                 .userInfoEndpoint()
                 .userService(applicationContext.getBean(CustomOAuth2UserService.class))
                 .oidcUserService(applicationContext.getBean(CustomOidcUserService.class))
+
                 .and()
                 .tokenEndpoint()
                 .accessTokenResponseClient(accessTokenResponseClient())
+
                 .and()
                 .successHandler(customAuthenticationSuccessHandler())
                 .failureHandler(customAuthenticationFailureHandler())
+
                 .and()
                 .logout()
                 .logoutUrl(AppConstants.logOutUrl)

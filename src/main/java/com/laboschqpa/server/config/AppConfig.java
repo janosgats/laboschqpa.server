@@ -2,7 +2,9 @@ package com.laboschqpa.server.config;
 
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,9 +21,17 @@ public class AppConfig {
     @Value("${appconfig.statsd.port}")
     private Integer statsdPort;
 
+    @Value("${management.metrics.export.graphite.tags-as-prefix}")
+    private String graphiteCommonTagsAsPrefix;
+
     @Bean
     public StatsDClient statsDClient() {
         return new NonBlockingStatsDClient(statsdPrefix, statsdHost, statsdPort, new LoggingStatsDClientErrorHandler());
+    }
+
+    @Bean
+    public MeterRegistryCustomizer<MeterRegistry> commonTags() {
+        return r -> r.config().commonTags(graphiteCommonTagsAsPrefix, statsdPrefix);
     }
 
     @Bean
