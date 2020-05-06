@@ -28,7 +28,7 @@ public class AppConfig {
 
     @Bean
     public MeterRegistryCustomizer<MeterRegistry> commonTags() {
-        return r -> r.config().commonTags("appName", appName, "actuator", "actuator");
+        return r -> r.config().commonTags("appName", appName, "actuatorPrefix", "actuator");
     }
 
     @Bean
