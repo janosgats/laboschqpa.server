@@ -57,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers(AppConstants.adminBaseUrl + "**", springBootActuatorBaseUrl + "**")
+                .antMatchers(AppConstants.adminBaseUrl + "**", springBootActuatorBaseUrl + "/**", springBootActuatorBaseUrl + "**")
                 .hasAuthority(Authority.Admin.getStringValue())
                 .antMatchers("/", AppConstants.apiNoAuthRequiredUrl + "**", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuth2AuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
                 .permitAll()
