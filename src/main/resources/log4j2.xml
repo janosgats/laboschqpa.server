@@ -26,7 +26,7 @@
         <Logger name="com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHttpSessionSecurityContextRepository" level="info" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
         </Logger>
-        <Logger name="com.laboschqpa.server" level="all" additivity="false">
+        <Logger name="com.laboschqpa.server" level="debug" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
         </Logger>
         <Root level="info">

@@ -33,7 +33,7 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        loggerOfChild.error("Cannot parse incoming HTTP message!", ex);
+        loggerOfChild.debug("Cannot parse incoming HTTP message!", ex);
 
         return new ResponseEntity<>(cannotParseIncomingHttpRequestErrorResponseBody, headers, HttpStatus.BAD_REQUEST);
     }
@@ -55,7 +55,7 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
     @ExceptionHandler(ContentNotFoundApiException.class)
     protected ResponseEntity<ApiErrorResponseBody> handleContentNotFound(
             Exception e, WebRequest request) {
-        loggerOfChild.error("ContentNotFoundApiException caught while executing api request!", e);
+        loggerOfChild.trace("ContentNotFoundApiException caught while executing api request!", e);
         return new ResponseEntity<>(contentNotFoundErrorResponseBody, HttpStatus.CONFLICT);
     }
 
@@ -64,21 +64,21 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
             ConstraintViolationException.class})
     protected ResponseEntity<ApiErrorResponseBody> handleClientCausedErrors(
             Exception e, WebRequest request) {
-        loggerOfChild.debug("handleClientCausedErrors() caught exception while executing api request!", e);
+        loggerOfChild.trace("handleClientCausedErrors() caught exception while executing api request!", e);
         return new ResponseEntity<>(new ApiErrorResponseBody(e.getMessage()), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ConflictingRequestDataApiException.class)
     protected ResponseEntity<ApiErrorResponseBody> handleConflictingRequestData(
             Exception e, WebRequest request) {
-        loggerOfChild.error("ConflictingRequestDataApiException caught while executing api request!", e);
+        loggerOfChild.trace("ConflictingRequestDataApiException caught while executing api request!", e);
         return new ResponseEntity<>(conflictingRequestDataErrorResponseBody, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UnAuthorizedException.class)
     protected ResponseEntity<ApiErrorResponseBody> handleUnAuthorized(
             Exception e, WebRequest request) {
-        loggerOfChild.error("UnAuthorizedException caught while executing api request!", e);
+        loggerOfChild.debug("UnAuthorizedException caught while executing api request!", e);
         return new ResponseEntity<>(unAuthorizedErrorResponseBody, HttpStatus.FORBIDDEN);
     }
 
