@@ -48,7 +48,7 @@ class TeamServiceTest {
 
     @Test
     void createNewTeam() {
-        TeamDto teamDto = new TeamDto(1L, "test");
+        TeamDto teamDto = new TeamDto(1L, "    test name of team   ");
         Long creatorUserId = 12L;
         UserAcc creatorUser = UserAcc.builder().id(creatorUserId).enabled(true).team(new Team()).build();
 
@@ -57,7 +57,11 @@ class TeamServiceTest {
         teamService.createNewTeam(teamDto, creatorUserId);
 
         verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(creatorUser, creatorUser);
-        verify(teamUserRelationStateMachineMock, times(1)).createNewTeam(teamDto);
+        verify(teamUserRelationStateMachineMock, times(1))
+                .createNewTeam(argThat((a)
+                        -> a.equals(teamDto)
+                        && a.getName().equals("test name of team") //trimmed name
+                ));
 
         verify(teamRepositoryMock, times(1)).save(creatorUser.getTeam());
         verify(userAccRepositoryMock, times(1)).save(creatorUser);

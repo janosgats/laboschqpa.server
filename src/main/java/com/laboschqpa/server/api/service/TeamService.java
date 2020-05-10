@@ -29,7 +29,8 @@ public class TeamService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                new TeamValidator(teamDto);
+                teamDto.setName(teamDto.getName().trim());
+                new TeamValidator(teamDto).validateSelf();
 
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(creatorUserId);
 

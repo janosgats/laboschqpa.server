@@ -34,7 +34,7 @@ public class UserService {
     }
 
     public void saveProfileDetails(ProfileDetailsDto profileDetailsDto) {
-        new ProfileDetailsValidator(profileDetailsDto);
+        new ProfileDetailsValidator(profileDetailsDto).validateSelf();
 
         Optional<UserAcc> userAccOptional = userAccRepository.findById(profileDetailsDto.getUserAccId());
 

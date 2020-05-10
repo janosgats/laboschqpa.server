@@ -99,7 +99,7 @@ class TeamUserRelationStateMachineTest {
 
     @Test
     void createNewTeam() {
-        TeamDto teamDto = new TeamDto(10L, "test");
+        TeamDto teamDto = new TeamDto(10L, "test name");
         Team team = new Team(teamDto.getId(), teamDto.getName(), false);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamUserRelationError.YOU_ARE_ALREADY_MEMBER_OF_A_TEAM, () ->

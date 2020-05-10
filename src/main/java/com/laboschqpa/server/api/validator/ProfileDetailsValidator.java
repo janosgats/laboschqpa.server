@@ -25,7 +25,5 @@ public class ProfileDetailsValidator extends SelfValidator<ProfileDetailsValidat
         this.firstName = profileDetailsDto.getFirstName();
         this.lastName = profileDetailsDto.getLastName();
         this.nickName = profileDetailsDto.getNickName();
-
-        this.validateSelf();
     }
 }
