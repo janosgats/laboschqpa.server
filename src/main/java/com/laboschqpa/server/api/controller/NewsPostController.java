@@ -31,21 +31,21 @@ public class NewsPostController {
     @PostMapping("/createNew")
     public void postCreateNewsPost(@RequestBody ObjectNode createNewsPostContent,
                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.Editor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
         newsPostService.createNewsPost(createNewsPostContent, authenticationPrincipal.getUserAccEntity());
     }
 
     @PostMapping("/edit")
     public void postEditNewsPost(@RequestBody ObjectNode editNewsPostContent,
                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.Editor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
         newsPostService.editNewsPost(editNewsPostContent, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
     public void deleteNewsPost(@RequestParam(name = "newsPostId") Long newsPostId,
                                @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.Editor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
         newsPostService.deleteNewsPost(newsPostId, authenticationPrincipal.getUserAccEntity());
     }
 }

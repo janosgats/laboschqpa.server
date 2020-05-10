@@ -6,9 +6,10 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum Authority {
-    User("user"),
-    Editor("editor"),
-    Admin("admin");
+    User("User"),
+    NewsPostEditor("NewsPostEditor"),
+    ObjectiveEditor("ObjectiveEditor"),
+    Admin("Admin");
 
     private String stringValue;
 

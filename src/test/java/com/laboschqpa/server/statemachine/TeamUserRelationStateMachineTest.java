@@ -6,13 +6,13 @@ import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.TeamRole;
 import com.laboschqpa.server.enums.TeamUserRelationError;
 import com.laboschqpa.server.exceptions.TeamUserRelationException;
-import com.laboschqpa.server.repo.Repos;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -29,15 +29,8 @@ class TeamUserRelationStateMachineTest {
     @Mock
     TeamRepository teamRepositoryMock;
 
+    @InjectMocks
     StateMachineFactory stateMachineFactory;
-
-    Repos repos;
-
-    @BeforeEach
-    void setUp() {
-        repos = Repos.builder().userAccRepository(userAccRepositoryMock).teamRepository(teamRepositoryMock).build();
-        stateMachineFactory = new StateMachineFactory(repos);
-    }
 
     private void assertThrowsTeamUserRelationExceptionWithSpecificError(TeamUserRelationError expectedTeamUserRelationError, Executable executable) {
         try {

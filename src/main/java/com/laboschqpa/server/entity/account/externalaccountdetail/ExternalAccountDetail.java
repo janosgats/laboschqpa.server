@@ -6,6 +6,7 @@ import javax.persistence.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@Table(indexes = {@Index(columnList = "user_id")})
 public abstract class ExternalAccountDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

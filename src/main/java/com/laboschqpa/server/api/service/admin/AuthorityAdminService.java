@@ -4,7 +4,7 @@ import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.exceptions.ConflictingRequestDataApiException;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
-import com.laboschqpa.server.repo.Repos;
+import com.laboschqpa.server.repo.UserAccRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +14,10 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class AuthorityAdminService {
-    private final Repos repos;
+    private final UserAccRepository userAccRepository;
 
     public Set<Authority> getUserAuthorities(Long userAccId) {
-        Optional<UserAcc> userAccOptional = repos.userAccRepository.findById(userAccId);
+        Optional<UserAcc> userAccOptional = userAccRepository.findById(userAccId);
         if (userAccOptional.isEmpty())
             throw new ContentNotFoundApiException("UserAcc not found with id: " + userAccId);
 
@@ -25,7 +25,7 @@ public class AuthorityAdminService {
     }
 
     public void deleteUserAuthority(Long userAccId, Authority authority) {
-        Optional<UserAcc> userAccOptional = repos.userAccRepository.findById(userAccId);
+        Optional<UserAcc> userAccOptional = userAccRepository.findById(userAccId);
         if (userAccOptional.isEmpty())
             throw new ContentNotFoundApiException("UserAcc not found with id: " + userAccId);
         UserAcc userAcc = userAccOptional.get();
@@ -33,11 +33,11 @@ public class AuthorityAdminService {
         if (!userAcc.getAuthorities().removeIf(authority1 -> authority1.equals(authority)))
             throw new ConflictingRequestDataApiException("User " + userAccId + " doesn't have authority " + authority.getStringValue() + "!");
 
-        repos.userAccRepository.save(userAcc);
+        userAccRepository.save(userAcc);
     }
 
     public void addUserAuthority(Long userAccId, Authority authority) {
-        Optional<UserAcc> userAccOptional = repos.userAccRepository.findById(userAccId);
+        Optional<UserAcc> userAccOptional = userAccRepository.findById(userAccId);
         if (userAccOptional.isEmpty())
             throw new ContentNotFoundApiException("UserAcc not found with id: " + userAccId);
         UserAcc userAcc = userAccOptional.get();
@@ -47,6 +47,6 @@ public class AuthorityAdminService {
 
         userAcc.getAuthorities().add(authority);
 
-        repos.userAccRepository.save(userAcc);
+        userAccRepository.save(userAcc);
     }
 }

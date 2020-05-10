@@ -4,7 +4,6 @@ import com.laboschqpa.server.api.dto.TeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
-import com.laboschqpa.server.repo.Repos;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
@@ -12,6 +11,7 @@ import com.laboschqpa.server.statemachine.TeamUserRelationStateMachine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.SimpleTransactionStatus;
@@ -32,21 +32,16 @@ class TeamServiceTest {
     @Mock
     StateMachineFactory stateMachineFactoryMock;
     @Mock
+    TransactionTemplate transactionTemplateMock;
+    @Mock
     UserAccRepository userAccRepositoryMock;
     @Mock
     TeamRepository teamRepositoryMock;
-    @Mock
-    TransactionTemplate transactionTemplateMock;
-
+    @InjectMocks
     TeamService teamService;
-
-    Repos repos;
 
     @BeforeEach
     void setUp() {
-        repos = Repos.builder().userAccRepository(userAccRepositoryMock).teamRepository(teamRepositoryMock).build();
-        teamService = new TeamService(repos, transactionTemplateMock, stateMachineFactoryMock);
-
         lenient().when(transactionTemplateMock.execute(any())).then(transactionCallback -> ((TransactionCallbackWithoutResult) transactionCallback.getArgument(0)).doInTransaction(new SimpleTransactionStatus()));
         lenient().when(stateMachineFactoryMock.buildTeamUserRelationStateMachine(any(), any())).thenReturn(teamUserRelationStateMachineMock);
     }

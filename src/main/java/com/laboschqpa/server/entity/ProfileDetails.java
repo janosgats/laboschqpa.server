@@ -1,9 +1,11 @@
 package com.laboschqpa.server.entity;
 
 import com.laboschqpa.server.entity.account.UserAcc;
+import lombok.Data;
 
 import javax.persistence.*;
 
+@Data
 @Entity
 @Table(name = "profile_details", indexes = {@Index(columnList = "user_acc_id")})
 public class ProfileDetails {
@@ -24,40 +26,4 @@ public class ProfileDetails {
 
     @Column(name = "nick_name")
     private String nickName;
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
-    }
-
-    public UserAcc getUserAcc() {
-        return userAcc;
-    }
-
-    public void setUserAcc(UserAcc userAcc) {
-        this.userAcc = userAcc;
-    }
 }

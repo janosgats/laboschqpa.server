@@ -5,7 +5,8 @@ import com.laboschqpa.server.api.validator.TeamValidator;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
-import com.laboschqpa.server.repo.Repos;
+import com.laboschqpa.server.repo.TeamRepository;
+import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
 import com.laboschqpa.server.statemachine.TeamUserRelationStateMachine;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class TeamService {
-    private final Repos repos;
+    private final UserAccRepository userAccRepository;
+    private final TeamRepository teamRepository;
     private final TransactionTemplate transactionTemplate;
     private final StateMachineFactory stateMachineFactory;
 
@@ -34,8 +36,8 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.createNewTeam(teamDto);
 
-                repos.teamRepository.save(userAcc.getTeam());
-                repos.userAccRepository.save(userAcc);
+                teamRepository.save(userAcc.getTeam());
+                userAccRepository.save(userAcc);
             }
         });
     }
@@ -50,7 +52,7 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.applyToTeam(team);
 
-                repos.userAccRepository.save(userAcc);
+                userAccRepository.save(userAcc);
             }
         });
     }
@@ -67,7 +69,7 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToCancel, userAccToCancel);
                 stateMachine.cancelApplicationToTeam();
 
-                repos.userAccRepository.save(userAccToCancel);
+                userAccRepository.save(userAccToCancel);
             }
         });
     }
@@ -82,7 +84,7 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToDecline, initiatorUserAcc);
                 stateMachine.declineApplicationToTeam();
 
-                repos.userAccRepository.save(userAccToDecline);
+                userAccRepository.save(userAccToDecline);
             }
         });
     }
@@ -97,7 +99,7 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToApprove, initiatorUserAcc);
                 stateMachine.approveApplication();
 
-                repos.userAccRepository.save(userAccToApprove);
+                userAccRepository.save(userAccToApprove);
             }
         });
     }
@@ -111,7 +113,7 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.leaveTeam();
 
-                repos.userAccRepository.save(userAcc);
+                userAccRepository.save(userAcc);
             }
         });
     }
@@ -127,7 +129,7 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToKick, initiatorUserAcc);
                 stateMachine.kickFromTeam();
 
-                repos.userAccRepository.save(userAccToKick);
+                userAccRepository.save(userAccToKick);
             }
         });
     }
@@ -143,8 +145,8 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.archiveAndLeaveTeam();
 
-                repos.teamRepository.save(teamToArchive);
-                repos.userAccRepository.save(userAcc);
+                teamRepository.save(teamToArchive);
+                userAccRepository.save(userAcc);
             }
         });
     }
@@ -159,7 +161,7 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
                 stateMachine.giveLeaderRights();
 
-                repos.userAccRepository.save(userAccToGiveLeaderRights);
+                userAccRepository.save(userAccToGiveLeaderRights);
             }
         });
     }
@@ -174,7 +176,7 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
                 stateMachine.takeAwayLeaderRights();
 
-                repos.userAccRepository.save(userAccToTakeAwayLeaderRights);
+                userAccRepository.save(userAccToTakeAwayLeaderRights);
             }
         });
     }
@@ -188,20 +190,20 @@ public class TeamService {
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
                 stateMachine.resignFromLeadership();
 
-                repos.userAccRepository.save(userAcc);
+                userAccRepository.save(userAcc);
             }
         });
     }
 
     private UserAcc readEnabledUserAccFromDbWithPessimisticLock(Long userAccId) {
-        Optional<UserAcc> userAccOptional = repos.userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId);
+        Optional<UserAcc> userAccOptional = userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId);
         if (userAccOptional.isEmpty())
             throw new ContentNotFoundApiException("UserAcc is not found or not enabled.");
         return userAccOptional.get();
     }
 
     private Team readNotArchivedTeamFromDbWithPessimisticLock(Long userAccId) {
-        Optional<Team> teamOptional = repos.teamRepository.findByIdAndArchivedIsFalse_WithPessimisticWriteLock(userAccId);
+        Optional<Team> teamOptional = teamRepository.findByIdAndArchivedIsFalse_WithPessimisticWriteLock(userAccId);
         if (teamOptional.isEmpty())
             throw new ContentNotFoundApiException("Team is not found or is archived.");
         return teamOptional.get();

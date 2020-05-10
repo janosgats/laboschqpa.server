@@ -2,6 +2,7 @@ package com.laboschqpa.server.repo;
 
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
+import com.laboschqpa.server.enums.auth.TeamRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,13 +13,26 @@ import java.util.Optional;
 
 public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select userAcc from UserAcc userAcc where userAcc.id = :id and userAcc.enabled = true")
+    @Query("select userAcc " +
+            "from UserAcc userAcc " +
+            "where " +
+            "    userAcc.id = :id " +
+            "    and userAcc.enabled = true")
     Optional<UserAcc> findByIdAndEnabledIsTrue_WithPessimisticWriteLock(long id);
 
-    @Query("select count(userAcc.id) from UserAcc userAcc where userAcc.team = :team and userAcc.teamRole = 3 and userAcc.enabled = true")
+    @Query("select count(userAcc.id) " +
+            "from UserAcc userAcc " +
+            "where " +
+            "    userAcc.team = :team " +
+            "    and userAcc.teamRole = com.laboschqpa.server.enums.auth.TeamRole.LEADER " +
+            "    and userAcc.enabled = true ")
     Integer getCountOfEnabledLeadersInTeam(Team team);
 
     @Modifying
-    @Query("update UserAcc userAcc set userAcc.team = null, userAcc.teamRole = 0 where userAcc.team = :team")
+    @Query("update UserAcc userAcc " +
+            "set " +
+            "    userAcc.team = null, " +
+            "    userAcc.teamRole = com.laboschqpa.server.enums.auth.TeamRole.NOTHING " +
+            "where userAcc.team = :team ")
     void kickEveryoneFromTeam(Team team);
 }

@@ -4,7 +4,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "user_email_address", indexes = {@Index(columnList = "email")})
+@Table(name = "user_email_address",
+        indexes = {
+                @Index(columnList = "email"),
+                @Index(columnList = "user_id")
+        })
 public class UserEmailAddress implements Serializable {
     static final long serialVersionUID = 42L;
 

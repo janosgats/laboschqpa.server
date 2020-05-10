@@ -12,9 +12,4 @@ import java.util.Optional;
 public interface UserEmailAddressRepository extends JpaRepository<UserEmailAddress, Long> {
     Optional<UserEmailAddress> findByEmail(String email);
 
-    @Modifying
-    @Query("update UserEmailAddress uea set uea.userAcc  = :newUser where uea.userAcc = :oldUser")
-    int updateBelongingUser(@Param("oldUser") UserAcc oldUserAcc,
-                            @Param("newUser") UserAcc newUserAcc);
-
 }

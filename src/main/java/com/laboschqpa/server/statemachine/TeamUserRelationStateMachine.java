@@ -6,21 +6,17 @@ import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.TeamRole;
 import com.laboschqpa.server.enums.TeamUserRelationError;
 import com.laboschqpa.server.exceptions.TeamUserRelationException;
-import com.laboschqpa.server.repo.Repos;
+import com.laboschqpa.server.repo.UserAccRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RequiredArgsConstructor
 public class TeamUserRelationStateMachine {
     private static final Logger logger = LoggerFactory.getLogger(TeamUserRelationStateMachine.class);
     private final UserAcc alteredUserAcc;
     private final UserAcc initiatorUserAcc;
-    private final Repos repos;
-
-    public TeamUserRelationStateMachine(UserAcc alteredUserAcc, UserAcc initiatorUserAcc, Repos repos) {
-        this.alteredUserAcc = alteredUserAcc;
-        this.initiatorUserAcc = initiatorUserAcc;
-        this.repos = repos;
-    }
+    private final UserAccRepository userAccRepository;
 
     public void createNewTeam(TeamDto teamDto) {
         assertInitiatorIsSameAsAltered();
@@ -105,7 +101,7 @@ public class TeamUserRelationStateMachine {
     }
 
     private void leaveTeamAsLeader() {
-        if (repos.userAccRepository.getCountOfEnabledLeadersInTeam(initiatorUserAcc.getTeam()) > 1) {
+        if (userAccRepository.getCountOfEnabledLeadersInTeam(initiatorUserAcc.getTeam()) > 1) {
             //There is at least one other Leader in the team
             alteredUserAcc.setTeamRole(TeamRole.NOTHING);
             alteredUserAcc.setTeam(null);
@@ -134,7 +130,7 @@ public class TeamUserRelationStateMachine {
             throw new TeamUserRelationException("You have to be a leader of the team you want to archive!", TeamUserRelationError.YOU_HAVE_TO_BE_A_LEADER_TO_DO_THIS_OPERATION);
 
         initiatorUserAcc.getTeam().setArchived(true);
-        repos.userAccRepository.kickEveryoneFromTeam(initiatorUserAcc.getTeam());
+        userAccRepository.kickEveryoneFromTeam(initiatorUserAcc.getTeam());
 
         logger.debug("UserAcc {} archived and left its team.", alteredUserAcc.getId());
     }
@@ -163,7 +159,7 @@ public class TeamUserRelationStateMachine {
         if (alteredUserAcc.getTeamRole() != TeamRole.LEADER)
             throw new TeamUserRelationException("You aren't a leader!", TeamUserRelationError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED);
 
-        if (repos.userAccRepository.getCountOfEnabledLeadersInTeam(alteredUserAcc.getTeam()) > 1) {
+        if (userAccRepository.getCountOfEnabledLeadersInTeam(alteredUserAcc.getTeam()) > 1) {
             //There is at least one other Leader in the team
             alteredUserAcc.setTeamRole(TeamRole.MEMBER);
         } else {

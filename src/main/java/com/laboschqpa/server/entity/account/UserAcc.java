@@ -39,9 +39,6 @@ public class UserAcc implements Serializable {
     @Column(name = "enabled")
     private Boolean enabled;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private UserAcc joinedInto;//The account which this account is joined in. Null if this account was not joined in another one.
-
     @Convert(converter = TeamRoleAttributeConverter.class)
     @Column(name = "team_role")
     private TeamRole teamRole = TeamRole.NOTHING;
@@ -74,15 +71,6 @@ public class UserAcc implements Serializable {
     private Set<GithubExternalAccountDetail> githubExternalAccountDetails = new HashSet<>();
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "approverUserAcc", cascade = {CascadeType.REMOVE})
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<AccountJoinInitiation> accountJoinInitiationsToApprove = new HashSet<>();
-
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "initiatorUserAcc", cascade = {CascadeType.REMOVE})
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private AccountJoinInitiation initiatedAccountJoinInitiation;
-
-
     public Long getId() {
         return id;
     }
@@ -101,26 +89,6 @@ public class UserAcc implements Serializable {
 
     public Set<UserEmailAddress> getUserEmailAddresses() {
         return userEmailAddresses;
-    }
-
-    public UserAcc getJoinedInto() {
-        return joinedInto;
-    }
-
-    public void setJoinedInto(UserAcc joinedInto) {
-        this.joinedInto = joinedInto;
-    }
-
-    public Set<AccountJoinInitiation> getAccountJoinInitiationsToApprove() {
-        return accountJoinInitiationsToApprove;
-    }
-
-    public AccountJoinInitiation getInitiatedAccountJoinInitiation() {
-        return initiatedAccountJoinInitiation;
-    }
-
-    public void setInitiatedAccountJoinInitiation(AccountJoinInitiation initiatedAccountJoinInitiationsToApprove) {
-        this.initiatedAccountJoinInitiation = initiatedAccountJoinInitiationsToApprove;
     }
 
     public boolean equalsById(UserAcc otherUserAcc) {
