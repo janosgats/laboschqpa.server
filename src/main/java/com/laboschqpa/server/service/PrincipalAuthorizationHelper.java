@@ -6,7 +6,7 @@ import com.laboschqpa.server.exceptions.UnAuthorizedException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Set;
+import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
@@ -21,28 +21,26 @@ public class PrincipalAuthorizationHelper {
     }
 
     public void assertHasAdminAuthority() {
-        assertHasAnySufficientAuthority(Set.of(Authority.Admin));
+        assertHasAnySufficientAuthority(Authority.Admin);
     }
 
     public boolean hasAdminAuthority() {
-        return hasAnySufficientAuthority(Set.of(Authority.Admin));
+        return hasAnySufficientAuthority(Authority.Admin);
     }
 
-    public void assertHasEditorOrAdminAuthority() {
-        assertHasAnySufficientAuthority(Set.of(Authority.Editor, Authority.Admin));
-    }
-
-    public void assertHasAnySufficientAuthority(Set<Authority> setOfSufficientAuthorities) {
-        if (!hasAnySufficientAuthority(setOfSufficientAuthorities))
+    public void assertHasAnySufficientAuthority(Authority... sufficientAuthorities) {
+        if (!hasAnySufficientAuthority(sufficientAuthorities))
             throw new UnAuthorizedException("You have none of the following authorities: " +
-                    setOfSufficientAuthorities.stream().map(Authority::getStringValue)
+                    Arrays.stream(sufficientAuthorities).map(Authority::getStringValue)
                             .collect(Collectors.joining(","))
             );
     }
 
-    public boolean hasAnySufficientAuthority(Set<Authority> setOfSufficientAuthorities) {
+    private boolean hasAnySufficientAuthority(Authority... sufficientAuthorities) {
         return authenticationPrincipal.getUserAccEntity()
                 .getAuthorities().stream()
-                .anyMatch(ownedAuthority -> setOfSufficientAuthorities.stream().anyMatch(ownedAuthority::equals));
+                .anyMatch(
+                        ownedAuthority -> Arrays.asList(sufficientAuthorities).contains(ownedAuthority)
+                );
     }
 }
