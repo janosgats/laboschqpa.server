@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -58,11 +59,12 @@ public class NewsPostService {
         logger.info("NewsPost {} edited by user {}.", newsPost.getId(), editorUserAcc.getId());
     }
 
+    @Transactional
     public void deleteNewsPost(Long newsPostId, UserAcc deleterUserAcc) {
-        if (!newsPostRepository.existsById(newsPostId))
-            throw new ContentNotFoundApiException("Cannot find NewsPost with Id: " + newsPostId);
-
-        newsPostRepository.deleteById(newsPostId);
+        int deletedRowCount;
+        if ((deletedRowCount = newsPostRepository.deleteByIdAndGetDeletedRowCount(newsPostId)) != 1) {
+            throw new ContentNotFoundApiException("Count of deleted rows is " + deletedRowCount + "!");
+        }
 
         logger.info("NewsPost {} deleted by user {}.", newsPostId, deleterUserAcc.getId());
     }

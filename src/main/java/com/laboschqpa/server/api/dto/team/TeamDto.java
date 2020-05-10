@@ -1,4 +1,4 @@
-package com.laboschqpa.server.api.dto;
+package com.laboschqpa.server.api.dto.team;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

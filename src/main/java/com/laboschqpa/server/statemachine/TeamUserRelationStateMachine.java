@@ -1,6 +1,6 @@
 package com.laboschqpa.server.statemachine;
 
-import com.laboschqpa.server.api.dto.TeamDto;
+import com.laboschqpa.server.api.dto.team.TeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.TeamRole;

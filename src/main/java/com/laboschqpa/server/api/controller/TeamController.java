@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.TeamDto;
+import com.laboschqpa.server.api.dto.team.TeamDto;
 import com.laboschqpa.server.api.service.TeamService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;

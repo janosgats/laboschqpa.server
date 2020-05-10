@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.validator;
 
-import com.laboschqpa.server.api.dto.TeamDto;
+import com.laboschqpa.server.api.dto.team.TeamDto;
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;

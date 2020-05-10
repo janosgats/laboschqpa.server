@@ -9,6 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface NewsPostRepository extends JpaRepository<NewsPost, Long> {
-
     List<NewsPost> findAllByOrderByCreationTimeDesc();
+
+    @Modifying
+    @Query("delete from NewsPost where id = :id")
+    int deleteByIdAndGetDeletedRowCount(Long id);
 }

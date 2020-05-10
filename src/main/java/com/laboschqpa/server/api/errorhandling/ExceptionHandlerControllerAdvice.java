@@ -56,7 +56,10 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
     protected ResponseEntity<ApiErrorResponseBody> handleContentNotFound(
             Exception e, WebRequest request) {
         loggerOfChild.trace("ContentNotFoundApiException caught while executing api request!", e);
-        return new ResponseEntity<>(contentNotFoundErrorResponseBody, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(
+                new ApiErrorResponseBody(contentNotFoundErrorResponseBody.getMessage() + " - " + e.getMessage()),
+                HttpStatus.CONFLICT
+        );
     }
 
     @ExceptionHandler({TeamUserRelationException.class,

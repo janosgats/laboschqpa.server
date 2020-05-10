@@ -1,6 +1,6 @@
 package com.laboschqpa.server.statemachine;
 
-import com.laboschqpa.server.api.dto.TeamDto;
+import com.laboschqpa.server.api.dto.team.TeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.TeamRole;
@@ -8,7 +8,6 @@ import com.laboschqpa.server.enums.TeamUserRelationError;
 import com.laboschqpa.server.exceptions.TeamUserRelationException;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
