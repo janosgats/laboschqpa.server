@@ -36,11 +36,11 @@ public class UserAcc implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "enabled")
+    @Column(name = "enabled", nullable = false)
     private Boolean enabled;
 
     @Convert(converter = TeamRoleAttributeConverter.class)
-    @Column(name = "team_role")
+    @Column(name = "team_role", nullable = false)
     private TeamRole teamRole = TeamRole.NOTHING;
 
     @ManyToOne(fetch = FetchType.LAZY)

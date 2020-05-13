@@ -21,6 +21,10 @@ public enum TeamRole {
         return value;
     }
 
+    public boolean isMemberOrLeader() {
+        return this == MEMBER || this == LEADER;
+    }
+
     public static TeamRole fromValue(Integer value) {
         Optional<TeamRole> optional = Arrays.stream(TeamRole.values())
                 .filter(en -> en.getValue().equals(value))

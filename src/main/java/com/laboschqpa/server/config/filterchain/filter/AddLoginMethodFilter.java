@@ -2,7 +2,7 @@ package com.laboschqpa.server.config.filterchain.filter;
 
 import com.laboschqpa.server.api.errorhandling.ApiErrorResponseBody;
 import com.laboschqpa.server.config.helper.AppConstants;
-import com.laboschqpa.server.enums.ApiErrorResponseKeys;
+import com.laboschqpa.server.enums.errorkey.AuthApiError;
 import com.laboschqpa.server.util.ServletHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -43,7 +43,7 @@ public class AddLoginMethodFilter implements Filter {
             chain.doFilter(request, response);
         } else {
             ServletHelper.setJsonResponse(response,
-                    new ApiErrorResponseBody(ApiErrorResponseKeys.OAUTH2_AUTHORIZATION_REQUEST_FROM_ALREADY_LOGGED_IN_USER,
+                    new ApiErrorResponseBody(AuthApiError.OAUTH2_AUTHORIZATION_REQUEST_FROM_ALREADY_LOGGED_IN_USER,
                             "You are already logged in! You have to explicitly specify if you want to add a new login method."),
                     409);
         }

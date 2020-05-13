@@ -17,11 +17,11 @@ import javax.persistence.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Submission extends UserGeneratedContent {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "objective_id")
+    @JoinColumn(name = "objective_id", nullable = false)
     private Objective objective;
 
     @Column(name = "content")

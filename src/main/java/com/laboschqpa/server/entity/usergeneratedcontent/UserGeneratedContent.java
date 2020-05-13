@@ -28,4 +28,16 @@ public abstract class UserGeneratedContent {
 
     @Column(name = "edit_time")
     private Instant editTime;
+
+    public void setUGCAsCreatedByUser(UserAcc creatorUserAcc) {
+        this.setCreatorUser(creatorUserAcc);
+        this.setEditorUser(creatorUserAcc);
+        this.setCreationTime(Instant.now());
+        this.setEditTime(Instant.now());
+    }
+
+    public void setUGCAsEditedByUser(UserAcc editorUserAcc) {
+        this.setEditorUser(editorUserAcc);
+        this.setEditTime(Instant.now());
+    }
 }

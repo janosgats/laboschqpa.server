@@ -32,14 +32,11 @@ public class ObjectiveService {
 
     public void createNewObjective(CreateNewObjectiveDto createNewObjectiveDto, UserAcc creatorUserAcc) {
         Objective objective = new Objective();
+        objective.setUGCAsCreatedByUser(creatorUserAcc);
+
         objective.setDescription(createNewObjectiveDto.getDescription());
         objective.setSubmittable(createNewObjectiveDto.getSubmittable());
         objective.setDeadline(createNewObjectiveDto.getDeadline());
-
-        objective.setCreatorUser(creatorUserAcc);
-        objective.setEditorUser(creatorUserAcc);
-        objective.setCreationTime(Instant.now());
-        objective.setEditTime(Instant.now());
 
         objectiveRepository.save(objective);
         log.info("Objective {} created by user {}.", objective.getId(), creatorUserAcc.getId());
@@ -51,12 +48,11 @@ public class ObjectiveService {
             throw new ContentNotFoundApiException("Cannot find Objective with Id: " + editObjectiveDto.getId());
 
         Objective objective = objectiveOptional.get();
+        objective.setUGCAsEditedByUser(editorUserAcc);
+
         objective.setDescription(editObjectiveDto.getDescription());
         objective.setSubmittable(editObjectiveDto.getSubmittable());
         objective.setDeadline(editObjectiveDto.getDeadline());
-
-        objective.setEditorUser(editorUserAcc);
-        objective.setEditTime(Instant.now());
 
         objectiveRepository.save(objective);
 

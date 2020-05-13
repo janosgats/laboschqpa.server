@@ -33,11 +33,8 @@ public class NewsPostService {
 
     public void createNewsPost(ObjectNode newsPostContent, UserAcc creatorUserAcc) {
         NewsPost newsPost = new NewsPost();
+        newsPost.setUGCAsCreatedByUser(creatorUserAcc);
         newsPost.setContent(newsPostContent.get("content").asText());
-        newsPost.setCreatorUser(creatorUserAcc);
-        newsPost.setEditorUser(creatorUserAcc);
-        newsPost.setCreationTime(Instant.now());
-        newsPost.setEditTime(Instant.now());
 
         newsPostRepository.save(newsPost);
         logger.info("NewsPost {} created by user {}.", newsPost.getId(), creatorUserAcc.getId());
@@ -50,9 +47,8 @@ public class NewsPostService {
             throw new ContentNotFoundApiException("Cannot find NewsPost with Id: " + newsPostId);
 
         NewsPost newsPost = newsPostOptional.get();
+        newsPost.setUGCAsEditedByUser(editorUserAcc);
         newsPost.setContent(newsPostContent.get("content").asText());
-        newsPost.setEditorUser(editorUserAcc);
-        newsPost.setEditTime(Instant.now());
 
         newsPostRepository.save(newsPost);
 
