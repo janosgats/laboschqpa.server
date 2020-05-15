@@ -20,6 +20,8 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
             "    and userAcc.enabled = true")
     Optional<UserAcc> findByIdAndEnabledIsTrue_WithPessimisticWriteLock(long id);
 
+    Optional<UserAcc> findByIdAndEnabledIsTrue(long id);
+
     @Query("select count(userAcc.id) " +
             "from UserAcc userAcc " +
             "where " +

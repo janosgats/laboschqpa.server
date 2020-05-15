@@ -25,7 +25,7 @@ public class ObjectiveController {
         return new GetObjectiveDto(objectiveService.getObjective(objectiveId));
     }
 
-    @GetMapping("/listall")
+    @GetMapping("/listAll")
     public List<GetObjectiveDto> getListAllNewsPosts() {
         return objectiveService.listAllObjectives().stream()
                 .map(GetObjectiveDto::new)

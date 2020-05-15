@@ -43,6 +43,8 @@ public class SubmissionStateMachine {
      * Objective and Team is NOT modifiable.
      */
     public void editSubmission(EditSubmissionDto editSubmissionDto) {
+        assertInitiatorUserIsMemberOrLeaderOfItsTeam();
+
         Optional<Submission> submissionOptional = submissionRepository.findById(editSubmissionDto.getId());
         if (submissionOptional.isEmpty()) {
             throw new SubmissionException(SubmissionApiError.SUBMISSION_IS_NOT_FOUND);
@@ -60,6 +62,8 @@ public class SubmissionStateMachine {
     }
 
     public void deleteSubmission(Long submissionIdToDelete) {
+        assertInitiatorUserIsMemberOrLeaderOfItsTeam();
+
         Optional<Submission> submissionOptional = submissionRepository.findById(submissionIdToDelete);
         if (submissionOptional.isEmpty()) {
             throw new SubmissionException(SubmissionApiError.SUBMISSION_IS_NOT_FOUND);

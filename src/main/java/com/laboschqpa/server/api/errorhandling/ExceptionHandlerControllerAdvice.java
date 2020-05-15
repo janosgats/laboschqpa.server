@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laboschqpa.server.exceptions.*;
 import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
+import com.laboschqpa.server.exceptions.statemachine.SubmissionException;
 import com.laboschqpa.server.exceptions.statemachine.TeamUserRelationException;
 import com.laboschqpa.server.model.FieldValidationError;
 import lombok.Data;
@@ -76,6 +77,13 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
             TeamUserRelationException e, WebRequest request) {
         loggerOfChild.trace("handleTeamUserRelationException() caught exception while executing api request!", e);
         return new ResponseEntity<>(new ApiErrorResponseBody(e.getTeamUserRelationApiError(), e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler({SubmissionException.class})
+    protected ResponseEntity<ApiErrorResponseBody> handleSubmissionException(
+            SubmissionException e, WebRequest request) {
+        loggerOfChild.trace("handleSubmissionException() caught exception while executing api request!", e);
+        return new ResponseEntity<>(new ApiErrorResponseBody(e.getSubmissionApiError(), e.getMessage()), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ConflictingRequestDataApiException.class)

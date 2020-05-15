@@ -102,6 +102,7 @@ class SubmissionStateMachineTest {
             when(submissionRepository.findById(submissionId)).thenReturn(Optional.empty());
             SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
             submissionStateMachine.editSubmission(EditSubmissionDto.builder().id(submissionId).build());
+            verify(submissionStateMachine, times(1)).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
         });
 
         Submission submission = new Submission();
@@ -118,6 +119,7 @@ class SubmissionStateMachineTest {
         submissionStateMachine.editSubmission(editSubmissionDto);
 
         verify(submissionRepository, times(1)).save(submission);
+        verify(submissionStateMachine, times(1)).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
         assertNull(submission.getCreatorUser());
         assertEquals(userAcc, submission.getEditorUser());
         assertEquals(editSubmissionDto.getContent(), submission.getContent());
@@ -132,6 +134,7 @@ class SubmissionStateMachineTest {
             when(submissionRepository.findById(submissionIdToDelete)).thenReturn(Optional.empty());
             SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
             submissionStateMachine.deleteSubmission(submissionIdToDelete);
+            verify(submissionStateMachine, times(1)).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
         });
 
         Long submissionIdToDelete = 99L;
@@ -146,6 +149,7 @@ class SubmissionStateMachineTest {
         submissionStateMachine.deleteSubmission(submissionIdToDelete);
 
         verify(submissionRepository, times(1)).deleteById(submissionIdToDelete);
+        verify(submissionStateMachine, times(1)).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
     }
 
     @Test
