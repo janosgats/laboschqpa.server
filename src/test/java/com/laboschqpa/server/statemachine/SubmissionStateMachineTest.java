@@ -119,7 +119,6 @@ class SubmissionStateMachineTest {
         submissionStateMachine.editSubmission(editSubmissionDto);
 
         verify(submissionRepository, times(1)).save(submission);
-        verify(submissionStateMachine, times(1)).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
         assertNull(submission.getCreatorUser());
         assertEquals(userAcc, submission.getEditorUser());
         assertEquals(editSubmissionDto.getContent(), submission.getContent());
@@ -149,7 +148,6 @@ class SubmissionStateMachineTest {
         submissionStateMachine.deleteSubmission(submissionIdToDelete);
 
         verify(submissionRepository, times(1)).deleteById(submissionIdToDelete);
-        verify(submissionStateMachine, times(1)).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
     }
 
     @Test
