@@ -1,5 +1,7 @@
 package com.laboschqpa.server.statemachine;
 
+import com.laboschqpa.server.api.dto.submission.CreateNewSubmissionDto;
+import com.laboschqpa.server.api.dto.submission.EditSubmissionDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
@@ -20,6 +22,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +62,90 @@ class SubmissionStateMachineTest {
         }
 
         throw new RuntimeException("SubmissionException wanted but no exception was thrown.");
+    }
+
+    @Test
+    void createNewSubmission() {
+        Team team = new Team();
+        team.setId(5L);
+        UserAcc userAcc = UserAcc.builder().id(10L).team(team).build();
+
+        Objective objective = new Objective();
+        objective.setId(20L);
+
+        CreateNewSubmissionDto createNewSubmissionDto = new CreateNewSubmissionDto();
+        createNewSubmissionDto.setObjectiveId(objective.getId());
+        createNewSubmissionDto.setContent("test content");
+
+        SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
+        doNothing().when(submissionStateMachine).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
+        doReturn(objective).when(submissionStateMachine).findByIdAndAssertObjective_IsSubmittable_DeadlineIsNotPassed(objective.getId());
+
+        submissionStateMachine.createNewSubmission(createNewSubmissionDto);
+
+        verify(submissionRepository, times(1)).save(argThat((a) -> {
+            assertEquals(userAcc, a.getCreatorUser());
+            assertEquals(userAcc, a.getEditorUser());
+            assertEquals(team, a.getTeam());
+            assertEquals(objective, a.getObjective());
+            assertEquals(createNewSubmissionDto.getContent(), a.getContent());
+            return true;
+        }));
+    }
+
+    @Test
+    void editSubmission() {
+        UserAcc userAcc = UserAcc.builder().id(10L).build();
+
+        assertThrowsSubmissionExceptionWithSpecificError(SubmissionApiError.SUBMISSION_IS_NOT_FOUND, () -> {
+            Long submissionId = 88L;
+            when(submissionRepository.findById(submissionId)).thenReturn(Optional.empty());
+            SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
+            submissionStateMachine.editSubmission(EditSubmissionDto.builder().id(submissionId).build());
+        });
+
+        Submission submission = new Submission();
+        submission.setId(99L);
+
+        EditSubmissionDto editSubmissionDto = new EditSubmissionDto();
+        editSubmissionDto.setId(submission.getId());
+        editSubmissionDto.setContent("test content X");
+
+        SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
+        when(submissionRepository.findById(editSubmissionDto.getId())).thenReturn(Optional.of(submission));
+        doNothing().when(submissionStateMachine).assertIfInitiatorCanModifySubmission(submission);
+
+        submissionStateMachine.editSubmission(editSubmissionDto);
+
+        verify(submissionRepository, times(1)).save(submission);
+        assertNull(submission.getCreatorUser());
+        assertEquals(userAcc, submission.getEditorUser());
+        assertEquals(editSubmissionDto.getContent(), submission.getContent());
+    }
+
+    @Test
+    void deleteSubmission() {
+        UserAcc userAcc = UserAcc.builder().id(10L).build();
+
+        assertThrowsSubmissionExceptionWithSpecificError(SubmissionApiError.SUBMISSION_IS_NOT_FOUND, () -> {
+            Long submissionIdToDelete = 99L;
+            when(submissionRepository.findById(submissionIdToDelete)).thenReturn(Optional.empty());
+            SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
+            submissionStateMachine.deleteSubmission(submissionIdToDelete);
+        });
+
+        Long submissionIdToDelete = 99L;
+
+        Submission submission = new Submission();
+        submission.setId(99L);
+
+        SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
+        when(submissionRepository.findById(submissionIdToDelete)).thenReturn(Optional.of(submission));
+        doNothing().when(submissionStateMachine).assertIfInitiatorCanModifySubmission(submission);
+
+        submissionStateMachine.deleteSubmission(submissionIdToDelete);
+
+        verify(submissionRepository, times(1)).deleteById(submissionIdToDelete);
     }
 
     @Test
@@ -140,7 +228,8 @@ class SubmissionStateMachineTest {
     }
 
     @Test
-    public void assertIfInitiatorIsPermittedToModifySubmission() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void assertIfInitiatorIsPermittedToModifySubmission() throws
+            NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Team team1 = new Team();
         team1.setId(1L);
         Team team2 = new Team();
@@ -153,7 +242,7 @@ class SubmissionStateMachineTest {
             submission.setTeam(team1);
 
             SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
-            submissionStateMachine.assertIfInitiatorIsPermittedToModifySubmission(submission);
+            submissionStateMachine.assertIfInitiatorCanModifySubmission(submission);
         });
 
         assertThrowsSubmissionExceptionWithSpecificError(SubmissionApiError.YOU_CANNOT_MODIFY_A_SUBMISSION_IF_YOU_ARE_NOT_IN_THE_SUBMITTER_TEAM, () -> {
@@ -163,7 +252,7 @@ class SubmissionStateMachineTest {
             submission.setTeam(team1);
 
             SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
-            submissionStateMachine.assertIfInitiatorIsPermittedToModifySubmission(submission);
+            submissionStateMachine.assertIfInitiatorCanModifySubmission(submission);
         });
 
         assertThrowsSubmissionExceptionWithSpecificError(SubmissionApiError.YOU_CANNOT_MODIFY_A_SUBMISSION_IF_YOU_ARE_NOT_IN_THE_SUBMITTER_TEAM, () -> {
@@ -173,7 +262,7 @@ class SubmissionStateMachineTest {
             submission.setTeam(team1);
 
             SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
-            submissionStateMachine.assertIfInitiatorIsPermittedToModifySubmission(submission);
+            submissionStateMachine.assertIfInitiatorCanModifySubmission(submission);
         });
 
         {
@@ -188,7 +277,7 @@ class SubmissionStateMachineTest {
             SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
 
             doNothing().when(submissionStateMachine).assertObjective_IsSubmittable_DeadlineIsNotPassed(objective);
-            submissionStateMachine.assertIfInitiatorIsPermittedToModifySubmission(submission);
+            submissionStateMachine.assertIfInitiatorCanModifySubmission(submission);
             verify(submissionStateMachine, times(1)).assertObjective_IsSubmittable_DeadlineIsNotPassed(objective);
         }
 
@@ -204,7 +293,7 @@ class SubmissionStateMachineTest {
             SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
 
             doNothing().when(submissionStateMachine).assertObjective_IsSubmittable_DeadlineIsNotPassed(objective);
-            submissionStateMachine.assertIfInitiatorIsPermittedToModifySubmission(submission);
+            submissionStateMachine.assertIfInitiatorCanModifySubmission(submission);
             verify(submissionStateMachine, times(1)).assertObjective_IsSubmittable_DeadlineIsNotPassed(objective);
         }
     }

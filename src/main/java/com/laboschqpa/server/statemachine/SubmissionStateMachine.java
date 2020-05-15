@@ -49,7 +49,7 @@ public class SubmissionStateMachine {
         }
 
         Submission submission = submissionOptional.get();
-        assertIfInitiatorIsPermittedToModifySubmission(submission);
+        assertIfInitiatorCanModifySubmission(submission);
 
         submission.setUGCAsEditedByUser(initiatorUserAcc);
 
@@ -66,13 +66,13 @@ public class SubmissionStateMachine {
         }
 
         Submission submission = submissionOptional.get();
-        assertIfInitiatorIsPermittedToModifySubmission(submission);
+        assertIfInitiatorCanModifySubmission(submission);
 
         submissionRepository.deleteById(submission.getId());
         log.debug("UserAcc {} deleted submission {}.", initiatorUserAcc.getId(), submission.getId());
     }
 
-    void assertIfInitiatorIsPermittedToModifySubmission(Submission submission) {
+    void assertIfInitiatorCanModifySubmission(Submission submission) {
         if (!(
                 submission.getTeam().getId().equals(initiatorUserAcc.getTeam().getId())
                         && initiatorUserAcc.getTeamRole().isMemberOrLeader()
