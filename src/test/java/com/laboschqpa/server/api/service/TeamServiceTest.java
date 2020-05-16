@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.team.TeamDto;
+import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
@@ -15,11 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -42,29 +44,36 @@ class TeamServiceTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(transactionTemplateMock.execute(any())).then(transactionCallback -> ((TransactionCallbackWithoutResult) transactionCallback.getArgument(0)).doInTransaction(new SimpleTransactionStatus()));
+        lenient().when(transactionTemplateMock.execute(argThat(TransactionCallbackWithoutResult.class::isInstance)))
+                .then(transactionCallback -> ((TransactionCallbackWithoutResult) transactionCallback.getArgument(0)).doInTransaction(new SimpleTransactionStatus()));
         lenient().when(stateMachineFactoryMock.buildTeamUserRelationStateMachine(any(), any())).thenReturn(teamUserRelationStateMachineMock);
     }
 
     @Test
     void createNewTeam() {
-        TeamDto teamDto = new TeamDto(1L, "    test name of team   ");
+        CreateNewTeamDto createNewTeamDto = spy(new CreateNewTeamDto("    test name of team   "));
+        Team createdTeam = new Team();
         Long creatorUserId = 12L;
-        UserAcc creatorUser = UserAcc.builder().id(creatorUserId).enabled(true).team(new Team()).build();
+        UserAcc creatorUser = UserAcc.builder().id(creatorUserId).enabled(true).team(createdTeam).build();
+        when(transactionTemplateMock.execute(argThat(TransactionCallback.class::isInstance)))
+                .then(transactionCallback -> ((TransactionCallback<Team>) transactionCallback.getArgument(0)).doInTransaction(new SimpleTransactionStatus()));
 
         when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(creatorUserId)).thenReturn(Optional.of(creatorUser));
 
-        teamService.createNewTeam(teamDto, creatorUserId);
+        Team resultTeam = teamService.createNewTeam(createNewTeamDto, creatorUserId);
+
+        assertEquals(createdTeam, resultTeam);
 
         verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(creatorUser, creatorUser);
         verify(teamUserRelationStateMachineMock, times(1))
                 .createNewTeam(argThat((a)
-                        -> a.equals(teamDto)
-                        && a.getName().equals("test name of team") //trimmed name
+                        -> a.equals(createNewTeamDto)
+                        && a.getName().equals(createNewTeamDto.getName().trim())
                 ));
 
         verify(teamRepositoryMock, times(1)).save(creatorUser.getTeam());
         verify(userAccRepositoryMock, times(1)).save(creatorUser);
+        verify(createNewTeamDto, times(1)).validateSelf();
     }
 
     @Test

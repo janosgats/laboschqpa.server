@@ -1,6 +1,7 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.team.TeamDto;
+import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
+import com.laboschqpa.server.api.dto.team.GetTeamDto;
 import com.laboschqpa.server.api.service.TeamService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +15,11 @@ public class TeamController {
     private final TeamService teamService;
 
     @PostMapping("/createNewTeam")
-    public void postCreateNewTeam(@RequestBody TeamDto teamDto,
-                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.createNewTeam(teamDto, authenticationPrincipal.getUserId());
+    public GetTeamDto postCreateNewTeam(@RequestBody CreateNewTeamDto createNewTeamDto,
+                                        @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        return new GetTeamDto(
+                teamService.createNewTeam(createNewTeamDto, authenticationPrincipal.getUserId())
+        );
     }
 
     @PostMapping("/applyToTeam")

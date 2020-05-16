@@ -1,6 +1,6 @@
 package com.laboschqpa.server.statemachine;
 
-import com.laboschqpa.server.api.dto.team.TeamDto;
+import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.TeamRole;
@@ -17,18 +17,18 @@ public class TeamUserRelationStateMachine {
     private final UserAcc initiatorUserAcc;
     private final UserAccRepository userAccRepository;
 
-    public void createNewTeam(TeamDto teamDto) {
+    public void createNewTeam(CreateNewTeamDto createNewTeamDto) {
         assertInitiatorIsSameAsAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.NOTHING || alteredUserAcc.getTeam() != null)
             throw new TeamUserRelationException("You can create a new team only if you aren't a member or applicant of an other team!", TeamUserRelationApiError.YOU_ARE_ALREADY_MEMBER_OF_A_TEAM);
 
         Team newTeam = new Team();
-        newTeam.setName(teamDto.getName());
+        newTeam.setName(createNewTeamDto.getName());
         alteredUserAcc.setTeam(newTeam);
         alteredUserAcc.setTeamRole(TeamRole.LEADER);
 
-        log.debug("UserAcc {} created new team: {}", alteredUserAcc.getId(), teamDto.getName());
+        log.debug("UserAcc {} created new team: {}", alteredUserAcc.getId(), createNewTeamDto.getName());
     }
 
     public void applyToTeam(Team team) {
@@ -162,7 +162,7 @@ public class TeamUserRelationStateMachine {
             //There is at least one other Leader in the team
             alteredUserAcc.setTeamRole(TeamRole.MEMBER);
         } else {
-            throw new TeamUserRelationException("There is no other leader in the team. If you want to resign, make someone else leader!", TeamUserRelationApiError.THERE_IS_NO_OTHER_LEADER);
+            throw new TeamUserRelationException("There is no other leader in the team. If you want to resign, give leader rights to someone else!", TeamUserRelationApiError.THERE_IS_NO_OTHER_LEADER);
         }
     }
 

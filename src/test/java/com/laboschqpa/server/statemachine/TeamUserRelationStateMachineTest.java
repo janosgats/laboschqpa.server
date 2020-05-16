@@ -1,6 +1,6 @@
 package com.laboschqpa.server.statemachine;
 
-import com.laboschqpa.server.api.dto.team.TeamDto;
+import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.TeamRole;
@@ -99,14 +99,14 @@ class TeamUserRelationStateMachineTest {
 
     @Test
     void createNewTeam() {
-        TeamDto teamDto = new TeamDto(10L, "test name");
-        Team team = new Team(teamDto.getId(), teamDto.getName(), false);
+        CreateNewTeamDto createNewTeamDto = new CreateNewTeamDto("test name");
+        Team team = new Team(10L, createNewTeamDto.getName(), false);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamUserRelationApiError.YOU_ARE_ALREADY_MEMBER_OF_A_TEAM, () ->
                 stateMachineFactory.buildTeamUserRelationStateMachine(
                         UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build(),
                         UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build()
-                ).createNewTeam(teamDto)
+                ).createNewTeam(createNewTeamDto)
         );
 
 
@@ -114,7 +114,7 @@ class TeamUserRelationStateMachineTest {
                 UserAcc.builder().id(1L).team(null).teamRole(TeamRole.NOTHING).build(),
                 UserAcc.builder().id(1L).team(null).teamRole(TeamRole.NOTHING).build()
         ));
-        teamUserRelationStateMachine.createNewTeam(teamDto);
+        teamUserRelationStateMachine.createNewTeam(createNewTeamDto);
 
         assertEquals(team.getName(), teamUserRelationStateMachine.getAlteredUserAcc().getTeam().getName());
         verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();

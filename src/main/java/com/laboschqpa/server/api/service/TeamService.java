@@ -1,7 +1,6 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.team.TeamDto;
-import com.laboschqpa.server.api.validator.TeamValidator;
+import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
@@ -12,6 +11,7 @@ import com.laboschqpa.server.statemachine.TeamUserRelationStateMachine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -25,20 +25,25 @@ public class TeamService {
     private final TransactionTemplate transactionTemplate;
     private final StateMachineFactory stateMachineFactory;
 
-    public void createNewTeam(TeamDto teamDto, Long creatorUserId) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    /**
+     * @return The newly created {@link Team} entity.
+     */
+    public Team createNewTeam(CreateNewTeamDto createNewTeamDto, Long creatorUserId) {
+        createNewTeamDto.validateSelf();
+        return transactionTemplate.execute(new TransactionCallback<Team>() {
             @Override
-            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                teamDto.setName(teamDto.getName().trim());
-                new TeamValidator(teamDto).validateSelf();
+            public Team doInTransaction(TransactionStatus transactionStatus) {
+                createNewTeamDto.setName(createNewTeamDto.getName().trim());
 
                 UserAcc userAcc = readEnabledUserAccFromDbWithPessimisticLock(creatorUserId);
 
                 TeamUserRelationStateMachine stateMachine = stateMachineFactory.buildTeamUserRelationStateMachine(userAcc, userAcc);
-                stateMachine.createNewTeam(teamDto);
+                stateMachine.createNewTeam(createNewTeamDto);
 
                 teamRepository.save(userAcc.getTeam());
                 userAccRepository.save(userAcc);
+
+                return userAcc.getTeam();
             }
         });
     }
