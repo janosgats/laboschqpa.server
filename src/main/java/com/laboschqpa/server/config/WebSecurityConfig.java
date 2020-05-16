@@ -36,6 +36,9 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -85,6 +88,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(customAuthenticationFailureHandler())
 
                 .and()
+                .csrf()
+                .csrfTokenRepository(csrfTokenRepository())
+
+                .and()
                 .logout()
                 .logoutUrl(AppConstants.logOutUrl)
                 .logoutSuccessUrl(AppConstants.logOutSuccessUrl)
@@ -105,6 +112,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
+        return new LazyCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
+    }
+
+    @Bean
     public ClientRegistrationRepository clientRegistrationRepository(OAuth2ProviderRegistrationFactory oAuth2ProviderRegistrationFactory) {
         List<ClientRegistration> registrations = new ArrayList<>();
         registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistrations.Google));
@@ -115,7 +127,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-        return new CustomAuthenticationSuccessHandler();
+        return new CustomAuthenticationSuccessHandler(csrfTokenRepository());
     }
 
     @Bean

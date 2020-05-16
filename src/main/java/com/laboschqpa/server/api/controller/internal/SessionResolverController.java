@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = AppConstants.apiInternalUrl + "/sessionResolver")
@@ -26,7 +28,8 @@ public class SessionResolverController {
 
     @GetMapping("/isUserAuthorizedToResource")
     public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(@RequestBody IndexedFileServingRequestDto indexedFileServingRequestDto,
-                                                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        return sessionResolverService.getIsAuthorizedToResource(indexedFileServingRequestDto, authenticationPrincipal);
+                                                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal,
+                                                                           HttpServletRequest request) {
+        return sessionResolverService.getIsAuthorizedToResource(indexedFileServingRequestDto, authenticationPrincipal, request);
     }
 }

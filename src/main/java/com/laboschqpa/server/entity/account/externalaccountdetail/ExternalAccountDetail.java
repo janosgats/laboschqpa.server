@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Table(indexes = {@Index(columnList = "user_id")})
 public abstract class ExternalAccountDetail {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

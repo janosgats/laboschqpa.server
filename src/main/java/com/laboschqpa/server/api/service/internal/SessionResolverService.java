@@ -7,22 +7,23 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @Service
 public class SessionResolverService {
     private static final Logger logger = LoggerFactory.getLogger(SessionResolverService.class);
+    private final CsrfTokenRepository csrfTokenRepository;
 
-    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(IndexedFileServingRequestDto indexedFileServingRequestDto, CustomOauth2User authenticationPrincipal) {
+    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(IndexedFileServingRequestDto indexedFileServingRequestDto,
+                                                                           CustomOauth2User authenticationPrincipal,
+                                                                           HttpServletRequest request) {
         indexedFileServingRequestDto.validateSelf();
         logger.debug("Authorizing IndexedFileServingRequestDto: {}", indexedFileServingRequestDto);
-        if (!isCsrfTokenValid(indexedFileServingRequestDto)) {
+        if (!isCsrfTokenValid(indexedFileServingRequestDto, request)) {
             return IsUserAuthorizedToResourceResponseDto.builder()
                     .authenticated(true)
                     .csrfValid(false)
@@ -46,24 +47,17 @@ public class SessionResolverService {
 
     }
 
-    private boolean isCsrfTokenValid(IndexedFileServingRequestDto indexedFileServingRequestDto) {
+    private boolean isCsrfTokenValid(IndexedFileServingRequestDto indexedFileServingRequestDto, HttpServletRequest request) {
         HttpMethod method = indexedFileServingRequestDto.getHttpMethod();
         if (method == HttpMethod.POST
                 || method == HttpMethod.DELETE
                 || method == HttpMethod.PUT
                 || method == HttpMethod.PATCH) {
             String csrfTokenToValidate = indexedFileServingRequestDto.getCsrfToken();
-            String realCsrfToken = getCurrentCsrfToken().getToken();
+            String realCsrfToken = csrfTokenRepository.loadToken(request).getToken();
 
             return csrfTokenToValidate != null && csrfTokenToValidate.equals(realCsrfToken);
         } else
             return true;
     }
-
-    private static CsrfToken getCurrentCsrfToken() {
-        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpSession session = attr.getRequest().getSession(false);
-        return (CsrfToken) session.getAttribute("org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN");
-    }
-
 }
