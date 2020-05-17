@@ -1,4 +1,4 @@
-package com.laboschqpa.server.api.dto;
+package com.laboschqpa.server.api.dto.internal;
 
 import com.laboschqpa.server.enums.FileAccessType;
 import com.laboschqpa.server.util.SelfValidator;
@@ -13,12 +13,16 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class IndexedFileServingRequestDto extends SelfValidator<IndexedFileServingRequestDto> {
+public class IsUserAuthorizedToResourceRequestDto extends SelfValidator<IsUserAuthorizedToResourceRequestDto> {
     @NotNull
     private HttpMethod httpMethod;
     private String csrfToken;
-    @Min(1)
-    private Long indexedFileId;
     @NotNull
     private FileAccessType fileAccessType;
+    @Min(1)
+    private Long indexedFileId;
+    @Min(1)
+    private Long indexedFileOwnerUserId;
+    @Min(1)
+    private Long indexedFileOwnerTeamId;
 }

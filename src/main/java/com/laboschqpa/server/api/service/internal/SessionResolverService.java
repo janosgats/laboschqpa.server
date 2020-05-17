@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.service.internal;
 
-import com.laboschqpa.server.api.dto.IndexedFileServingRequestDto;
-import com.laboschqpa.server.api.dto.IsUserAuthorizedToResourceResponseDto;
+import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceRequestDto;
+import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceResponseDto;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,17 +18,17 @@ public class SessionResolverService {
     private static final Logger logger = LoggerFactory.getLogger(SessionResolverService.class);
     private final CsrfTokenRepository csrfTokenRepository;
 
-    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(IndexedFileServingRequestDto indexedFileServingRequestDto,
+    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(IsUserAuthorizedToResourceRequestDto isUserAuthorizedToResourceRequestDto,
                                                                            CustomOauth2User authenticationPrincipal,
                                                                            HttpServletRequest request) {
-        indexedFileServingRequestDto.validateSelf();
-        logger.debug("Authorizing IndexedFileServingRequestDto: {}", indexedFileServingRequestDto);
-        if (!isCsrfTokenValid(indexedFileServingRequestDto, request)) {
+        isUserAuthorizedToResourceRequestDto.validateSelf();
+        logger.trace("Authorizing with IsUserAuthorizedToResourceRequestDto.");
+        if (!isCsrfTokenValid(isUserAuthorizedToResourceRequestDto, request)) {
             return IsUserAuthorizedToResourceResponseDto.builder()
                     .authenticated(true)
                     .csrfValid(false)
                     .authorized(false)
-                    .ownerUserId(authenticationPrincipal.getUserAccEntity().getId())
+                    .loggedInUserId(authenticationPrincipal.getUserAccEntity().getId())
                     .build();
         }
 
@@ -37,27 +37,27 @@ public class SessionResolverService {
                     .authenticated(true)
                     .csrfValid(true)
                     .authorized(true)
-                    .ownerUserId(authenticationPrincipal.getUserAccEntity().getId())
-                    .ownerTeamId(authenticationPrincipal.getUserAccEntity().getTeam().getId())//TODO: Only users in teams will be able to upload files
+                    .loggedInUserId(authenticationPrincipal.getUserAccEntity().getId())
+                    .loggedInUserTeamId(authenticationPrincipal.getUserAccEntity().getTeam().getId())//TODO: Only users in teams will be able to upload files
                     .build();
         } else {
             return IsUserAuthorizedToResourceResponseDto.builder()
                     .authenticated(true)
                     .csrfValid(true)
                     .authorized(false)
-                    .ownerUserId(authenticationPrincipal.getUserAccEntity().getId())
+                    .loggedInUserId(authenticationPrincipal.getUserAccEntity().getId())
                     .build();
         }
 
     }
 
-    private boolean isCsrfTokenValid(IndexedFileServingRequestDto indexedFileServingRequestDto, HttpServletRequest request) {
-        HttpMethod method = indexedFileServingRequestDto.getHttpMethod();
+    private boolean isCsrfTokenValid(IsUserAuthorizedToResourceRequestDto isUserAuthorizedToResourceRequestDto, HttpServletRequest request) {
+        HttpMethod method = isUserAuthorizedToResourceRequestDto.getHttpMethod();
         if (method == HttpMethod.POST
                 || method == HttpMethod.DELETE
                 || method == HttpMethod.PUT
                 || method == HttpMethod.PATCH) {
-            String csrfTokenToValidate = indexedFileServingRequestDto.getCsrfToken();
+            String csrfTokenToValidate = isUserAuthorizedToResourceRequestDto.getCsrfToken();
             String realCsrfToken = csrfTokenRepository.loadToken(request).getToken();
 
             return csrfTokenToValidate != null && csrfTokenToValidate.equals(realCsrfToken);

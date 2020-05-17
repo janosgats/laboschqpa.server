@@ -2,8 +2,8 @@ package com.laboschqpa.server.api.controller.internal;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.laboschqpa.server.api.dto.IndexedFileServingRequestDto;
-import com.laboschqpa.server.api.dto.IsUserAuthorizedToResourceResponseDto;
+import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceRequestDto;
+import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceResponseDto;
 import com.laboschqpa.server.api.service.internal.SessionResolverService;
 import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
@@ -27,9 +27,9 @@ public class SessionResolverController {
     }
 
     @GetMapping("/isUserAuthorizedToResource")
-    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(@RequestBody IndexedFileServingRequestDto indexedFileServingRequestDto,
+    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(@RequestBody IsUserAuthorizedToResourceRequestDto isUserAuthorizedToResourceRequestDto,
                                                                            @AuthenticationPrincipal CustomOauth2User authenticationPrincipal,
                                                                            HttpServletRequest request) {
-        return sessionResolverService.getIsAuthorizedToResource(indexedFileServingRequestDto, authenticationPrincipal, request);
+        return sessionResolverService.getIsAuthorizedToResource(isUserAuthorizedToResourceRequestDto, authenticationPrincipal, request);
     }
 }

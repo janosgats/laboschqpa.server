@@ -1,4 +1,4 @@
-package com.laboschqpa.server.api.dto;
+package com.laboschqpa.server.api.dto.internal;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ public class IsUserAuthorizedToResourceResponseDto{
     private boolean authenticated;
     private boolean csrfValid;
 
-    private Long ownerUserId;
-    private Long ownerTeamId;
+    private Long loggedInUserId;
+    private Long loggedInUserTeamId;
 }
 

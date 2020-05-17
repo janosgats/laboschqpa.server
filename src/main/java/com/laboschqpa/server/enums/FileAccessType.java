@@ -10,7 +10,7 @@ public enum
 FileAccessType {
     READ(0),
     DELETE(1),
-    UPLOAD(2);
+    WRITE(2);
 
     private Integer value;
 
