@@ -1,4 +1,4 @@
-package com.laboschqpa.server.exceptions;
+package com.laboschqpa.server.exceptions.apiclient;
 
 import lombok.Builder;
 import lombok.Getter;

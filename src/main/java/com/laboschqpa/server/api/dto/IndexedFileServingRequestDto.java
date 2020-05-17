@@ -18,7 +18,6 @@ public class IndexedFileServingRequestDto extends SelfValidator<IndexedFileServi
     private HttpMethod httpMethod;
     private String csrfToken;
     @Min(1)
-    @NotNull
     private Long indexedFileId;
     @NotNull
     private FileAccessType fileAccessType;

@@ -1,8 +1,8 @@
 package com.laboschqpa.server.service.apiclient;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.laboschqpa.server.exceptions.ApiClientException;
-import com.laboschqpa.server.exceptions.ResponseCodeIsNotSuccessApiClientException;
+import com.laboschqpa.server.exceptions.apiclient.ApiClientException;
+import com.laboschqpa.server.exceptions.apiclient.ResponseCodeIsNotSuccessApiClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;

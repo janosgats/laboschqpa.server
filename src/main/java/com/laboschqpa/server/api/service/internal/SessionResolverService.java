@@ -28,6 +28,7 @@ public class SessionResolverService {
                     .authenticated(true)
                     .csrfValid(false)
                     .authorized(false)
+                    .ownerUserId(authenticationPrincipal.getUserAccEntity().getId())
                     .build();
         }
 
@@ -36,12 +37,15 @@ public class SessionResolverService {
                     .authenticated(true)
                     .csrfValid(true)
                     .authorized(true)
+                    .ownerUserId(authenticationPrincipal.getUserAccEntity().getId())
+                    .ownerTeamId(authenticationPrincipal.getUserAccEntity().getTeam().getId())//TODO: Only users in teams will be able to upload files
                     .build();
         } else {
             return IsUserAuthorizedToResourceResponseDto.builder()
                     .authenticated(true)
                     .csrfValid(true)
                     .authorized(false)
+                    .ownerUserId(authenticationPrincipal.getUserAccEntity().getId())
                     .build();
         }
 

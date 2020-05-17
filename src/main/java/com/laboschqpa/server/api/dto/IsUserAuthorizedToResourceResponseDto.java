@@ -14,5 +14,8 @@ public class IsUserAuthorizedToResourceResponseDto{
     private boolean authorized = false;
     private boolean authenticated;
     private boolean csrfValid;
+
+    private Long ownerUserId;
+    private Long ownerTeamId;
 }
 

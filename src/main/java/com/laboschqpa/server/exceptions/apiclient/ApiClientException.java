@@ -1,4 +1,4 @@
-package com.laboschqpa.server.exceptions;
+package com.laboschqpa.server.exceptions.apiclient;
 
 public class ApiClientException extends RuntimeException{
     public ApiClientException() {
