@@ -24,6 +24,10 @@ class CreateNewTeamDtoTest {
         assertThrows(FieldValidationFailedException.class, createNewTeamDto::validateSelf);
 
         createNewTeamDto = new CreateNewTeamDto();
+        createNewTeamDto.setName("    ");
+        assertThrows(FieldValidationFailedException.class, createNewTeamDto::validateSelf);
+
+        createNewTeamDto = new CreateNewTeamDto();
         createNewTeamDto.setName("^team");
         assertThrows(FieldValidationFailedException.class, createNewTeamDto::validateSelf);
 
