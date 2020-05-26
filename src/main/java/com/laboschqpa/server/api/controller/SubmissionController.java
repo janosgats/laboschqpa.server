@@ -45,6 +45,8 @@ public class SubmissionController {
 
     @GetMapping("/listAll")
     public List<GetSubmissionDto> getListAll() {
-        return submissionService.listAll().stream().map(GetSubmissionDto::new).collect(Collectors.toList());
+        return submissionService.listAll().stream()
+                .map(GetSubmissionDto::new)
+                .collect(Collectors.toList());
     }
 }
