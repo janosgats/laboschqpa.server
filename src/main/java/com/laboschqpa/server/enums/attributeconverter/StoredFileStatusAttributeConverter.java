@@ -1,6 +1,6 @@
 package com.laboschqpa.server.enums.attributeconverter;
 
-import com.laboschqpa.server.enums.StoredFileStatus;
+import com.laboschqpa.server.enums.filehost.StoredFileStatus;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

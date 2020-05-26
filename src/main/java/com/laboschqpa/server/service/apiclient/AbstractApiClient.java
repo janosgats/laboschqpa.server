@@ -1,12 +1,14 @@
 package com.laboschqpa.server.service.apiclient;
 
 public abstract class AbstractApiClient {
-    private ApiCallerFactory apiCallerFactory;
+    private final ApiCallerFactory apiCallerFactory;
+    private final boolean useAuthInterService;
 
     private ApiCaller apiCaller;
 
-    public AbstractApiClient(ApiCallerFactory apiCallerFactory) {
+    public AbstractApiClient(ApiCallerFactory apiCallerFactory, boolean useAuthInterService) {
         this.apiCallerFactory = apiCallerFactory;
+        this.useAuthInterService = useAuthInterService;
     }
 
     /**
@@ -14,9 +16,17 @@ public abstract class AbstractApiClient {
      */
     protected ApiCaller getApiCaller() {
         if (apiCaller == null) {
-            apiCaller = apiCallerFactory.create(getApiBaseUrl());
+            apiCaller = instantiateApiCaller();
         }
         return apiCaller;
+    }
+
+    private ApiCaller instantiateApiCaller() {
+        if (useAuthInterService) {
+            return apiCallerFactory.createForAuthInterService(getApiBaseUrl());
+        } else {
+            return apiCallerFactory.createGeneral(getApiBaseUrl());
+        }
     }
 
     protected abstract String getApiBaseUrl();

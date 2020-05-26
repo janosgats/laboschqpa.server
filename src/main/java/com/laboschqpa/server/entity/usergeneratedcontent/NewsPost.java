@@ -9,7 +9,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "news_post")
-@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue(value = "1")
 public class NewsPost extends UserGeneratedContent {
     @Column(name = "content")
     private String content;//Possibly Markdown

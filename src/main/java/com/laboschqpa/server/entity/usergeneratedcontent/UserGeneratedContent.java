@@ -5,10 +5,13 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER)
 public abstract class UserGeneratedContent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +32,19 @@ public abstract class UserGeneratedContent {
     @Column(name = "edit_time")
     private Instant editTime;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @JoinTable(name = "attachment",
+            joinColumns = {
+                    @JoinColumn(name = "ugc_id", nullable = false)
+            },
+            foreignKey = @ForeignKey(name = "fk_ugc_attachment",
+                    foreignKeyDefinition = "foreign key (ugc_id) references user_generated_content (id) on delete cascade"
+            ),
+            indexes = @Index(columnList = "indexed_file_id", name = "indexed_file_id")
+    )
+    @Column(name = "indexed_file_id", nullable = false)
+    private Set<Long> attachments = new HashSet<>();
+
     public void setUGCAsCreatedByUser(UserAcc creatorUserAcc) {
         this.setCreatorUser(creatorUserAcc);
         this.setEditorUser(creatorUserAcc);
@@ -41,3 +57,4 @@ public abstract class UserGeneratedContent {
         this.setEditTime(Instant.now());
     }
 }
+

@@ -17,7 +17,7 @@ public class GitHubApiClient extends AbstractApiClient {
     private String oauth2ResourceUserInfoUrl;
 
     public GitHubApiClient(ApiCallerFactory apiCallerFactory) {
-        super(apiCallerFactory);
+        super(apiCallerFactory, false);
     }
 
     public GithubUserInfoDto getOAuth2UserInfo(OAuth2AccessToken accessToken) {

@@ -1,4 +1,4 @@
-package com.laboschqpa.server.api.dto.submission;
+package com.laboschqpa.server.api.dto.ugc.submission;
 
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.AllArgsConstructor;
@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +22,6 @@ public class EditSubmissionDto extends SelfValidator<EditSubmissionDto> {
     @NotNull
     @Length(max = 10000)
     private String content;
+
+    private Set<Long> attachments;
 }

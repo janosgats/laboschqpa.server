@@ -1,8 +1,8 @@
 package com.laboschqpa.server.statemachine;
 
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.repo.ObjectiveRepository;
-import com.laboschqpa.server.repo.SubmissionRepository;
+import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
+import com.laboschqpa.server.repo.usergeneratedcontent.SubmissionRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

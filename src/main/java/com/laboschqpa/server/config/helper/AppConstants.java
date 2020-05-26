@@ -24,6 +24,8 @@ public class AppConstants {
     public static final String apiInternalUrl = "/api/internal/";//This HAS TO HAVE a "/" (slash) character at the end!
     public static final String apiNoAuthRequiredUrl = "/api/noAuthRequired/";//This HAS TO HAVE a "/" (slash) character at the end!
 
+    public static final String authInterServiceHeaderName = "AuthInterService";
+
     public static void preFillModel(Model model) {
         Map<String, String> constants = new HashMap<>();
         constants.put("logoutUrl", logOutUrl);

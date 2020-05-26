@@ -1,18 +1,15 @@
-package com.laboschqpa.server.api.dto.objective;
+package com.laboschqpa.server.api.dto.ugc.objective;
 
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.Set;
 
 @Data
-public class EditObjectiveDto extends SelfValidator<CreateNewObjectiveDto> {
-    @NotNull
-    @Min(1)
-    private Long id;
+public class CreateNewObjectiveDto extends SelfValidator<CreateNewObjectiveDto> {
     @NotNull
     @Length(max = 10000)
     private String description;
@@ -20,4 +17,6 @@ public class EditObjectiveDto extends SelfValidator<CreateNewObjectiveDto> {
     private Boolean submittable;
     @NotNull
     private Instant deadline;
+
+    private Set<Long> attachments;
 }

@@ -1,28 +1,32 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.objective.CreateNewObjectiveDto;
-import com.laboschqpa.server.api.dto.objective.EditObjectiveDto;
+import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveDto;
+import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveDto;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
+import com.laboschqpa.server.enums.errorkey.InvalidAttachmentApiError;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
-import com.laboschqpa.server.repo.ObjectiveRepository;
+import com.laboschqpa.server.exceptions.ugc.InvalidAttachmentException;
+import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
+import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RequiredArgsConstructor
 @Service
 public class ObjectiveService {
     private final ObjectiveRepository objectiveRepository;
+    private final AttachmentHelper attachmentHelper;
 
     public Objective getObjective(Long objectiveId) {
-        Optional<Objective> objectiveOptional = objectiveRepository.findById(objectiveId);
+        Optional<Objective> objectiveOptional = objectiveRepository.findByIdWithEagerAttachments(objectiveId);
 
         if (objectiveOptional.isEmpty())
             throw new ContentNotFoundApiException("Cannot find Objective with Id: " + objectiveId);
@@ -31,8 +35,11 @@ public class ObjectiveService {
     }
 
     public void createNewObjective(CreateNewObjectiveDto createNewObjectiveDto, UserAcc creatorUserAcc) {
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewObjectiveDto.getAttachments());
+
         Objective objective = new Objective();
         objective.setUGCAsCreatedByUser(creatorUserAcc);
+        objective.setAttachments(createNewObjectiveDto.getAttachments());
 
         objective.setDescription(createNewObjectiveDto.getDescription());
         objective.setSubmittable(createNewObjectiveDto.getSubmittable());
@@ -47,8 +54,11 @@ public class ObjectiveService {
         if (objectiveOptional.isEmpty())
             throw new ContentNotFoundApiException("Cannot find Objective with Id: " + editObjectiveDto.getId());
 
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editObjectiveDto.getAttachments());
+
         Objective objective = objectiveOptional.get();
         objective.setUGCAsEditedByUser(editorUserAcc);
+        objective.setAttachments(editObjectiveDto.getAttachments());
 
         objective.setDescription(editObjectiveDto.getDescription());
         objective.setSubmittable(editObjectiveDto.getSubmittable());

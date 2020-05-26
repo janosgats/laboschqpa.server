@@ -1,8 +1,8 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.submission.CreateNewSubmissionDto;
-import com.laboschqpa.server.api.dto.submission.EditSubmissionDto;
-import com.laboschqpa.server.api.dto.submission.GetSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.GetSubmissionDto;
 import com.laboschqpa.server.api.service.SubmissionService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,11 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/api/submission")
 public class SubmissionController {
     private final SubmissionService submissionService;
+
+    @GetMapping("/submission")
+    public GetSubmissionDto getSubmission(@RequestParam(name = "id") Long submissionId) {
+        return new GetSubmissionDto(submissionService.getSubmission(submissionId), true);
+    }
 
     @PostMapping("/createNew")
     public void postCreateNewSubmission(@RequestBody CreateNewSubmissionDto createNewSubmissionDto,

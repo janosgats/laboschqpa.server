@@ -53,7 +53,10 @@ public class UserAcc implements Serializable {
     private Set<UserEmailAddress> userEmailAddresses = new HashSet<>();
 
     @ElementCollection(targetClass = Authority.class, fetch = FetchType.EAGER)
-    @JoinTable(name = "granted_authority", joinColumns = @JoinColumn(name = "user_id"), uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "granted_authority"}))
+    @JoinTable(name = "granted_authority",
+            joinColumns = @JoinColumn(name = "user_id"),
+            indexes = @Index(columnList = "granted_authority", name = "granted_authority")
+    )
     @Column(name = "granted_authority", nullable = false)
     @Convert(converter = AuthorityAttributeConverter.class)
     private Set<Authority> authorities = new HashSet<>();

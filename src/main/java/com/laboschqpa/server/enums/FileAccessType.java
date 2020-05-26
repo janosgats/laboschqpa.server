@@ -1,6 +1,7 @@
 package com.laboschqpa.server.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.laboschqpa.server.enums.filehost.StoredFileStatus;
 import com.laboschqpa.server.exceptions.NotImplementedException;
 
 import java.util.Arrays;

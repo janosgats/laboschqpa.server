@@ -14,7 +14,7 @@ import javax.persistence.*;
                 @Index(columnList = "team_id"),
                 @Index(columnList = "objective_id")
         })
-@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue(value = "3")
 public class Submission extends UserGeneratedContent {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false)

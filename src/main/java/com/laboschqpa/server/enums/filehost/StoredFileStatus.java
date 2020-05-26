@@ -1,4 +1,4 @@
-package com.laboschqpa.server.enums;
+package com.laboschqpa.server.enums.filehost;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.laboschqpa.server.exceptions.NotImplementedException;

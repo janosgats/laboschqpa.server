@@ -1,6 +1,7 @@
 package com.laboschqpa.server.service.apiclient;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.exceptions.apiclient.ApiClientException;
 import com.laboschqpa.server.exceptions.apiclient.ResponseCodeIsNotSuccessApiClientException;
 import org.slf4j.Logger;
@@ -22,13 +23,23 @@ import java.util.stream.Collectors;
 
 public class ApiCaller {
     private static final Logger logger = LoggerFactory.getLogger(ApiCaller.class);
+
     private String apiBaseUrl;
     private WebClient webClient;
+    private final boolean useAuthInterService;
+    private String authInterServiceKey;
 
     public ApiCaller(String apiBaseUrl, WebClient webClient) {
-
+        this.useAuthInterService = false;
         this.apiBaseUrl = apiBaseUrl;
         this.webClient = webClient;
+    }
+
+    public ApiCaller(String apiBaseUrl, WebClient webClient, String authInterServiceKey) {
+        this.useAuthInterService = true;
+        this.apiBaseUrl = apiBaseUrl;
+        this.webClient = webClient;
+        this.authInterServiceKey = authInterServiceKey;
     }
 
     public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod) {
@@ -39,8 +50,9 @@ public class ApiCaller {
         return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, null);
     }
 
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, JsonNode requestBody) {
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, requestBody);
+    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod,
+                                                             BodyInserter<? extends Object, ReactiveHttpOutputMessage> requestBodyInserter) {
+        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, requestBodyInserter, null);
     }
 
     public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod,
@@ -80,6 +92,10 @@ public class ApiCaller {
         if (headers == null) {
             return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams,
                     requestBodyInserter, new HttpHeaders(), disableUrlEncodingOfQueryParams);
+        }
+
+        if (this.useAuthInterService) {
+            headers.add(AppConstants.authInterServiceHeaderName, authInterServiceKey);
         }
 
         if (requestBodyInserter == null)

@@ -4,7 +4,7 @@ import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GithubExternalAccountDetail;
 import com.laboschqpa.server.exceptions.authentication.DefectiveAuthProviderResponseAuthenticationException;
-import com.laboschqpa.server.repo.GithubExternalAccountDetailRepository;
+import com.laboschqpa.server.repo.externalaccountdetail.GithubExternalAccountDetailRepository;
 import com.laboschqpa.server.service.apiclient.github.GitHubApiClient;
 import com.laboschqpa.server.service.apiclient.github.GithubUserInfoDto;
 import lombok.RequiredArgsConstructor;

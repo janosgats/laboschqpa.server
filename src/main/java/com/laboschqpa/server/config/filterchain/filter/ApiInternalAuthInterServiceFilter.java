@@ -41,7 +41,7 @@ public class ApiInternalAuthInterServiceFilter implements Filter {
         if (httpServletRequest.getRequestURI().contains(
                 AppConstants.apiInternalUrl.substring(1, AppConstants.apiInternalUrl.length() - 1))) {
 
-            String authInterServiceHeader = httpServletRequest.getHeader("AuthInterService");
+            String authInterServiceHeader = httpServletRequest.getHeader(AppConstants.authInterServiceHeaderName);
             if (isAuthInterServiceHeaderValid(authInterServiceHeader)) {
                 logger.trace("AuthInterService auth passed. URL: {}", httpServletRequest.getRequestURI());
                 return true;

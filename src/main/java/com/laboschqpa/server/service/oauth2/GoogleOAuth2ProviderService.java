@@ -4,7 +4,7 @@ import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
 import com.laboschqpa.server.exceptions.authentication.DefectiveAuthProviderResponseAuthenticationException;
-import com.laboschqpa.server.repo.GoogleExternalAccountDetailRepository;
+import com.laboschqpa.server.repo.externalaccountdetail.GoogleExternalAccountDetailRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;

@@ -10,7 +10,7 @@ import java.time.Instant;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "objective")
-@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue(value = "2")
 public class Objective extends UserGeneratedContent {
     @Column(name = "description")
     private String description;//Possibly Markdown

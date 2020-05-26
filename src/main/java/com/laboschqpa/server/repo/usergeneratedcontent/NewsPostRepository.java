@@ -1,4 +1,4 @@
-package com.laboschqpa.server.repo;
+package com.laboschqpa.server.repo.usergeneratedcontent;
 
 import com.laboschqpa.server.entity.usergeneratedcontent.NewsPost;
 import org.springframework.data.jpa.repository.JpaRepository;

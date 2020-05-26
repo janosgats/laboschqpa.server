@@ -1,15 +1,15 @@
 package com.laboschqpa.server.statemachine;
 
-import com.laboschqpa.server.api.dto.submission.CreateNewSubmissionDto;
-import com.laboschqpa.server.api.dto.submission.EditSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
 import com.laboschqpa.server.enums.auth.TeamRole;
 import com.laboschqpa.server.enums.errorkey.SubmissionApiError;
 import com.laboschqpa.server.exceptions.statemachine.SubmissionException;
-import com.laboschqpa.server.repo.ObjectiveRepository;
-import com.laboschqpa.server.repo.SubmissionRepository;
+import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
+import com.laboschqpa.server.repo.usergeneratedcontent.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +30,7 @@ public class SubmissionStateMachine {
 
         Submission newSubmission = new Submission();
         newSubmission.setUGCAsCreatedByUser(initiatorUserAcc);
+        newSubmission.setAttachments(createNewSubmissionDto.getAttachments());
 
         newSubmission.setTeam(initiatorUserAcc.getTeam());
         newSubmission.setObjective(objective);
@@ -52,6 +53,7 @@ public class SubmissionStateMachine {
         assertIfInitiatorCanModifySubmission(submission);
 
         submission.setUGCAsEditedByUser(initiatorUserAcc);
+        submission.setAttachments(editSubmissionDto.getAttachments());
 
         submission.setContent(editSubmissionDto.getContent());
 
