@@ -4,9 +4,7 @@ import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveDto;
 import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveDto;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
-import com.laboschqpa.server.enums.errorkey.InvalidAttachmentApiError;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
-import com.laboschqpa.server.exceptions.ugc.InvalidAttachmentException;
 import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Log4j2
 @RequiredArgsConstructor

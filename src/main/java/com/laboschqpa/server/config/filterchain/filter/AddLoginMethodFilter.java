@@ -2,7 +2,7 @@ package com.laboschqpa.server.config.filterchain.filter;
 
 import com.laboschqpa.server.api.errorhandling.ApiErrorResponseBody;
 import com.laboschqpa.server.config.helper.AppConstants;
-import com.laboschqpa.server.enums.errorkey.AuthApiError;
+import com.laboschqpa.server.enums.apierrordescriptor.AuthApiError;
 import com.laboschqpa.server.util.ServletHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;

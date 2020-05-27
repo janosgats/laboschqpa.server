@@ -7,8 +7,8 @@ import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
 import com.laboschqpa.server.enums.auth.TeamRole;
-import com.laboschqpa.server.enums.errorkey.SubmissionApiError;
-import com.laboschqpa.server.exceptions.statemachine.SubmissionException;
+import com.laboschqpa.server.enums.apierrordescriptor.SubmissionApiError;
+import com.laboschqpa.server.exceptions.apierrordescriptor.SubmissionException;
 import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.SubmissionRepository;
 import org.junit.jupiter.api.Test;
@@ -52,10 +52,10 @@ class SubmissionStateMachineTest {
                     throw e;
             }
         } catch (SubmissionException e) {
-            if (e.getSubmissionApiError().equals(expectedTeamUserRelationApiError)) {
+            if (e.getApiErrorDescriptor().equals(expectedTeamUserRelationApiError)) {
                 return;
             } else {
-                throw new RuntimeException("SubmissionException::submissionApiError differs. Expected: " + expectedTeamUserRelationApiError + " Actual: " + e.getSubmissionApiError());
+                throw new RuntimeException("SubmissionException::submissionApiError differs. Expected: " + expectedTeamUserRelationApiError + " Actual: " + e.getApiErrorDescriptor());
             }
         } catch (Throwable e) {
             throw new RuntimeException("SubmissionException wanted but " + e.getClass() + " was thrown.", e);

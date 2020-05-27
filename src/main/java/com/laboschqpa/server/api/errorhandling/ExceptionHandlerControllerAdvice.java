@@ -3,10 +3,8 @@ package com.laboschqpa.server.api.errorhandling;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laboschqpa.server.exceptions.*;
+import com.laboschqpa.server.exceptions.apierrordescriptor.ApiErrorDescriptorException;
 import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
-import com.laboschqpa.server.exceptions.statemachine.SubmissionException;
-import com.laboschqpa.server.exceptions.statemachine.TeamUserRelationException;
-import com.laboschqpa.server.exceptions.ugc.InvalidAttachmentException;
 import com.laboschqpa.server.model.FieldValidationError;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -73,25 +71,11 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
         return new ResponseEntity<>(new ApiErrorResponseBody(e.getMessage()), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler({TeamUserRelationException.class})
-    protected ResponseEntity<ApiErrorResponseBody> handleTeamUserRelationException(
-            TeamUserRelationException e, WebRequest request) {
-        loggerOfChild.trace("handleTeamUserRelationException() caught exception while executing api request!", e);
-        return new ResponseEntity<>(new ApiErrorResponseBody(e.getTeamUserRelationApiError(), e.getMessage()), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler({InvalidAttachmentException.class})
-    protected ResponseEntity<ApiErrorResponseBody> handleInvalidAttachmentException(
-            InvalidAttachmentException e, WebRequest request) {
-        loggerOfChild.trace("handleTeamUserRelationException() caught exception while executing api request!", e);
-        return new ResponseEntity<>(new ApiErrorResponseBody(e.getInvalidAttachmentApiError(), e.getMessage()), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler({SubmissionException.class})
-    protected ResponseEntity<ApiErrorResponseBody> handleSubmissionException(
-            SubmissionException e, WebRequest request) {
-        loggerOfChild.trace("handleSubmissionException() caught exception while executing api request!", e);
-        return new ResponseEntity<>(new ApiErrorResponseBody(e.getSubmissionApiError(), e.getMessage()), HttpStatus.CONFLICT);
+    @ExceptionHandler({ApiErrorDescriptorException.class})
+    protected ResponseEntity<ApiErrorResponseBody> handleApiErrorDescriptorException(
+            ApiErrorDescriptorException e, WebRequest request) {
+        loggerOfChild.trace("handleApiErrorDescriptorException() caught exception while executing api request!", e);
+        return new ResponseEntity<>(new ApiErrorResponseBody(e.getApiErrorDescriptor(), e.getMessage()), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ConflictingRequestDataApiException.class)

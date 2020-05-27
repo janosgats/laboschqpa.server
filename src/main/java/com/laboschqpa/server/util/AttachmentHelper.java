@@ -1,8 +1,8 @@
 package com.laboschqpa.server.util;
 
-import com.laboschqpa.server.enums.errorkey.InvalidAttachmentApiError;
+import com.laboschqpa.server.enums.apierrordescriptor.InvalidAttachmentApiError;
 import com.laboschqpa.server.enums.filehost.IndexedFileStatus;
-import com.laboschqpa.server.exceptions.ugc.InvalidAttachmentException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.InvalidAttachmentException;
 import com.laboschqpa.server.service.apiclient.filehost.FileHostApiClient;
 import com.laboschqpa.server.service.apiclient.filehost.GetIndexedFileInfoResultDto;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +21,9 @@ public class AttachmentHelper {
 
     public void assertAllFilesExistAndAvailableOnFileHost(Set<Long> indexedFileIds) {
         if (!areAllFilesExistingAndAvailableOnFileHost(indexedFileIds)) {
-            throw new InvalidAttachmentException("Some of these files are not available: "
-                    + indexedFileIds.stream().map(String::valueOf).collect(Collectors.joining(",")),
-                    InvalidAttachmentApiError.SOME_FILES_ARE_NOT_AVAILABLE);
+            throw new InvalidAttachmentException(InvalidAttachmentApiError.SOME_FILES_ARE_NOT_AVAILABLE,
+                    "Some of these files are not available: "
+                            + indexedFileIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
         }
     }
 

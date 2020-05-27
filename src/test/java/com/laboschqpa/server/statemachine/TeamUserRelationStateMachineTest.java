@@ -4,8 +4,8 @@ import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.TeamRole;
-import com.laboschqpa.server.enums.errorkey.TeamUserRelationApiError;
-import com.laboschqpa.server.exceptions.statemachine.TeamUserRelationException;
+import com.laboschqpa.server.enums.apierrordescriptor.TeamUserRelationApiError;
+import com.laboschqpa.server.exceptions.apierrordescriptor.TeamUserRelationException;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import org.junit.jupiter.api.Test;
@@ -35,10 +35,10 @@ class TeamUserRelationStateMachineTest {
         try {
             executable.execute();
         } catch (TeamUserRelationException e) {
-            if (e.getTeamUserRelationApiError().equals(expectedTeamUserRelationApiError)) {
+            if (e.getApiErrorDescriptor().equals(expectedTeamUserRelationApiError)) {
                 return;
             } else {
-                throw new RuntimeException("TeamUserRelationException::teamUserRelationError differs. Expected: " + expectedTeamUserRelationApiError + " Actual: " + e.getTeamUserRelationApiError());
+                throw new RuntimeException("TeamUserRelationException::teamUserRelationError differs. Expected: " + expectedTeamUserRelationApiError + " Actual: " + e.getApiErrorDescriptor());
             }
         } catch (Throwable e) {
             throw new RuntimeException("TeamUserRelationException wanted but " + e.getClass() + " was thrown.", e);

@@ -1,4 +1,4 @@
-package com.laboschqpa.server.enums.errorkey;
+package com.laboschqpa.server.enums.apierrordescriptor;
 
 import com.laboschqpa.server.annotation.ApiErrorType;
 import com.laboschqpa.server.api.errorhandling.ApiErrorDescriptor;

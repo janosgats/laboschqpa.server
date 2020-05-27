@@ -1,7 +1,7 @@
 package com.laboschqpa.server.config.filterchain.extension;
 
 import com.laboschqpa.server.api.errorhandling.ApiErrorResponseBody;
-import com.laboschqpa.server.enums.errorkey.AuthApiError;
+import com.laboschqpa.server.enums.apierrordescriptor.AuthApiError;
 import com.laboschqpa.server.exceptions.authentication.*;
 import com.laboschqpa.server.util.ServletHelper;
 import lombok.extern.log4j.Log4j2;
