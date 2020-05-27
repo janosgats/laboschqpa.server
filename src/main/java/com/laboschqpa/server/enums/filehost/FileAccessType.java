@@ -1,7 +1,7 @@
-package com.laboschqpa.server.enums;
+package com.laboschqpa.server.enums.filehost;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.laboschqpa.server.enums.filehost.StoredFileStatus;
 import com.laboschqpa.server.exceptions.NotImplementedException;
 
 import java.util.Arrays;
@@ -24,8 +24,9 @@ FileAccessType {
         return value;
     }
 
-    public static StoredFileStatus fromValue(Integer value) {
-        Optional<StoredFileStatus> optional = Arrays.stream(StoredFileStatus.values())
+    @JsonCreator
+    public static FileAccessType fromValue(Integer value) {
+        Optional<FileAccessType> optional = Arrays.stream(FileAccessType.values())
                 .filter(en -> en.getValue().equals(value))
                 .findFirst();
 

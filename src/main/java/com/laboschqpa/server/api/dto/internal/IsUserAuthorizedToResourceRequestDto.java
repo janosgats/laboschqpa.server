@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.dto.internal;
 
-import com.laboschqpa.server.enums.FileAccessType;
+import com.laboschqpa.server.enums.filehost.FileAccessType;
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.*;
 import org.springframework.http.HttpMethod;

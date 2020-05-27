@@ -3,11 +3,8 @@ package com.laboschqpa.server.api.service;
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
-import com.laboschqpa.server.enums.errorkey.InvalidAttachmentApiError;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
-import com.laboschqpa.server.exceptions.ugc.InvalidAttachmentException;
 import com.laboschqpa.server.repo.usergeneratedcontent.SubmissionRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
 import com.laboschqpa.server.statemachine.SubmissionStateMachine;
@@ -15,6 +12,7 @@ import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -39,14 +37,14 @@ public class SubmissionService {
         return submissionOptional.get();
     }
 
-    public void createNewSubmission(CreateNewSubmissionDto createNewSubmissionDto, UserAcc initiatorUserAcc) {
+    public Submission createNewSubmission(CreateNewSubmissionDto createNewSubmissionDto, UserAcc initiatorUserAcc) {
         attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewSubmissionDto.getAttachments());
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+        return transactionTemplate.execute(new TransactionCallback<Submission>() {
             @Override
-            public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+            public Submission doInTransaction(TransactionStatus transactionStatus) {
                 SubmissionStateMachine stateMachine = stateMachineFactory.buildSubmissionStateMachine(initiatorUserAcc);
-                stateMachine.createNewSubmission(createNewSubmissionDto);
+                return stateMachine.createNewSubmission(createNewSubmissionDto);
             }
         });
     }

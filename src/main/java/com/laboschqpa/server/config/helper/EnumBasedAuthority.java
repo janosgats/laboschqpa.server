@@ -18,6 +18,6 @@ public class EnumBasedAuthority implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return authority.toString();
+        return authority.getStringValue();
     }
 }

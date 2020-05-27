@@ -24,10 +24,10 @@ public class SubmissionController {
     }
 
     @PostMapping("/createNew")
-    public void postCreateNewSubmission(@RequestBody CreateNewSubmissionDto createNewSubmissionDto,
+    public Long postCreateNewSubmission(@RequestBody CreateNewSubmissionDto createNewSubmissionDto,
                                         @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewSubmissionDto.validateSelf();
-        submissionService.createNewSubmission(createNewSubmissionDto, authenticationPrincipal.getUserAccEntity());
+        return submissionService.createNewSubmission(createNewSubmissionDto, authenticationPrincipal.getUserAccEntity()).getId();
     }
 
     @PostMapping("/edit")
@@ -38,7 +38,7 @@ public class SubmissionController {
     }
 
     @DeleteMapping("/delete")
-    public void deleteDeleteSubmission(@RequestParam("submissionId") Long submissionIdToDelete,
+    public void deleteDeleteSubmission(@RequestParam("id") Long submissionIdToDelete,
                                        @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         submissionService.deleteSubmission(submissionIdToDelete, authenticationPrincipal.getUserAccEntity());
     }

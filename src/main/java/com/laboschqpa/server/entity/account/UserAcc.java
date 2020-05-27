@@ -119,8 +119,8 @@ public class UserAcc implements Serializable {
         this.authorities = authorities;
     }
 
-    public List<EnumBasedAuthority> getCopyOfAuthorities_AsEnumBasedAuthority() {
-        return this.getAuthorities().stream().map(EnumBasedAuthority::new).collect(Collectors.toList());
+    public Set<EnumBasedAuthority> getCopyOfAuthorities_AsEnumBasedAuthority() {
+        return this.getAuthorities().stream().map(EnumBasedAuthority::new).collect(Collectors.toSet());
     }
 
     public void setAuthorities_FromEnumBasedAuthority(Collection<EnumBasedAuthority> authorities) {

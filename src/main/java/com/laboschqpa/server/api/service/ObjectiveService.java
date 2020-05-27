@@ -34,7 +34,7 @@ public class ObjectiveService {
         return objectiveOptional.get();
     }
 
-    public void createNewObjective(CreateNewObjectiveDto createNewObjectiveDto, UserAcc creatorUserAcc) {
+    public Objective createNewObjective(CreateNewObjectiveDto createNewObjectiveDto, UserAcc creatorUserAcc) {
         attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewObjectiveDto.getAttachments());
 
         Objective objective = new Objective();
@@ -47,6 +47,7 @@ public class ObjectiveService {
 
         objectiveRepository.save(objective);
         log.info("Objective {} created by user {}.", objective.getId(), creatorUserAcc.getId());
+        return objective;
     }
 
     public void editObjective(EditObjectiveDto editObjectiveDto, UserAcc editorUserAcc) {

@@ -1,5 +1,6 @@
 package com.laboschqpa.server.entity.usergeneratedcontent;
 
+import com.laboschqpa.server.enums.ugc.UserGeneratedContentTypeValues;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -10,7 +11,7 @@ import java.time.Instant;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "objective")
-@DiscriminatorValue(value = "2")
+@DiscriminatorValue(value = UserGeneratedContentTypeValues.OBJECTIVE)
 public class Objective extends UserGeneratedContent {
     @Column(name = "description")
     private String description;//Possibly Markdown

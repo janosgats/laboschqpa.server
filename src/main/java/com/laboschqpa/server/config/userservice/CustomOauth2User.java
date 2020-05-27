@@ -62,7 +62,7 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Set<? extends GrantedAuthority> getAuthorities() {
         if (userAccEntity != null)
             return userAccEntity.getCopyOfAuthorities_AsEnumBasedAuthority();
         else

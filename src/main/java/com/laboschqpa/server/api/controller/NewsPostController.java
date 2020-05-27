@@ -33,11 +33,11 @@ public class NewsPostController {
     }
 
     @PostMapping("/createNew")
-    public void postCreateNewsPost(@RequestBody CreateNewNewsPostDto createNewNewsPostDto,
+    public Long postCreateNewsPost(@RequestBody CreateNewNewsPostDto createNewNewsPostDto,
                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewNewsPostDto.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
-        newsPostService.createNewsPost(createNewNewsPostDto, authenticationPrincipal.getUserAccEntity());
+        return newsPostService.createNewsPost(createNewNewsPostDto, authenticationPrincipal.getUserAccEntity()).getId();
     }
 
     @PostMapping("/edit")
@@ -49,7 +49,7 @@ public class NewsPostController {
     }
 
     @DeleteMapping("/delete")
-    public void deleteNewsPost(@RequestParam(name = "newsPostId") Long newsPostId,
+    public void deleteNewsPost(@RequestParam(name = "id") Long newsPostId,
                                @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
         newsPostService.deleteNewsPost(newsPostId, authenticationPrincipal.getUserAccEntity());

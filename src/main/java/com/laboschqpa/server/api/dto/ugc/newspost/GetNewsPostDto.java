@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetNewsPostDto extends GetUserGeneratedContentDto {
-    private Long id;
     private String content;
 
     public GetNewsPostDto() {
@@ -20,12 +19,11 @@ public class GetNewsPostDto extends GetUserGeneratedContentDto {
     }
 
     /**
-     * @param includeAttachments Set this to {@code false} if the attachments should not be get
+     * @param includeAttachments Set this to {@code false} if the attachments should not be got
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
     public GetNewsPostDto(NewsPost newsPost, boolean includeAttachments) {
         super(newsPost, includeAttachments);
-        this.id = newsPost.getId();
         this.content = newsPost.getContent();
     }
 }

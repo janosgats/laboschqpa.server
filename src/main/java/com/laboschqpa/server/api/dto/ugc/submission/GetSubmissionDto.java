@@ -7,7 +7,6 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetSubmissionDto extends GetUserGeneratedContentDto {
-    private Long id;
     private Long objectiveId;
     private Long teamId;
     private String content;
@@ -21,12 +20,11 @@ public class GetSubmissionDto extends GetUserGeneratedContentDto {
     }
 
     /**
-     * @param includeAttachments Set this to {@code false} if the attachments should not be get
+     * @param includeAttachments Set this to {@code false} if the attachments should not be got
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
     public GetSubmissionDto(Submission submission, boolean includeAttachments) {
         super(submission, includeAttachments);
-        this.id = submission.getId();
         this.objectiveId = submission.getObjective().getId();
         this.teamId = submission.getTeam().getId();
         this.content = submission.getContent();

@@ -9,6 +9,7 @@ public enum Authority {
     User("User"),
     NewsPostEditor("NewsPostEditor"),
     ObjectiveEditor("ObjectiveEditor"),
+    RiddleEditor("RiddleEditor"),
     Admin("Admin");
 
     private String stringValue;

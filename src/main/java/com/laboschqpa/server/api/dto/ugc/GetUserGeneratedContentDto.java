@@ -12,6 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Data
 public class GetUserGeneratedContentDto {
+    private Long id;
     private Long creatorUserId;
     private Long editorUserId;
     private Instant creationTime;
@@ -27,6 +28,7 @@ public class GetUserGeneratedContentDto {
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
     public GetUserGeneratedContentDto(UserGeneratedContent userGeneratedContent, boolean includeAttachments) {
+        this.id = userGeneratedContent.getId();
         this.creatorUserId = userGeneratedContent.getCreatorUser().getId();
         this.editorUserId = userGeneratedContent.getEditorUser().getId();
         this.creationTime = userGeneratedContent.getCreationTime();

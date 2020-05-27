@@ -81,7 +81,9 @@ class SubmissionStateMachineTest {
         doNothing().when(submissionStateMachine).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
         doReturn(objective).when(submissionStateMachine).findByIdAndAssertObjective_IsSubmittable_DeadlineIsNotPassed(objective.getId());
 
-        submissionStateMachine.createNewSubmission(createNewSubmissionDto);
+        Submission createdSubmission = submissionStateMachine.createNewSubmission(createNewSubmissionDto);
+        assertEquals(team, createdSubmission.getTeam());
+        assertEquals(userAcc, createdSubmission.getCreatorUser());
 
         verify(submissionRepository, times(1)).save(argThat((a) -> {
             assertEquals(userAcc, a.getCreatorUser());

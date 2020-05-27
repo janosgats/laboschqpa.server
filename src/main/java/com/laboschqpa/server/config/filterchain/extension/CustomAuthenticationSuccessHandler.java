@@ -1,8 +1,10 @@
 package com.laboschqpa.server.config.filterchain.extension;
 
+import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.util.ServletHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -14,6 +16,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
@@ -33,6 +36,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         LoginSuccessResultDto loginSuccessResultDto = LoginSuccessResultDto.builder()
                 .sessionId(encodeToBase64(getCurrentSessionId()))
                 .csrfToken(getCurrentCsrfToken(request, response).getToken())
+                .authorities(((CustomOauth2User) authentication.getPrincipal())
+                        .getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toSet()))
                 .build();
 
         ServletHelper.setJsonResponse(response, loginSuccessResultDto, 200);

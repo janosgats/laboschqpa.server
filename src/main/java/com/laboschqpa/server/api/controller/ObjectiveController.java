@@ -33,11 +33,11 @@ public class ObjectiveController {
     }
 
     @PostMapping("/createNew")
-    public void postCreateNewObjective(@RequestBody CreateNewObjectiveDto createNewObjectiveDto,
+    public Long postCreateNewObjective(@RequestBody CreateNewObjectiveDto createNewObjectiveDto,
                                        @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewObjectiveDto.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.ObjectiveEditor, Authority.Admin);
-        objectiveService.createNewObjective(createNewObjectiveDto, authenticationPrincipal.getUserAccEntity());
+        return objectiveService.createNewObjective(createNewObjectiveDto, authenticationPrincipal.getUserAccEntity()).getId();
     }
 
     @PostMapping("/edit")
@@ -49,7 +49,7 @@ public class ObjectiveController {
     }
 
     @DeleteMapping("/delete")
-    public void deleteObjective(@RequestParam(name = "objectiveId") Long objectiveId,
+    public void deleteObjective(@RequestParam(name = "id") Long objectiveId,
                                 @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.ObjectiveEditor, Authority.Admin);
         objectiveService.deleteObjective(objectiveId, authenticationPrincipal.getUserAccEntity());

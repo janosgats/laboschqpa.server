@@ -23,7 +23,7 @@ public class SubmissionStateMachine {
     private final ObjectiveRepository objectiveRepository;
     private final SubmissionRepository submissionRepository;
 
-    public void createNewSubmission(CreateNewSubmissionDto createNewSubmissionDto) {
+    public Submission createNewSubmission(CreateNewSubmissionDto createNewSubmissionDto) {
         assertInitiatorUserIsMemberOrLeaderOfItsTeam();
 
         Objective objective = findByIdAndAssertObjective_IsSubmittable_DeadlineIsNotPassed(createNewSubmissionDto.getObjectiveId());
@@ -38,6 +38,7 @@ public class SubmissionStateMachine {
 
         submissionRepository.save(newSubmission);
         log.debug("UserAcc {} created new submission {}.", initiatorUserAcc.getId(), newSubmission.getId());
+        return newSubmission;
     }
 
     /**

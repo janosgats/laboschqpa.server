@@ -34,7 +34,7 @@ public class NewsPostService {
         return newsPostOptional.get();
     }
 
-    public void createNewsPost(CreateNewNewsPostDto createNewNewsPostDto, UserAcc creatorUserAcc) {
+    public NewsPost createNewsPost(CreateNewNewsPostDto createNewNewsPostDto, UserAcc creatorUserAcc) {
         attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewNewsPostDto.getAttachments());
 
         NewsPost newsPost = new NewsPost();
@@ -45,6 +45,7 @@ public class NewsPostService {
 
         newsPostRepository.save(newsPost);
         logger.info("NewsPost {} created by user {}.", newsPost.getId(), creatorUserAcc.getId());
+        return newsPost;
     }
 
     public void editNewsPost(EditNewsPostDto editNewsPostDto, UserAcc editorUserAcc) {

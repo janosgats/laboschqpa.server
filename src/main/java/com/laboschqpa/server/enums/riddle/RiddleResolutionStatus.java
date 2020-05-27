@@ -1,30 +1,26 @@
-package com.laboschqpa.server.enums.filehost;
+package com.laboschqpa.server.enums.riddle;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.laboschqpa.server.exceptions.NotImplementedException;
 
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum StoredFileStatus {
-    ADDED_TO_DATABASE(0),
-    UPLOADING(1),
-    PROCESSING(2),
-    AVAILABLE(3);
+public enum RiddleResolutionStatus {
+    UNSOLVED(Integer.parseInt(RiddleResolutionStatusValues.UNSOLVED)),
+    SOLVED(Integer.parseInt(RiddleResolutionStatusValues.SOLVED));
 
     private Integer value;
 
-    StoredFileStatus(Integer value) {
+    RiddleResolutionStatus(Integer value) {
         this.value = value;
     }
 
-    @JsonValue
     public Integer getValue() {
         return value;
     }
 
-    public static StoredFileStatus fromValue(Integer value) {
-        Optional<StoredFileStatus> optional = Arrays.stream(StoredFileStatus.values())
+    public static RiddleResolutionStatus fromValue(Integer value) {
+        Optional<RiddleResolutionStatus> optional = Arrays.stream(RiddleResolutionStatus.values())
                 .filter(en -> en.getValue().equals(value))
                 .findFirst();
 
