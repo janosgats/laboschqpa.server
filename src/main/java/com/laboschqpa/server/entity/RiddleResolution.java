@@ -12,8 +12,8 @@ import java.time.Instant;
 @Entity
 @Table(name = "riddle_resolution",
         indexes = {
-                @Index(columnList = "team_id, riddle_id", name = "team_id__riddle_id"),
                 @Index(columnList = "riddle_id, solving_timestamp", name = "riddle_id__solving_timestamp"),
+                @Index(columnList = "team_id, status, riddle_id", name = "team_id__status__riddle_id"),
         },
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"team_id", "riddle_id"}, name = "team_id__riddle_id__unique")

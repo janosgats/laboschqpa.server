@@ -21,14 +21,14 @@ public class RiddleEditorController {
     private final RiddleEditorService riddleEditorService;
 
     @GetMapping("/riddle")
-    public GetRiddleDto getObjective(@RequestParam(name = "id") Long riddleId,
-                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public GetRiddleDto getRiddle(@RequestParam(name = "id") Long riddleId,
+                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
         return new GetRiddleDto(riddleEditorService.getRiddle(riddleId), true, true, true);
     }
 
     @GetMapping("/listAll")
-    public List<GetRiddleDto> getListAllObjectives(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public List<GetRiddleDto> getListAllRiddles(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
         return riddleEditorService.listAllRiddles().stream()
                 .map((riddle -> new GetRiddleDto(riddle, true, true, false)))
@@ -36,24 +36,24 @@ public class RiddleEditorController {
     }
 
     @PostMapping("/createNew")
-    public Long postCreateNewObjective(@RequestBody CreateNewRiddleDto createNewRiddleDto,
-                                       @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public Long postCreateNewRiddle(@RequestBody CreateNewRiddleDto createNewRiddleDto,
+                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewRiddleDto.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
         return riddleEditorService.createNewRiddle(createNewRiddleDto, authenticationPrincipal.getUserAccEntity()).getId();
     }
 
     @PostMapping("/edit")
-    public void postEditObjective(@RequestBody EditRiddleDto editRiddleDto,
-                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public void postEditRiddle(@RequestBody EditRiddleDto editRiddleDto,
+                               @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         editRiddleDto.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
         riddleEditorService.editRiddle(editRiddleDto, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
-    public void deleteObjective(@RequestParam(name = "id") Long riddleId,
-                                @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public void deleteRiddle(@RequestParam(name = "id") Long riddleId,
+                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
         riddleEditorService.deleteRiddle(riddleId, authenticationPrincipal.getUserAccEntity());
     }

@@ -4,10 +4,7 @@ import com.laboschqpa.server.enums.ugc.UserGeneratedContentTypeValues;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
