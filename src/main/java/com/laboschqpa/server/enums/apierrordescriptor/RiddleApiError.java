@@ -1,9 +1,9 @@
 package com.laboschqpa.server.enums.apierrordescriptor;
 
-import com.laboschqpa.server.annotation.ApiErrorType;
+import com.laboschqpa.server.annotation.ApiErrorCategory;
 import com.laboschqpa.server.api.errorhandling.ApiErrorDescriptor;
 
-@ApiErrorType("riddle")
+@ApiErrorCategory("riddle")
 public enum RiddleApiError implements ApiErrorDescriptor {
     YOU_ARE_NOT_IN_A_TEAM(1),
     RIDDLE_IS_NOT_FOUND(2),
@@ -11,8 +11,8 @@ public enum RiddleApiError implements ApiErrorDescriptor {
 
     private Integer apiErrorCode;
 
-    RiddleApiError(Integer errorResponseNumber) {
-        this.apiErrorCode = errorResponseNumber;
+    RiddleApiError(Integer apiErrorCode) {
+        this.apiErrorCode = apiErrorCode;
     }
 
     @Override

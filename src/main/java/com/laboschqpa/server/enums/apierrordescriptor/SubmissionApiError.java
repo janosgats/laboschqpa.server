@@ -1,9 +1,9 @@
 package com.laboschqpa.server.enums.apierrordescriptor;
 
-import com.laboschqpa.server.annotation.ApiErrorType;
+import com.laboschqpa.server.annotation.ApiErrorCategory;
 import com.laboschqpa.server.api.errorhandling.ApiErrorDescriptor;
 
-@ApiErrorType("submission")
+@ApiErrorCategory("submission")
 public enum SubmissionApiError implements ApiErrorDescriptor {
     INITIATOR_IS_NOT_IN_A_TEAM(1),
     INITIATOR_IS_NOT_MEMBER_OR_LEADER_OF_THE_TEAM(2),
@@ -16,8 +16,8 @@ public enum SubmissionApiError implements ApiErrorDescriptor {
 
     private Integer apiErrorCode;
 
-    SubmissionApiError(Integer errorResponseNumber) {
-        this.apiErrorCode = errorResponseNumber;
+    SubmissionApiError(Integer apiErrorCode) {
+        this.apiErrorCode = apiErrorCode;
     }
 
     @Override

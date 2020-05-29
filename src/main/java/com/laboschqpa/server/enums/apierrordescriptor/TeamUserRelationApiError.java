@@ -1,9 +1,9 @@
 package com.laboschqpa.server.enums.apierrordescriptor;
 
-import com.laboschqpa.server.annotation.ApiErrorType;
+import com.laboschqpa.server.annotation.ApiErrorCategory;
 import com.laboschqpa.server.api.errorhandling.ApiErrorDescriptor;
 
-@ApiErrorType("teamUserRelation")
+@ApiErrorCategory("teamUserRelation")
 public enum TeamUserRelationApiError implements ApiErrorDescriptor {
     INITIATOR_IS_DIFFERENT_THAN_ALTERED(1),
     INITIATOR_IS_NOT_LEADER_OF_TEAM_OF_ALTERED(2),
@@ -15,8 +15,8 @@ public enum TeamUserRelationApiError implements ApiErrorDescriptor {
 
     private Integer apiErrorCode;
 
-    TeamUserRelationApiError(Integer errorResponseNumber) {
-        this.apiErrorCode = errorResponseNumber;
+    TeamUserRelationApiError(Integer apiErrorCode) {
+        this.apiErrorCode = apiErrorCode;
     }
 
     @Override

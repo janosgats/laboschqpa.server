@@ -1,11 +1,11 @@
 package com.laboschqpa.server.api.errorhandling;
 
-import com.laboschqpa.server.annotation.ApiErrorType;
+import com.laboschqpa.server.annotation.ApiErrorCategory;
 
 public interface ApiErrorDescriptor {
-    default String getApiErrorType() {
-        ApiErrorType apiErrorType = this.getClass().getAnnotation(ApiErrorType.class);
-        return apiErrorType != null ? apiErrorType.value() : null;
+    default String getApiErrorCategory() {
+        ApiErrorCategory apiErrorCategory = this.getClass().getAnnotation(ApiErrorCategory.class);
+        return apiErrorCategory != null ? apiErrorCategory.value() : null;
     }
 
     Integer getApiErrorCode();

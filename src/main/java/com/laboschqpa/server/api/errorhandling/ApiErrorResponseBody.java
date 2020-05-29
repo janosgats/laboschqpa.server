@@ -8,7 +8,7 @@ import lombok.Data;
 public class ApiErrorResponseBody {
     private Integer apiErrorCode;
     private String apiErrorName;
-    private String apiErrorType;
+    private String apiErrorCategory;
 
     private String message;
 
@@ -22,7 +22,7 @@ public class ApiErrorResponseBody {
 
     public ApiErrorResponseBody(ApiErrorDescriptor apiErrorDescriptor, String message) {
         if (apiErrorDescriptor != null) {
-            this.apiErrorType = apiErrorDescriptor.getApiErrorType();
+            this.apiErrorCategory = apiErrorDescriptor.getApiErrorCategory();
             this.apiErrorCode = apiErrorDescriptor.getApiErrorCode();
             this.apiErrorName = apiErrorDescriptor.getApiErrorName();
         }
