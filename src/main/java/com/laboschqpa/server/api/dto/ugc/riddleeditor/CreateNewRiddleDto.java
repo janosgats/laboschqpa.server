@@ -1,19 +1,15 @@
-package com.laboschqpa.server.api.dto.ugc.riddle;
+package com.laboschqpa.server.api.dto.ugc.riddleeditor;
 
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
-public class EditRiddleDto extends SelfValidator<EditRiddleDto> {
-    @NotNull
-    @Min(1)
-    private Long id;
+public class CreateNewRiddleDto extends SelfValidator<CreateNewRiddleDto> {
     @NotNull
     @NotEmpty
     @Length(max = 120)

@@ -1,4 +1,4 @@
-package com.laboschqpa.server.api.dto.ugc.riddle;
+package com.laboschqpa.server.api.dto.ugc.riddleeditor;
 
 import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentDto;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;

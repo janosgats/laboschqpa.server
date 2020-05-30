@@ -1,6 +1,7 @@
 package com.laboschqpa.server.api.controller;
 
 import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponseDto;
 import com.laboschqpa.server.api.service.RiddleService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +41,14 @@ public class RiddleController {
                               @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         Long teamId = assertAndGetTeamId(authenticationPrincipal);
         return riddleService.useHint(teamId, riddleIdToUseHintOf);
+    }
+
+    @PostMapping("/submitSolution")
+    public RiddleSubmitSolutionResponseDto postSubmitSolution(@RequestParam("id") Long riddleIdToSubmitSolutionTo,
+                                                              @RequestParam("solution") String givenSolution,
+                                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        Long teamId = assertAndGetTeamId(authenticationPrincipal);
+        return riddleService.submitSolution(teamId, riddleIdToSubmitSolutionTo, givenSolution);
     }
 
     private Long assertAndGetTeamId(CustomOauth2User authenticationPrincipal) {

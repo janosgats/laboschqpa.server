@@ -1,8 +1,8 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.ugc.riddle.CreateNewRiddleDto;
-import com.laboschqpa.server.api.dto.ugc.riddle.EditRiddleDto;
-import com.laboschqpa.server.api.dto.ugc.riddle.GetRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.GetRiddleDto;
 import com.laboschqpa.server.api.service.RiddleEditorService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;

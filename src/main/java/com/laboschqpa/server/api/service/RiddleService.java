@@ -1,6 +1,7 @@
 package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponseDto;
 import com.laboschqpa.server.entity.RiddleResolution;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,9 +61,9 @@ public class RiddleService {
     public String useHint(Long teamId, Long riddleIdToUseHintOf) {
         final Riddle riddle = getValidAvailableRiddle(teamId, riddleIdToUseHintOf);
 
-        final Optional<RiddleResolution> resolutionOptional = riddleResolutionRepository.findByRiddleIdAndTeamId(riddle.getId(), teamId);
-        if (resolutionOptional.isEmpty()) {
+        final Optional<RiddleResolution> existingResolutionOptional = riddleResolutionRepository.findByRiddleIdAndTeamId(riddle.getId(), teamId);
 
+        if (existingResolutionOptional.isEmpty()) {
             final RiddleResolution riddleResolution = new RiddleResolution();
             riddleResolution.setRiddle(riddle);
             riddleResolution.setTeam(new Team(teamId));
@@ -71,16 +73,52 @@ public class RiddleService {
 
             return riddle.getHint();
         } else {
-            final RiddleResolution riddleResolution = resolutionOptional.get();
-            if (riddleResolution.getStatus() == RiddleResolutionStatus.SOLVED) {
+            final RiddleResolution existingResolution = existingResolutionOptional.get();
+            if (existingResolution.getStatus() == RiddleResolutionStatus.SOLVED) {
                 throw new RiddleException(RiddleApiError.YOUR_TEAM_ALREADY_SOLVED_THE_RIDDLE);
             } else {
-                if (!riddleResolution.getHintUsed()) {
-                    riddleResolution.setHintUsed(true);
-                    riddleResolutionRepository.save(riddleResolution);
+                if (!existingResolution.getHintUsed()) {
+                    existingResolution.setHintUsed(true);
+                    riddleResolutionRepository.save(existingResolution);
                 }
                 return riddle.getHint();
             }
+        }
+    }
+
+    public RiddleSubmitSolutionResponseDto submitSolution(Long teamId, Long riddleIdToSubmitSolutionTo, String givenSolution) {
+        final Riddle riddle = getValidAvailableRiddle(teamId, riddleIdToSubmitSolutionTo);
+        final boolean isGivenSolutionCorrect = riddle.getSolution().equalsIgnoreCase(givenSolution);
+
+        final Optional<RiddleResolution> existingResolutionOptional = riddleResolutionRepository.findByRiddleIdAndTeamId(riddle.getId(), teamId);
+
+        if (isGivenSolutionCorrect) {
+            if (existingResolutionOptional.isPresent()) {
+                if (existingResolutionOptional.get().getStatus() != RiddleResolutionStatus.SOLVED) {
+                    //Updating the existing resolution
+                    existingResolutionOptional.get().setStatus(RiddleResolutionStatus.SOLVED);
+                    existingResolutionOptional.get().setSolvingTimestamp(Instant.now());
+                    riddleResolutionRepository.save(existingResolutionOptional.get());
+                }
+            } else {
+                //Creating new RiddleResolution because the new solution is correct
+                final RiddleResolution riddleResolution = new RiddleResolution();
+                riddleResolution.setRiddle(riddle);
+                riddleResolution.setTeam(new Team(teamId));
+                riddleResolution.setStatus(RiddleResolutionStatus.SOLVED);
+                riddleResolution.setSolvingTimestamp(Instant.now());
+                riddleResolution.setHintUsed(false);
+
+                riddleResolutionRepository.save(riddleResolution);
+            }
+            return new RiddleSubmitSolutionResponseDto(true, true);
+        } else {
+            //The submitted solution is wrong, but we check if the riddle was already solved by the team to put it int the response DTO
+            final boolean isAlreadySolved = existingResolutionOptional
+                    .filter(riddleResolution ->
+                            riddleResolution.getStatus() == RiddleResolutionStatus.SOLVED
+                    ).isPresent();
+            return new RiddleSubmitSolutionResponseDto(false, isAlreadySolved);
         }
     }
 

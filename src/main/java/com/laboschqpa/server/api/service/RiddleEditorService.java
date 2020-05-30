@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.ugc.riddle.CreateNewRiddleDto;
-import com.laboschqpa.server.api.dto.ugc.riddle.EditRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleDto;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
 import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
