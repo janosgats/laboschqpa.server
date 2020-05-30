@@ -7,7 +7,8 @@ import com.laboschqpa.server.api.errorhandling.ApiErrorDescriptor;
 public enum RiddleApiError implements ApiErrorDescriptor {
     YOU_ARE_NOT_IN_A_TEAM(1),
     RIDDLE_IS_NOT_FOUND(2),
-    REQUESTED_RIDDLE_IS_NOT_YET_ACCESSIBLE_FOR_YOUR_TEAM(3);
+    REQUESTED_RIDDLE_IS_NOT_YET_ACCESSIBLE_FOR_YOUR_TEAM(3),
+    YOUR_TEAM_ALREADY_SOLVED_THE_RIDDLE(4);
 
     private Integer apiErrorCode;
 

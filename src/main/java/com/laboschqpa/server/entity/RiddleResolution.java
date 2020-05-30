@@ -35,7 +35,7 @@ public class RiddleResolution {
 
     @Convert(converter = RiddleResolutionStatusAttributeConverter.class)
     @Column(name = "status", nullable = false)
-    private RiddleResolutionStatus status;
+    private RiddleResolutionStatus status = RiddleResolutionStatus.UNSOLVED;
 
     @Column(name = "hint_used", nullable = false)
     private Boolean hintUsed;

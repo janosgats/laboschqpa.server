@@ -2,6 +2,7 @@ package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleDto;
 import com.laboschqpa.server.entity.RiddleResolution;
+import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
 import com.laboschqpa.server.enums.apierrordescriptor.RiddleApiError;
 import com.laboschqpa.server.enums.riddle.RiddleResolutionStatus;
@@ -53,6 +54,34 @@ public class RiddleService {
         }
 
         return getAccessibleRiddleDto;
+    }
+
+    public String useHint(Long teamId, Long riddleIdToUseHintOf) {
+        final Riddle riddle = getValidAvailableRiddle(teamId, riddleIdToUseHintOf);
+
+        final Optional<RiddleResolution> resolutionOptional = riddleResolutionRepository.findByRiddleIdAndTeamId(riddle.getId(), teamId);
+        if (resolutionOptional.isEmpty()) {
+
+            final RiddleResolution riddleResolution = new RiddleResolution();
+            riddleResolution.setRiddle(riddle);
+            riddleResolution.setTeam(new Team(teamId));
+            riddleResolution.setStatus(RiddleResolutionStatus.UNSOLVED);
+            riddleResolution.setHintUsed(true);
+            riddleResolutionRepository.save(riddleResolution);
+
+            return riddle.getHint();
+        } else {
+            final RiddleResolution riddleResolution = resolutionOptional.get();
+            if (riddleResolution.getStatus() == RiddleResolutionStatus.SOLVED) {
+                throw new RiddleException(RiddleApiError.YOUR_TEAM_ALREADY_SOLVED_THE_RIDDLE);
+            } else {
+                if (!riddleResolution.getHintUsed()) {
+                    riddleResolution.setHintUsed(true);
+                    riddleResolutionRepository.save(riddleResolution);
+                }
+                return riddle.getHint();
+            }
+        }
     }
 
     private Riddle getValidAvailableRiddle(Long teamId, Long riddleIdToShow) {

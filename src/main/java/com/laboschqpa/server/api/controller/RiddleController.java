@@ -30,10 +30,17 @@ public class RiddleController {
     }
 
     @GetMapping("/riddle")
-    public GetAccessibleRiddleDto getOneRiddleToShow(@Min(1) @RequestParam("id") Long riddleIdToShow,
+    public GetAccessibleRiddleDto getOneRiddleToShow(@RequestParam("id") Long riddleIdToShow,
                                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         Long teamId = assertAndGetTeamId(authenticationPrincipal);
         return riddleService.getOneRiddleToShow(teamId, riddleIdToShow);
+    }
+
+    @PostMapping("/useHint")
+    public String postUseHint(@RequestParam("id") Long riddleIdToUseHintOf,
+                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        Long teamId = assertAndGetTeamId(authenticationPrincipal);
+        return riddleService.useHint(teamId, riddleIdToUseHintOf);
     }
 
     private Long assertAndGetTeamId(CustomOauth2User authenticationPrincipal) {
