@@ -11,7 +11,8 @@ public enum
 FileAccessType {
     READ(0),
     DELETE(1),
-    WRITE(2);
+    CREATE_NEW(2),
+    EDIT(3);
 
     private Integer value;
 

@@ -32,7 +32,7 @@ public class RiddleService {
     }
 
     public GetAccessibleRiddleDto getOneRiddleToShow(Long teamId, Long riddleIdToShow) {
-        final Riddle riddle = getValidAvailableRiddle(teamId, riddleIdToShow);
+        final Riddle riddle = getExistingAccessibleRiddle(teamId, riddleIdToShow, true);
 
         //Find if the current team already solved the riddle
         boolean wasHintUsed = false;
@@ -59,7 +59,7 @@ public class RiddleService {
     }
 
     public String useHint(Long teamId, Long riddleIdToUseHintOf) {
-        final Riddle riddle = getValidAvailableRiddle(teamId, riddleIdToUseHintOf);
+        final Riddle riddle = getExistingAccessibleRiddle(teamId, riddleIdToUseHintOf, false);
 
         final Optional<RiddleResolution> existingResolutionOptional = riddleResolutionRepository.findByRiddleIdAndTeamId(riddle.getId(), teamId);
 
@@ -87,7 +87,7 @@ public class RiddleService {
     }
 
     public RiddleSubmitSolutionResponseDto submitSolution(Long teamId, Long riddleIdToSubmitSolutionTo, String givenSolution) {
-        final Riddle riddle = getValidAvailableRiddle(teamId, riddleIdToSubmitSolutionTo);
+        final Riddle riddle = getExistingAccessibleRiddle(teamId, riddleIdToSubmitSolutionTo, false);
         final boolean isGivenSolutionCorrect = riddle.getSolution().equalsIgnoreCase(givenSolution);
 
         final Optional<RiddleResolution> existingResolutionOptional = riddleResolutionRepository.findByRiddleIdAndTeamId(riddle.getId(), teamId);
@@ -122,8 +122,14 @@ public class RiddleService {
         }
     }
 
-    private Riddle getValidAvailableRiddle(Long teamId, Long riddleIdToShow) {
-        final Optional<Riddle> riddleOptional = riddleRepository.findByIdWithEagerAttachments(riddleIdToShow);
+    public Riddle getExistingAccessibleRiddle(Long teamId, Long riddleId, boolean fetchAttachmentsEagerly) {
+        final Optional<Riddle> riddleOptional;
+        if (fetchAttachmentsEagerly) {
+            riddleOptional = riddleRepository.findByIdWithEagerAttachments(riddleId);
+        } else {
+            riddleOptional = riddleRepository.findById(riddleId);
+        }
+
         if (riddleOptional.isEmpty()) {
             throw new RiddleException(RiddleApiError.RIDDLE_IS_NOT_FOUND);
         }
