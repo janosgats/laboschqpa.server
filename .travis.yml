@@ -4,6 +4,7 @@ env:
   global:
 #    - SKIP_DOCKER_BUILD=true
 #    - FORCE_DEPLOY_TO_KSZK=true
+#    - SKIP_DEPLOY_TO_KSZK=true
     - PROJECT_IMAGE_NAME=laboschqpa-server
     - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::10}
     - IMAGE_NAME_COMMIT=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:${SHORT_COMMIT_HASH}
@@ -21,25 +22,20 @@ jobs:
       script: skip
       before_install:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
-#        - IMAGE_NAME_CACHE_BUILDER=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:builder
-        - IMAGE_NAME_CACHE_FINAL=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}
+        - IMAGE_NAME_LATEST=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}
       install:
-#        - docker pull ${IMAGE_NAME_CACHE_BUILDER} || true
-        - docker pull ${IMAGE_NAME_CACHE_FINAL} || true
+        - docker pull ${IMAGE_NAME_LATEST} || true
 
-#        - docker build --target=builder_image --cache-from ${IMAGE_NAME_CACHE_BUILDER} -t ${IMAGE_NAME_CACHE_BUILDER} -f docker/Dockerfile-k8s_dev-travis_build .
-#        - docker push ${IMAGE_NAME_CACHE_BUILDER}
-#        - docker build --cache-from ${IMAGE_NAME_CACHE_BUILDER} --cache-from ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} -f docker/Dockerfile-k8s_dev-travis_build .
-        - docker build -t ${IMAGE_NAME_CACHE_FINAL} -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} -f docker/Dockerfile-k8s_dev-travis_build .
-        - docker push ${IMAGE_NAME_CACHE_FINAL}
+        - docker build -t ${IMAGE_NAME_LATEST} -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} -f docker/Dockerfile-k8s_dev-travis_build .
+
+        - docker push ${IMAGE_NAME_LATEST}
         - docker push ${IMAGE_NAME_COMMIT}
         - docker push ${IMAGE_NAME_BRANCH}
 
     - stage: DeployToKSZK
 #      if: branch = master
 #      if: env(FORCE_DEPLOY_TO_KSZK) = "true"
-      if: branch = master OR env(FORCE_DEPLOY_TO_KSZK) = "true"
+      if: env(SKIP_DEPLOY_TO_KSZK) != "true" AND (branch = master OR env(FORCE_DEPLOY_TO_KSZK) = "true")
       language: java
       script: skip
       before_install:
