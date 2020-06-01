@@ -141,7 +141,7 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
                 break;
             case ByNeither:
                 log.trace("User is not found neither by E-mail nor by EAD.");
-                userAccEntity = attemptToRegisterNewUser(extractedOAuth2UserRequestDataDto.getExternalAccountDetail(), extractedOAuth2UserRequestDataDto.getEmailAddress(), oAuth2ProviderService);
+                userAccEntity = attemptToRegisterNewUser(extractedOAuth2UserRequestDataDto, oAuth2ProviderService);
                 log.info("Registered new user ({}) from: {}", userAccEntity.getId(), providerRegistration);
                 break;
             default:
@@ -166,17 +166,17 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
         }
     }
 
-    private UserAcc attemptToRegisterNewUser(ExternalAccountDetail externalAccountDetail, String emailAddress, AbstractOAuth2ProviderService oAuth2ProviderService) {
+    private UserAcc attemptToRegisterNewUser(final ExtractedOAuth2UserRequestDataDto extractedOAuth2UserRequestDataDto, AbstractOAuth2ProviderService oAuth2ProviderService) {
         final JoinFlowSessionDto joinFlowSessionDto = JoinFlowSessionDto.readFromCurrentSession();
         if (joinFlowSessionDto != null && joinFlowSessionDto.getRegistrationRequestId() != null) {
             final RegistrationRequest registrationRequest = getValidRegistrationRequestById(joinFlowSessionDto.getRegistrationRequestId());
 
-            final UserAcc registeredUserAccEntity = initNewUserAccEntity();
-            oAuth2ProviderService.saveExternalAccountDetailForUserAcc(externalAccountDetail, registeredUserAccEntity);
+            final UserAcc registeredUserAccEntity = initNewUserAccEntity(extractedOAuth2UserRequestDataDto);
+            oAuth2ProviderService.saveExternalAccountDetailForUserAcc(extractedOAuth2UserRequestDataDto.getExternalAccountDetail(), registeredUserAccEntity);
 
-            loginAuthenticationHelper.saveNewEmailAddressForUserIfEmailIsNotNull(emailAddress, registeredUserAccEntity);
+            loginAuthenticationHelper.saveNewEmailAddressForUserIfEmailIsNotNull(extractedOAuth2UserRequestDataDto.getEmailAddress(), registeredUserAccEntity);
             //Saving both mails to the user if they are different
-            if (!registrationRequest.getEmail().equals(emailAddress)) {
+            if (!registrationRequest.getEmail().equals(extractedOAuth2UserRequestDataDto.getEmailAddress())) {
                 loginAuthenticationHelper.saveNewEmailAddressForUserIfEmailIsNotNull(registrationRequest.getEmail(), registeredUserAccEntity);
             }
 
@@ -199,11 +199,15 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
         return registrationRequestOptional.get();
     }
 
-    private UserAcc initNewUserAccEntity() {
+    private UserAcc initNewUserAccEntity(final ExtractedOAuth2UserRequestDataDto extractedOAuth2UserRequestDataDto) {
         UserAcc newUserAcc = new UserAcc();
 
         newUserAcc.setEnabled(true);
         newUserAcc.setAuthorities_FromEnumBasedAuthority(Set.of(new EnumBasedAuthority(Authority.User)));
+
+        newUserAcc.setFirstName(extractedOAuth2UserRequestDataDto.getFirstName());
+        newUserAcc.setLastName(extractedOAuth2UserRequestDataDto.getLastName());
+        newUserAcc.setNickName(extractedOAuth2UserRequestDataDto.getNickName());
 
         userAccRepository.save(newUserAcc);
         return newUserAcc;

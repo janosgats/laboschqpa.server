@@ -7,11 +7,9 @@ import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccoun
 import com.laboschqpa.server.entity.account.externalaccountdetail.GithubExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
 import com.laboschqpa.server.enums.auth.TeamRole;
-import com.laboschqpa.server.enums.attributeconverter.AuthorityAttributeConverter;
-import com.laboschqpa.server.enums.attributeconverter.TeamRoleAttributeConverter;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import com.laboschqpa.server.enums.converter.attributeconverter.AuthorityAttributeConverter;
+import com.laboschqpa.server.enums.converter.attributeconverter.TeamRoleAttributeConverter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -19,15 +17,21 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "userAcc")
+@Table(name = "user_acc",
+        indexes = {
+                @Index(columnList = "nick_name", name = "nick_name"),
+                @Index(columnList = "team_id, team_role", name = "team_id__team_role"),
+                @Index(columnList = "team_role", name = "team_role")
+        }
+)
 public class UserAcc implements Serializable {
     static final long serialVersionUID = 42L;
 
@@ -47,6 +51,14 @@ public class UserAcc implements Serializable {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "nick_name", unique = true)
+    private String nickName;
 
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -73,23 +85,6 @@ public class UserAcc implements Serializable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<GithubExternalAccountDetail> githubExternalAccountDetails = new HashSet<>();
 
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Boolean getEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-    }
-
     public Set<UserEmailAddress> getUserEmailAddresses() {
         return userEmailAddresses;
     }
@@ -97,26 +92,6 @@ public class UserAcc implements Serializable {
     public boolean equalsById(UserAcc otherUserAcc) {
         return this.getId() != null
                 && this.getId().equals(otherUserAcc.getId());
-    }
-
-    public Set<GoogleExternalAccountDetail> getGoogleExternalAccountDetails() {
-        return googleExternalAccountDetails;
-    }
-
-    public Set<GithubExternalAccountDetail> getGithubExternalAccountDetails() {
-        return githubExternalAccountDetails;
-    }
-
-    public Set<ExternalAccountDetail> getExternalAccountDetails() {
-        return externalAccountDetails;
-    }
-
-    public Set<Authority> getAuthorities() {
-        return authorities;
-    }
-
-    public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = authorities;
     }
 
     public Set<EnumBasedAuthority> getCopyOfAuthorities_AsEnumBasedAuthority() {
@@ -128,21 +103,5 @@ public class UserAcc implements Serializable {
                 .map((ga) -> Authority.fromStringValue(ga.getAuthority()))
                 .collect(Collectors.toSet())
         );
-    }
-
-    public TeamRole getTeamRole() {
-        return teamRole;
-    }
-
-    public void setTeamRole(TeamRole teamRole) {
-        this.teamRole = teamRole;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
     }
 }

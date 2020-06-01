@@ -24,8 +24,9 @@ public class GoogleOAuth2ProviderService extends AbstractOAuth2ProviderService {
     @Override
     public ExtractedOAuth2UserRequestDataDto extractDataFromOauth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {
         Map<String, Object> claims = ((OidcUserRequest) oAuth2UserRequest).getIdToken().getClaims();
-        Object googleSubObject = claims.get("sub");
-
+        final Object googleSubObject = claims.get("sub");
+        final String firstName = (String) claims.get("given_name");
+        final String lastName = (String) claims.get("family_name");
         if (!(googleSubObject instanceof String) || ((String) googleSubObject).isBlank()) {
             throw new DefectiveAuthProviderResponseAuthenticationException("Google OAuth2 sub is invalid!");
         }
@@ -34,7 +35,7 @@ public class GoogleOAuth2ProviderService extends AbstractOAuth2ProviderService {
         googleExternalAccountDetail.setSub((String) googleSubObject);
 
         String emailAddress = tryToGetEmailFromClaims(claims);
-        return new ExtractedOAuth2UserRequestDataDto(googleExternalAccountDetail, emailAddress);
+        return new ExtractedOAuth2UserRequestDataDto(googleExternalAccountDetail, emailAddress, firstName, lastName, null);
     }
 
     private String tryToGetEmailFromClaims(Map<String, Object> claims) {

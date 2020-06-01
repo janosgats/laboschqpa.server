@@ -1,7 +1,7 @@
 package com.laboschqpa.server.entity;
 
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
-import com.laboschqpa.server.enums.attributeconverter.RiddleResolutionStatusAttributeConverter;
+import com.laboschqpa.server.enums.converter.attributeconverter.RiddleResolutionStatusAttributeConverter;
 import com.laboschqpa.server.enums.riddle.RiddleResolutionStatus;
 import lombok.Data;
 

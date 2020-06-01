@@ -11,4 +11,8 @@ import lombok.NoArgsConstructor;
 public class ExtractedOAuth2UserRequestDataDto {
     private ExternalAccountDetail externalAccountDetail;
     private String emailAddress;
+
+    private String firstName;
+    private String lastName;
+    private String nickName;
 }

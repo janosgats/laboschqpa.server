@@ -1,5 +1,6 @@
 package com.laboschqpa.server.api.dto.team;
 
+import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 public class CreateNewTeamDto extends SelfValidator<CreateNewTeamDto> {
     @Length(max = 50)
-    @Pattern(regexp = "^[a-zA-Z0-9!_áéíóöőúüűÁÉÍÓÖŐÚÜŰ -]+$")
+    @Pattern(regexp = AppConstants.generalNameValidatorPattern)
     @NotEmpty
     @NotBlank
     @NotNull

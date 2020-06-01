@@ -1,4 +1,4 @@
-package com.laboschqpa.server.enums.attributeconverter;
+package com.laboschqpa.server.enums.converter.attributeconverter;
 
 import com.laboschqpa.server.enums.auth.TeamRole;
 

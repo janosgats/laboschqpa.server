@@ -15,13 +15,13 @@ import javax.validation.constraints.Email;
 public class RegisterByEmailController {
     private final RegisterByEmailService registerByEmailService;
 
-    @GetMapping("/submitEmail")
-    public void getSubmitEmail(@Email @RequestParam("email") String email) {
+    @PostMapping("/submitEmail")
+    public void postSubmitEmail(@Email @RequestParam("email") String email) {
         registerByEmailService.onSubmitEmailToRegister(email);
     }
 
-    @GetMapping("/verifyEmail")
-    public void getVerifyEmail(@RequestParam("id") Long registrationRequestId,
+    @PostMapping("/verifyEmail")
+    public void postVerifyEmail(@RequestParam("id") Long registrationRequestId,
                                 @RequestParam("key") String registrationRequestKey) {
         registerByEmailService.onVisitingPageFromEmailLink(registrationRequestId, registrationRequestKey);
     }

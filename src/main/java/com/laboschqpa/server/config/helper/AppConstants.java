@@ -26,6 +26,9 @@ public class AppConstants {
 
     public static final String authInterServiceHeaderName = "AuthInterService";
 
+    //language=RegExp
+    public static final String generalNameValidatorPattern = "^[a-zA-Z0-9!_'áéíóöőúüűÁÉÍÓÖŐÚÜŰ -]+$";
+
     public static void preFillModel(Model model) {
         Map<String, String> constants = new HashMap<>();
         constants.put("logoutUrl", logOutUrl);

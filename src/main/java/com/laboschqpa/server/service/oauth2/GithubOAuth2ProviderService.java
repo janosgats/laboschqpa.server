@@ -21,7 +21,7 @@ public class GithubOAuth2ProviderService extends AbstractOAuth2ProviderService {
 
     @Override
     public ExtractedOAuth2UserRequestDataDto extractDataFromOauth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {
-        GithubUserInfoDto githubUserInfoDto;
+        final GithubUserInfoDto githubUserInfoDto;
         try {
             githubUserInfoDto = gitHubApiClient.getOAuth2UserInfo(oAuth2UserRequest.getAccessToken());
         } catch (Exception e) {
@@ -31,10 +31,20 @@ public class GithubOAuth2ProviderService extends AbstractOAuth2ProviderService {
             throw new DefectiveAuthProviderResponseAuthenticationException("GitHub OAuth2 UserInfo resource response is invalid!");
         }
 
+        String firstName = null;
+        String lastName = null;
+        if (githubUserInfoDto.getName() != null) {
+            String[] parts = githubUserInfoDto.getName().split(" ", 2);
+            if (parts.length > 0)
+                firstName = parts[0];
+            if (parts.length > 1)
+                lastName = parts[1];
+        }
+
         GithubExternalAccountDetail githubExternalAccountDetail = new GithubExternalAccountDetail();
         githubExternalAccountDetail.setGithubId(githubUserInfoDto.getId());
 
-        return new ExtractedOAuth2UserRequestDataDto(githubExternalAccountDetail, githubUserInfoDto.getEmail());
+        return new ExtractedOAuth2UserRequestDataDto(githubExternalAccountDetail, githubUserInfoDto.getEmail(), firstName, lastName, null);
     }
 
     @Override
