@@ -7,7 +7,7 @@ public class TeamUserRelationException extends ApiErrorDescriptorException {
         super(teamUserRelationApiError);
     }
 
-    public TeamUserRelationException(String message, TeamUserRelationApiError teamUserRelationApiError) {
+    public TeamUserRelationException(TeamUserRelationApiError teamUserRelationApiError, String message) {
         super(teamUserRelationApiError, message);
     }
 }

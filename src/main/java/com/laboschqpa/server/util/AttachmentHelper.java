@@ -28,7 +28,7 @@ public class AttachmentHelper {
     }
 
     public boolean areAllFilesExistingAndAvailableOnFileHost(Set<Long> indexedFileIds) {
-        if (indexedFileIds == null)
+        if (indexedFileIds == null || indexedFileIds.size() == 0)
             return true;
 
         GetIndexedFileInfoResultDto[] indexedFileInfoArray = fileHostApiClient.getIndexedFileInfo(indexedFileIds);
