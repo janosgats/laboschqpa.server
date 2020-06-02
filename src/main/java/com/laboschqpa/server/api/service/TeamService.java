@@ -3,7 +3,7 @@ package com.laboschqpa.server.api.service;
 import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
@@ -204,14 +204,14 @@ public class TeamService {
     private UserAcc readEnabledUserAccFromDbWithPessimisticLock(Long userAccId) {
         Optional<UserAcc> userAccOptional = userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId);
         if (userAccOptional.isEmpty())
-            throw new ContentNotFoundApiException("UserAcc is not found or not enabled.");
+            throw new ContentNotFoundException("UserAcc is not found or not enabled.");
         return userAccOptional.get();
     }
 
     private Team readNotArchivedTeamFromDbWithPessimisticLock(Long userAccId) {
         Optional<Team> teamOptional = teamRepository.findByIdAndArchivedIsFalse_WithPessimisticWriteLock(userAccId);
         if (teamOptional.isEmpty())
-            throw new ContentNotFoundApiException("Team is not found or is archived.");
+            throw new ContentNotFoundException("Team is not found or is archived.");
         return teamOptional.get();
     }
 }

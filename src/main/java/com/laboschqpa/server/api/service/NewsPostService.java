@@ -4,7 +4,7 @@ import com.laboschqpa.server.api.dto.ugc.newspost.CreateNewNewsPostDto;
 import com.laboschqpa.server.api.dto.ugc.newspost.EditNewsPostDto;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.NewsPost;
-import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.usergeneratedcontent.NewsPostRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -29,7 +28,7 @@ public class NewsPostService {
         Optional<NewsPost> newsPostOptional = newsPostRepository.findByIdWithEagerAttachments(newsPostId);
 
         if (newsPostOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find NewsPost with Id: " + newsPostId);
+            throw new ContentNotFoundException("Cannot find NewsPost with Id: " + newsPostId);
 
         return newsPostOptional.get();
     }
@@ -52,7 +51,7 @@ public class NewsPostService {
         Long newsPostId = editNewsPostDto.getId();
         Optional<NewsPost> newsPostOptional = newsPostRepository.findById(newsPostId);
         if (newsPostOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find NewsPost with Id: " + newsPostId);
+            throw new ContentNotFoundException("Cannot find NewsPost with Id: " + newsPostId);
 
         attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editNewsPostDto.getAttachments());
 
@@ -72,7 +71,7 @@ public class NewsPostService {
     public void deleteNewsPost(Long newsPostId, UserAcc deleterUserAcc) {
         int deletedRowCount;
         if ((deletedRowCount = newsPostRepository.deleteByIdAndGetDeletedRowCount(newsPostId)) != 1) {
-            throw new ContentNotFoundApiException("Count of deleted rows is " + deletedRowCount + "!");
+            throw new ContentNotFoundException("Count of deleted rows is " + deletedRowCount + "!");
         }
 
         logger.info("NewsPost {} deleted by user {}.", newsPostId, deleterUserAcc.getId());

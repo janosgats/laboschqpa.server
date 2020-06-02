@@ -53,16 +53,6 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
                 HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler(ContentNotFoundApiException.class)
-    protected ResponseEntity<ApiErrorResponseBody> handleContentNotFound(
-            Exception e, WebRequest request) {
-        loggerOfChild.trace("ContentNotFoundApiException caught while executing api request!", e);
-        return new ResponseEntity<>(
-                new ApiErrorResponseBody(contentNotFoundErrorResponseBody.getMessage() + " - " + e.getMessage()),
-                HttpStatus.CONFLICT
-        );
-    }
-
     @ExceptionHandler({RegistrationJoinFlowException.class,
             ConstraintViolationException.class})
     protected ResponseEntity<ApiErrorResponseBody> handleClientCausedErrors(

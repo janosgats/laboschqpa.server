@@ -4,7 +4,7 @@ import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
-import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.usergeneratedcontent.SubmissionRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
 import com.laboschqpa.server.statemachine.SubmissionStateMachine;
@@ -18,7 +18,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,7 @@ public class SubmissionService {
         Optional<Submission> submissionOptional = submissionRepository.findByIdWithEagerAttachments(submissionId);
 
         if (submissionOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find Submission with Id: " + submissionId);
+            throw new ContentNotFoundException("Cannot find Submission with Id: " + submissionId);
 
         return submissionOptional.get();
     }

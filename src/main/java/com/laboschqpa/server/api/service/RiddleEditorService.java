@@ -4,7 +4,7 @@ import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleDto;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleDto;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
-import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.usergeneratedcontent.RiddleRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class RiddleEditorService {
         Optional<Riddle> riddleOptional = riddleRepository.findByIdWithEagerAttachments(riddleId);
 
         if (riddleOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find Riddle with Id: " + riddleId);
+            throw new ContentNotFoundException("Cannot find Riddle with Id: " + riddleId);
 
         return riddleOptional.get();
     }
@@ -50,7 +50,7 @@ public class RiddleEditorService {
     public void editRiddle(EditRiddleDto editRiddleDto, UserAcc editorUserAcc) {
         Optional<Riddle> riddleOptional = riddleRepository.findById(editRiddleDto.getId());
         if (riddleOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find Riddle with Id: " + editRiddleDto.getId());
+            throw new ContentNotFoundException("Cannot find Riddle with Id: " + editRiddleDto.getId());
 
         attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editRiddleDto.getAttachments());
 
@@ -71,7 +71,7 @@ public class RiddleEditorService {
     public void deleteRiddle(Long riddleId, UserAcc deleterUserAcc) {
         int deletedRowCount;
         if ((deletedRowCount = riddleRepository.deleteByIdAndGetDeletedRowCount(riddleId)) != 1) {
-            throw new ContentNotFoundApiException("Count of deleted rows is " + deletedRowCount + "!");
+            throw new ContentNotFoundException("Count of deleted rows is " + deletedRowCount + "!");
         }
 
         log.info("Riddle {} deleted by user {}.", riddleId, deleterUserAcc.getId());

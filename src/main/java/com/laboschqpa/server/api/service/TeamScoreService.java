@@ -7,7 +7,7 @@ import com.laboschqpa.server.entity.TeamScore;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamScoreApiError;
-import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.exceptions.apierrordescriptor.TeamScoreException;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.TeamScoreRepository;
@@ -33,7 +33,7 @@ public class TeamScoreService {
         Optional<TeamScore> teamScoreOptional = teamScoreRepository.findById(objectiveId);
 
         if (teamScoreOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find TeamScore with Id: " + objectiveId);
+            throw new ContentNotFoundException("Cannot find TeamScore with Id: " + objectiveId);
 
         return teamScoreOptional.get();
     }
@@ -54,7 +54,7 @@ public class TeamScoreService {
     public void editTeamScore(EditTeamScoreDto editTeamScoreDto, UserAcc editorUserAcc) {
         Optional<TeamScore> teamScoreOptional = teamScoreRepository.findById(editTeamScoreDto.getId());
         if (teamScoreOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find TeamScore with Id: " + editTeamScoreDto.getId());
+            throw new ContentNotFoundException("Cannot find TeamScore with Id: " + editTeamScoreDto.getId());
 
         Pair<Objective, Team> objectiveTeamPair = getExistingObjectiveAndTeam(editTeamScoreDto.getObjectiveId(), editTeamScoreDto.getTeamId());
 
@@ -72,7 +72,7 @@ public class TeamScoreService {
     public void deleteTeamScore(Long teamScoreId, UserAcc deleterUserAcc) {
         int deletedRowCount;
         if ((deletedRowCount = teamScoreRepository.deleteByIdAndGetDeletedRowCount(teamScoreId)) != 1) {
-            throw new ContentNotFoundApiException("Count of deleted rows is " + deletedRowCount + "!");
+            throw new ContentNotFoundException("Count of deleted rows is " + deletedRowCount + "!");
         }
 
         log.info("TeamScore {} deleted by user {}.", teamScoreId, deleterUserAcc.getId());

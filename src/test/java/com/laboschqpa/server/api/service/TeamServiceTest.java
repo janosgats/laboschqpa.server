@@ -3,7 +3,7 @@ package com.laboschqpa.server.api.service;
 import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
@@ -102,7 +102,7 @@ class TeamServiceTest {
         when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
         when(teamRepositoryMock.findByIdAndArchivedIsFalse_WithPessimisticWriteLock(team.getId())).thenReturn(Optional.empty());
 
-        assertThrows(ContentNotFoundApiException.class, () -> teamService.applyToTeam(team.getId(), userAccId));
+        assertThrows(ContentNotFoundException.class, () -> teamService.applyToTeam(team.getId(), userAccId));
 
     }
 
@@ -113,7 +113,7 @@ class TeamServiceTest {
 
         when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.empty());
 
-        assertThrows(ContentNotFoundApiException.class, () -> teamService.applyToTeam(team.getId(), userAccId));
+        assertThrows(ContentNotFoundException.class, () -> teamService.applyToTeam(team.getId(), userAccId));
 
     }
 

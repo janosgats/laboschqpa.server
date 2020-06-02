@@ -4,7 +4,7 @@ import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveDto;
 import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveDto;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
-import com.laboschqpa.server.exceptions.ContentNotFoundApiException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class ObjectiveService {
         Optional<Objective> objectiveOptional = objectiveRepository.findByIdWithEagerAttachments(objectiveId);
 
         if (objectiveOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find Objective with Id: " + objectiveId);
+            throw new ContentNotFoundException("Cannot find Objective with Id: " + objectiveId);
 
         return objectiveOptional.get();
     }
@@ -50,7 +50,7 @@ public class ObjectiveService {
     public void editObjective(EditObjectiveDto editObjectiveDto, UserAcc editorUserAcc) {
         Optional<Objective> objectiveOptional = objectiveRepository.findById(editObjectiveDto.getId());
         if (objectiveOptional.isEmpty())
-            throw new ContentNotFoundApiException("Cannot find Objective with Id: " + editObjectiveDto.getId());
+            throw new ContentNotFoundException("Cannot find Objective with Id: " + editObjectiveDto.getId());
 
         attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editObjectiveDto.getAttachments());
 
@@ -71,7 +71,7 @@ public class ObjectiveService {
     public void deleteObjective(Long objectiveId, UserAcc deleterUserAcc) {
         int deletedRowCount;
         if ((deletedRowCount = objectiveRepository.deleteByIdAndGetDeletedRowCount(objectiveId)) != 1) {
-            throw new ContentNotFoundApiException("Count of deleted rows is " + deletedRowCount + "!");
+            throw new ContentNotFoundException("Count of deleted rows is " + deletedRowCount + "!");
         }
 
         log.info("Objective {} deleted by user {}.", objectiveId, deleterUserAcc.getId());
