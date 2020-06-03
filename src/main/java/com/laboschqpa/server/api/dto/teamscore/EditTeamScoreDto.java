@@ -7,7 +7,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class EditTeamScoreDto extends SelfValidator<EditTeamScoreDto> {
+public class EditTeamScoreDto extends SelfValidator {
     @NotNull
     @Min(1)
     private Long id;

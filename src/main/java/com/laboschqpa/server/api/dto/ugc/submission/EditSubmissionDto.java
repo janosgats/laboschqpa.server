@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Data
-public class EditSubmissionDto extends SelfValidator<EditSubmissionDto> {
+public class EditSubmissionDto extends SelfValidator {
     @NotNull
     @Min(1)
     private Long id;

@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.Set;
 
 @Data
-public class CreateNewObjectiveDto extends SelfValidator<CreateNewObjectiveDto> {
+public class CreateNewObjectiveDto extends SelfValidator {
     @NotNull
     @Length(max = 10000)
     private String description;

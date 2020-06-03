@@ -9,7 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Getter
-public class ProfileDetailsValidator extends SelfValidator<ProfileDetailsValidator> {
+public class ProfileDetailsValidator extends SelfValidator {
     @Min(1)
     @NotNull
     private final Long userAccId;

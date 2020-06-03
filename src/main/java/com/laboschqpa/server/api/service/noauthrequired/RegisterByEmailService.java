@@ -2,7 +2,8 @@ package com.laboschqpa.server.api.service.noauthrequired;
 
 import com.laboschqpa.server.entity.RegistrationRequest;
 import com.laboschqpa.server.enums.RegistrationRequestPhase;
-import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
+import com.laboschqpa.server.enums.apierrordescriptor.RegistrationApiError;
+import com.laboschqpa.server.exceptions.apierrordescriptor.RegistrationException;
 import com.laboschqpa.server.model.sessiondto.JoinFlowSessionDto;
 import com.laboschqpa.server.repo.RegistrationRequestRepository;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
@@ -23,7 +24,8 @@ public class RegisterByEmailService {
 
     public void onSubmitEmailToRegister(String emailToRegister) {
         if (userEmailAddressRepository.findByEmail(emailToRegister).isPresent()) {
-            throw new RegistrationJoinFlowException("E-mail address is already in the system!");
+            throw new RegistrationException(RegistrationApiError.E_MAIL_ADDRESS_IS_ALREADY_IN_THE_SYSTEM,
+                    "The e-mail address is already present in the system!", emailToRegister);
         }
 
         RegistrationRequest registrationRequest = new RegistrationRequest();
@@ -46,22 +48,26 @@ public class RegisterByEmailService {
         registrationRequestRepository.save(registrationRequest);
     }
 
-    private RegistrationRequest getValidRegistrationRequest(Long registrationRequestId, String registrationRequestKey) {
+    private RegistrationRequest getValidRegistrationRequest(Long registrationRequestId, String submittedRegistrationRequestKey) {
         Optional<RegistrationRequest> registrationRequestOptional = registrationRequestRepository.findById(registrationRequestId);
         if (registrationRequestOptional.isEmpty()) {
-            throw new RegistrationJoinFlowException("Registration request cannot be found!");
+            throw new RegistrationException(RegistrationApiError.REGISTRATION_REQUEST_CANNOT_BE_FOUND,
+                    "Registration request cannot be found!", registrationRequestId);
         }
-        RegistrationRequest registrationRequest = registrationRequestOptional.get();
+        RegistrationRequest expectedRegistrationRequest = registrationRequestOptional.get();
 
-        if (!registrationRequest.getPhase().equals(RegistrationRequestPhase.EMAIL_SUBMITTED) && !registrationRequest.getPhase().equals(RegistrationRequestPhase.EMAIL_VERIFIED)) {
-            throw new RegistrationJoinFlowException("Registration request is not in appropriate state for verifying the e-mail address. " +
-                    "Please submit a new registration request if you don't have an account yet!");
+        if (!expectedRegistrationRequest.getPhase().equals(RegistrationRequestPhase.EMAIL_SUBMITTED) && !expectedRegistrationRequest.getPhase().equals(RegistrationRequestPhase.EMAIL_VERIFIED)) {
+            throw new RegistrationException(RegistrationApiError.REGISTRATION_REQUEST_IS_IN_AN_INVALID_PHASE,
+                    "Registration request is not in the appropriate phase to verify the e-mail address. " +
+                            "Please submit a new registration request if you don't have an account yet!",
+                    expectedRegistrationRequest.getPhase());
         }
 
-        if (registrationRequest.getKey().equals(registrationRequestKey)) {
-            return registrationRequest;
+        if (expectedRegistrationRequest.getKey().equals(submittedRegistrationRequestKey)) {
+            return expectedRegistrationRequest;
         } else {
-            throw new RegistrationJoinFlowException("Registration request key is not matching!");
+            throw new RegistrationException(RegistrationApiError.REGISTRATION_REQUEST_KEY_IS_NOT_MATCHING,
+                    "Registration request key is not matching!", submittedRegistrationRequestKey);
         }
     }
 }

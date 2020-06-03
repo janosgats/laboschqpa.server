@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
-public class EditRiddleDto extends SelfValidator<EditRiddleDto> {
+public class EditRiddleDto extends SelfValidator {
     @NotNull
     @Min(1)
     private Long id;

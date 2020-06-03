@@ -1,17 +1,15 @@
 package com.laboschqpa.server.util;
 
 import com.laboschqpa.server.exceptions.apierrordescriptor.FieldValidationFailedException;
-import com.laboschqpa.server.model.FieldValidationError;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collection;
 
-public abstract class SelfValidator<T extends SelfValidator<T>> {
-    private Validator validator;
+public abstract class SelfValidator {
+    private final Validator validator;
 
     public SelfValidator() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -19,16 +17,14 @@ public abstract class SelfValidator<T extends SelfValidator<T>> {
     }
 
     public void validateSelf() {
-        Set<ConstraintViolation<T>> violations = validator.validate((T) this);
+        Collection<ConstraintViolation> violations = (Collection) validator.validate(this);
         if (!violations.isEmpty()) {
-            throw new FieldValidationFailedException(violations.stream()
-                    .map(violation -> new FieldValidationError(violation.getPropertyPath().toString(), violation.getMessage()))
-                    .collect(Collectors.toList()));
+            throw new FieldValidationFailedException(ConstraintHelper.convertConstraintViolationsToFieldValidationErrors(violations));
         }
     }
 
     public boolean isValid() {
-        Set<ConstraintViolation<T>> violations = validator.validate((T) this);
+        Collection<ConstraintViolation> violations = (Collection) validator.validate(this);
         return violations.isEmpty();
     }
 }

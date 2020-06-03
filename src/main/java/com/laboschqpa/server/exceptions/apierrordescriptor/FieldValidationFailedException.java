@@ -4,17 +4,17 @@ import com.laboschqpa.server.enums.apierrordescriptor.FieldValidationFailedApiEr
 import com.laboschqpa.server.model.FieldValidationError;
 import lombok.Getter;
 
-import java.util.List;
+import java.util.Collection;
 
 public class FieldValidationFailedException extends ApiErrorDescriptorException {
     @Getter
-    private List<FieldValidationError> fieldValidationErrors;
+    private Collection<FieldValidationError> fieldValidationErrors;
 
-    public FieldValidationFailedException(List<FieldValidationError> inputFieldErrors) {
+    public FieldValidationFailedException(Collection<FieldValidationError> inputFieldErrors) {
         this(inputFieldErrors, null);
     }
 
-    public FieldValidationFailedException(List<FieldValidationError> inputFieldErrors, String message) {
+    public FieldValidationFailedException(Collection<FieldValidationError> inputFieldErrors, String message) {
         super(FieldValidationFailedApiError.FIELD_VALIDATION_FAILED, message);
         this.fieldValidationErrors = inputFieldErrors;
     }

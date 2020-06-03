@@ -1,8 +1,9 @@
 package com.laboschqpa.server.api.errorhandling;
 
+import com.laboschqpa.server.enums.apierrordescriptor.FieldValidationFailedApiError;
 import com.laboschqpa.server.exceptions.*;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ApiErrorDescriptorException;
-import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
+import com.laboschqpa.server.util.ConstraintHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.validation.ConstraintViolationException;
-import java.util.List;
+import java.util.Collection;
 
 @ControllerAdvice
 public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHandler {
@@ -32,12 +33,14 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
         return new ResponseEntity<>(cannotParseIncomingHttpRequestErrorResponseBody, headers, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({RegistrationJoinFlowException.class,
-            ConstraintViolationException.class})
-    protected ResponseEntity<ApiErrorResponseBody> handleClientCausedErrors(
-            Exception e, WebRequest request) {
-        loggerOfChild.trace("handleClientCausedErrors() caught exception while executing api request!", e);
-        return new ResponseEntity<>(new ApiErrorResponseBody(e.getMessage()), HttpStatus.CONFLICT);
+    @ExceptionHandler({ConstraintViolationException.class})
+    protected ResponseEntity<ApiErrorResponseBody> handleConstraintViolationException(
+            ConstraintViolationException e, WebRequest request) {
+        loggerOfChild.trace("handleConstraintViolationException() caught exception while executing api request!", e);
+        return new ResponseEntity<>(
+                new ApiErrorResponseBody(FieldValidationFailedApiError.FIELD_VALIDATION_FAILED, e.getMessage(),
+                        ConstraintHelper.convertConstraintViolationsToFieldValidationErrors((Collection) e.getConstraintViolations())
+                ), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({ApiErrorDescriptorException.class})

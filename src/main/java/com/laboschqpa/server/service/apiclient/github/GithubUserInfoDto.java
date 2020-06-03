@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GithubUserInfoDto extends SelfValidator<GithubUserInfoDto> {
+public class GithubUserInfoDto extends SelfValidator {
     @NotNull
     @NotBlank
     private String id;

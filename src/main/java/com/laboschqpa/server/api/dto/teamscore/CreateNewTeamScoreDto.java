@@ -7,7 +7,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class CreateNewTeamScoreDto extends SelfValidator<CreateNewTeamScoreDto> {
+public class CreateNewTeamScoreDto extends SelfValidator {
     @NotNull
     @Min(1)
     private Long objectiveId;

@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
-public class CreateNewRiddleDto extends SelfValidator<CreateNewRiddleDto> {
+public class CreateNewRiddleDto extends SelfValidator {
     @NotNull
     @NotEmpty
     @Length(max = 120)

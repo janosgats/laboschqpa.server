@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class IsUserAuthorizedToResourceRequestDto extends SelfValidator<IsUserAuthorizedToResourceRequestDto> {
+public class IsUserAuthorizedToResourceRequestDto extends SelfValidator {
     @NotNull
     private HttpMethod httpMethod;
     private String csrfToken;

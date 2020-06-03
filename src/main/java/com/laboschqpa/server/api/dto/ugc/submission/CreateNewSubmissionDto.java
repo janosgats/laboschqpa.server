@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
-public class CreateNewSubmissionDto extends SelfValidator<CreateNewSubmissionDto> {
+public class CreateNewSubmissionDto extends SelfValidator {
     @NotNull
     @Min(1)
     private Long objectiveId;

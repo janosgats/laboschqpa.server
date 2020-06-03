@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
-public class CreateNewNewsPostDto extends SelfValidator<CreateNewNewsPostDto> {
+public class CreateNewNewsPostDto extends SelfValidator {
     @NotNull
     @Length(max = 30000)
     private String content;

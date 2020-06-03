@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Set;
 
 @Data
-public class EditObjectiveDto extends SelfValidator<EditObjectiveDto> {
+public class EditObjectiveDto extends SelfValidator {
     @NotNull
     @Min(1)
     private Long id;

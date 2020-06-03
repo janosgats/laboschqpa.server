@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Pattern;
 
 @Data
-public class EditCurrentProfileInfoDto extends SelfValidator<EditCurrentProfileInfoDto> {
+public class EditCurrentProfileInfoDto extends SelfValidator {
     @Length(max = 25)
     @Pattern(regexp = AppConstants.generalNameValidatorPattern)
     private String firstName;
