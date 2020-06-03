@@ -22,7 +22,6 @@ import java.util.Collection;
 public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHandler {
     private static final Logger loggerOfChild = LoggerFactory.getLogger(ExceptionHandlerControllerAdvice.class);
 
-    private final ApiErrorResponseBody conflictingRequestDataErrorResponseBody = new ApiErrorResponseBody("Conflicting request data.");
     private final ApiErrorResponseBody unAuthorizedErrorResponseBody = new ApiErrorResponseBody("You are not authorized for the requested operation.");
     private final ApiErrorResponseBody cannotParseIncomingHttpRequestErrorResponseBody = new ApiErrorResponseBody("Error while executing API request.");
 
@@ -48,13 +47,6 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
             ApiErrorDescriptorException e, WebRequest request) {
         loggerOfChild.trace("handleApiErrorDescriptorException() caught exception while executing api request!", e);
         return new ResponseEntity<>(new ApiErrorResponseBody(e), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(ConflictingRequestDataApiException.class)
-    protected ResponseEntity<ApiErrorResponseBody> handleConflictingRequestData(
-            Exception e, WebRequest request) {
-        loggerOfChild.trace("ConflictingRequestDataApiException caught while executing api request!", e);
-        return new ResponseEntity<>(conflictingRequestDataErrorResponseBody, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UnAuthorizedException.class)
