@@ -1,12 +1,8 @@
 package com.laboschqpa.server.api.errorhandling;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laboschqpa.server.exceptions.*;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ApiErrorDescriptorException;
 import com.laboschqpa.server.exceptions.joinflow.RegistrationJoinFlowException;
-import com.laboschqpa.server.model.FieldValidationError;
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -24,11 +20,9 @@ import java.util.List;
 @ControllerAdvice
 public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHandler {
     private static final Logger loggerOfChild = LoggerFactory.getLogger(ExceptionHandlerControllerAdvice.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final ApiErrorResponseBody conflictingRequestDataErrorResponseBody = new ApiErrorResponseBody("Conflicting request data.");
     private final ApiErrorResponseBody unAuthorizedErrorResponseBody = new ApiErrorResponseBody("You are not authorized for the requested operation.");
-    private final ApiErrorResponseBody genericExceptionErrorResponseBody = new ApiErrorResponseBody("Error while executing API request.");
     private final ApiErrorResponseBody cannotParseIncomingHttpRequestErrorResponseBody = new ApiErrorResponseBody("Error while executing API request.");
 
     @Override
@@ -36,20 +30,6 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
         loggerOfChild.debug("Cannot parse incoming HTTP message!", ex);
 
         return new ResponseEntity<>(cannotParseIncomingHttpRequestErrorResponseBody, headers, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(FieldValidationFailedException.class)
-    protected ResponseEntity<FieldValidationFailedApiResponse> handleFieldValidationFailed(
-            FieldValidationFailedException ex, WebRequest request) {
-        try {
-            loggerOfChild.trace("InputFieldsNeedWorkException handled in ControllerAdvice: " + objectMapper.writeValueAsString(ex.getFieldValidationErrors()));
-        } catch (JsonProcessingException e) {
-            loggerOfChild.trace("InputFieldsNeedWorkException handled in ControllerAdvice.");
-        }
-
-        return new ResponseEntity<>(
-                new FieldValidationFailedApiResponse(ex.getFieldValidationErrors()),
-                HttpStatus.NOT_ACCEPTABLE);
     }
 
     @ExceptionHandler({RegistrationJoinFlowException.class,
@@ -64,7 +44,7 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
     protected ResponseEntity<ApiErrorResponseBody> handleApiErrorDescriptorException(
             ApiErrorDescriptorException e, WebRequest request) {
         loggerOfChild.trace("handleApiErrorDescriptorException() caught exception while executing api request!", e);
-        return new ResponseEntity<>(new ApiErrorResponseBody(e.getApiErrorDescriptor(), e.getMessage()), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new ApiErrorResponseBody(e), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ConflictingRequestDataApiException.class)
@@ -85,15 +65,6 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
     protected ResponseEntity<ApiErrorResponseBody> handleGenericException(
             Exception e, WebRequest request) {
         loggerOfChild.error("Exception caught while executing api request!", e);
-        return new ResponseEntity<>(genericExceptionErrorResponseBody, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @Data
-    public static class FieldValidationFailedApiResponse {
-        private List<FieldValidationError> fieldValidationErrors;
-
-        public FieldValidationFailedApiResponse(List<FieldValidationError> fieldErrors) {
-            this.fieldValidationErrors = fieldErrors;
-        }
+        return new ResponseEntity<>(new ApiErrorResponseBody(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

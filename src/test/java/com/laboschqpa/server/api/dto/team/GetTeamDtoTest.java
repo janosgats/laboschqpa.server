@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.dto.team;
 
-import com.laboschqpa.server.exceptions.FieldValidationFailedException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.FieldValidationFailedException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

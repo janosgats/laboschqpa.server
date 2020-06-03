@@ -1,6 +1,6 @@
 package com.laboschqpa.server.util;
 
-import com.laboschqpa.server.exceptions.FieldValidationFailedException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.FieldValidationFailedException;
 import com.laboschqpa.server.model.FieldValidationError;
 
 import javax.validation.ConstraintViolation;
