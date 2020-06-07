@@ -6,6 +6,8 @@ import com.laboschqpa.server.exceptions.apierrordescriptor.ApiErrorDescriptorExc
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 @AllArgsConstructor
 public class ApiErrorResponseBody {
@@ -18,6 +20,8 @@ public class ApiErrorResponseBody {
     private String message;
     private JsonNode payload;
     private Boolean payloadSerializationError = false;
+
+    private Instant timestamp = Instant.now();
 
     public ApiErrorResponseBody(String message) {
         this(null, message);
