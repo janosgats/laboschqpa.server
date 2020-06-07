@@ -1,5 +1,6 @@
 package com.laboschqpa.server.util;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.laboschqpa.server.exceptions.apierrordescriptor.FieldValidationFailedException;
 
 import javax.validation.ConstraintViolation;
@@ -23,6 +24,7 @@ public abstract class SelfValidator {
         }
     }
 
+    @JsonIgnore
     public boolean isValid() {
         Collection<ConstraintViolation> violations = (Collection) validator.validate(this);
         return violations.isEmpty();
