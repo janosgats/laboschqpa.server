@@ -61,7 +61,7 @@ public class ApiInternalAuthInterServiceFilter implements Filter {
                 && authHeader.equals(System.getProperty("auth.interservice.key"));
     }
 
-    private void writeErrorResponseBody(HttpServletResponse httpServletResponse, String errorMessage, HttpStatus httpStatus) throws IOException {
+    private void writeErrorResponseBody(HttpServletResponse httpServletResponse, String errorMessage, HttpStatus httpStatus) {
         ServletHelper.setJsonResponse(httpServletResponse, new ApiErrorResponseBody(errorMessage),httpStatus.value());
     }
 }
