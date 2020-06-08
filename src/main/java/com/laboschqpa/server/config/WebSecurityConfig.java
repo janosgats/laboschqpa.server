@@ -90,6 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf()
                 .csrfTokenRepository(csrfTokenRepository())
+                .ignoringAntMatchers(AppConstants.apiNoAuthRequiredUrl + "**")
 
                 .and()
                 .logout()
