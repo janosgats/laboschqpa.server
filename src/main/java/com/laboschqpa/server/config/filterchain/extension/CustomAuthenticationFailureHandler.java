@@ -19,24 +19,24 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         AuthApiError responseKey;
         String errorMessage = exception.getMessage();
         if (exception instanceof CannotFindExistingAccountAndNoRegistrationSessionDataIsSetAuthenticationException) {
-            responseKey = AuthApiError.AUTHN_CANNOT_FIND_EXISTING_ACCOUNT_AND_NO_REGISTRATION_SESSION_DATA_IS_SET;
+            responseKey = AuthApiError.AUTH_CANNOT_FIND_EXISTING_ACCOUNT_AND_NO_REGISTRATION_SESSION_DATA_IS_SET;
         } else if (exception instanceof CorruptedContextAuthenticationException) {
-            responseKey = AuthApiError.AUTHN_CORRUPTED_CONTEXT;
+            responseKey = AuthApiError.AUTH_CORRUPTED_CONTEXT;
             log.warn("Authentication failure", exception);
         } else if (exception instanceof DefectiveAuthProviderResponseAuthenticationException) {
-            responseKey = AuthApiError.AUTHN_DEFECTIVE_AUTH_PROVIDER_RESPONSE;
+            responseKey = AuthApiError.AUTH_DEFECTIVE_AUTH_PROVIDER_RESPONSE;
         } else if (exception instanceof EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException) {
-            responseKey = AuthApiError.AUTHN_EMAIL_GOT_FROM_OAUTH2_RESPONSE_BELONGS_TO_ANOTHER_ACCOUNT;
+            responseKey = AuthApiError.AUTH_EMAIL_GOT_FROM_OAUTH2_RESPONSE_BELONGS_TO_ANOTHER_ACCOUNT;
         } else if (exception instanceof InvalidLoginMethodAuthenticationException) {
-            responseKey = AuthApiError.AUTHN_INVALID_LOGIN_METHOD;
+            responseKey = AuthApiError.AUTH_INVALID_LOGIN_METHOD;
             log.warn("Authentication failure", exception);
         } else if (exception instanceof RegistrationRequestReferredBySessionDataIsInvalidAuthenticationException) {
-            responseKey = AuthApiError.AUTHN_REGISTRATION_REQUEST_REFERRED_BY_SESSION_DATA_IS_INVALID;
+            responseKey = AuthApiError.AUTH_REGISTRATION_REQUEST_REFERRED_BY_SESSION_DATA_IS_INVALID;
         } else if (exception instanceof UserAccountIsDisabledAuthenticationException) {
-            responseKey = AuthApiError.AUTHN_USER_ACCOUNT_IS_DISABLED;
+            responseKey = AuthApiError.AUTH_USER_ACCOUNT_IS_DISABLED;
         } else {
             log.info("Authentication failure", exception);
-            responseKey = AuthApiError.AUTHN_GENERIC_FAILURE;
+            responseKey = AuthApiError.AUTH_GENERIC_FAILURE;
             errorMessage = String.format("%s: %s", exception.getClass().getSimpleName(), exception.getMessage());
         }
 
