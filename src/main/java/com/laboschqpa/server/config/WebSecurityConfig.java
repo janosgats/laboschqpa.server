@@ -93,6 +93,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .ignoringAntMatchers(AppConstants.apiNoAuthRequiredUrl + "**")
 
                 .and()
+                .cors()
+
+                .and()
                 .logout()
                 .logoutUrl(AppConstants.logOutUrl)
                 .logoutSuccessUrl(AppConstants.logOutSuccessUrl)
