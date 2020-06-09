@@ -13,8 +13,9 @@ import javax.mail.MessagingException;
 @RequiredArgsConstructor
 @Service
 public class QpaEmailDispatcher {
-    private final EmailSenderService emailSenderService;
+    private static final String EMAIL_VERIFICATION_FRONTEND_PATH = "/login/verifyEmail";
 
+    private final EmailSenderService emailSenderService;
     private final EmailMessageFactory emailMessageFactory;
 
     @Value("${email.links.baseUrl}")
@@ -31,7 +32,7 @@ public class QpaEmailDispatcher {
 
     public void sendSyncRegistrationRequestMail(String toEmail, Long registrationRequestId, String registrationRequestKey) {
         emailSenderService.sendSync(javaMailSender -> {
-            String emailVerificationUrl = String.format("%s/verifyEmail?id=%s&key=%s", emailLinksBaseUrl, registrationRequestId, registrationRequestKey);
+            String emailVerificationUrl = String.format("%s%s?id=%s&key=%s", emailLinksBaseUrl, EMAIL_VERIFICATION_FRONTEND_PATH, registrationRequestId, registrationRequestKey);
             final MimeMessageHelper helper = emailMessageFactory.withJavaMailSender(javaMailSender).createRegistrationRequestMessage(emailVerificationUrl);
             setRecipient(helper, toEmail);
             return helper;
