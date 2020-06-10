@@ -1,16 +1,17 @@
 package com.laboschqpa.server.config;
 
 import com.laboschqpa.server.config.authprovider.OAuth2ProviderRegistrationFactory;
+import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationFailureHandler;
+import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationSuccessHandler;
 import com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHttpSessionSecurityContextRepository;
 import com.laboschqpa.server.config.filterchain.filter.AddLoginMethodFilter;
 import com.laboschqpa.server.config.filterchain.filter.ApiInternalAuthInterServiceFilter;
+import com.laboschqpa.server.config.filterchain.filter.ApiRedirectionOAuth2AuthorizationRequestRedirectFilter;
 import com.laboschqpa.server.config.filterchain.filter.RequestCounterFilter;
-import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationFailureHandler;
-import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationSuccessHandler;
 import com.laboschqpa.server.config.helper.AppConstants;
-import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.config.userservice.CustomOAuth2UserService;
 import com.laboschqpa.server.config.userservice.CustomOidcUserService;
+import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
 import com.laboschqpa.server.repo.UserAccRepository;
 import org.slf4j.Logger;
@@ -41,7 +42,8 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @EnableWebSecurity
 @Configuration
@@ -113,6 +115,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 SecurityContextPersistenceFilter.class);//Replacing original SecurityContextPersistenceFilter (by using FILTER_APPLIED flag with the same key as the original filter)
 
         http.addFilterBefore(applicationContext.getBean(AddLoginMethodFilter.class), OAuth2AuthorizationRequestRedirectFilter.class);
+
+        http.addFilterBefore(new ApiRedirectionOAuth2AuthorizationRequestRedirectFilter(
+                applicationContext.getBean((ClientRegistrationRepository.class)),
+                AppConstants.oAuth2AuthorizationRequestBaseUri
+        ), OAuth2AuthorizationRequestRedirectFilter.class);
+        // TODO: The original filter is also called during the FilterChain execution, so this isn't the best solution.
+        //  The (original) OAuth2AuthorizationRequestRedirectFilter should be completely replaced with the new filter!
     }
 
     @Bean
