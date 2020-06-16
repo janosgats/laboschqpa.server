@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.errorhandling;
 
 import com.laboschqpa.server.enums.apierrordescriptor.FieldValidationFailedApiError;
-import com.laboschqpa.server.exceptions.*;
+import com.laboschqpa.server.exceptions.UnAuthorizedException;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ApiErrorDescriptorException;
 import com.laboschqpa.server.util.ConstraintHelper;
 import org.slf4j.Logger;
@@ -23,13 +23,14 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
     private static final Logger loggerOfChild = LoggerFactory.getLogger(ExceptionHandlerControllerAdvice.class);
 
     private final ApiErrorResponseBody unAuthorizedErrorResponseBody = new ApiErrorResponseBody("You are not authorized for the requested operation.");
-    private final ApiErrorResponseBody cannotParseIncomingHttpRequestErrorResponseBody = new ApiErrorResponseBody("Error while executing API request.");
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         loggerOfChild.debug("Cannot parse incoming HTTP message!", ex);
-
-        return new ResponseEntity<>(cannotParseIncomingHttpRequestErrorResponseBody, headers, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+                new ApiErrorResponseBody(FieldValidationFailedApiError.HTTP_MESSAGE_IS_NOT_READABLE,
+                        ex.getClass().getCanonicalName() + " - " + ex.getMessage()
+                ), headers, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({ConstraintViolationException.class})

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsersAdminController {
     private final UsersAdminService usersAdminService;
 
-    @PostMapping("loginasuser")
+    @PostMapping("logInAsUser")
     public Long loginAsUser(@RequestParam("userAccId") Long userAccId,
                                @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();

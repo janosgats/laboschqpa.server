@@ -1,7 +1,10 @@
 package com.laboschqpa.server.api.dto.ugc.objective;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentDto;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
+import com.laboschqpa.server.enums.converter.jackson.ObjectiveTypeToValueJacksonConverter;
+import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,6 +16,9 @@ public class GetObjectiveDto extends GetUserGeneratedContentDto {
     private String description;
     private Boolean submittable;
     private Instant deadline;
+    @JsonSerialize(converter = ObjectiveTypeToValueJacksonConverter.class)
+    private ObjectiveType objectiveType;
+    private Boolean scored;
 
     public GetObjectiveDto() {
         super();
@@ -31,5 +37,7 @@ public class GetObjectiveDto extends GetUserGeneratedContentDto {
         this.description = objective.getDescription();
         this.submittable = objective.getSubmittable();
         this.deadline = objective.getDeadline();
+        this.objectiveType = objective.getObjectiveType();
+        this.scored = objective.getScored();
     }
 }

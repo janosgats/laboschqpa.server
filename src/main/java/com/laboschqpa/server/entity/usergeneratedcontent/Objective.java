@@ -1,5 +1,7 @@
 package com.laboschqpa.server.entity.usergeneratedcontent;
 
+import com.laboschqpa.server.enums.converter.attributeconverter.ObjectiveTypeAttributeConverter;
+import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import com.laboschqpa.server.enums.ugc.UserGeneratedContentTypeValues;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,4 +26,14 @@ public class Objective extends UserGeneratedContent {
 
     @Column(name = "deadline", nullable = false)
     private Instant deadline;
+
+    @Convert(converter = ObjectiveTypeAttributeConverter.class)
+    @Column(name = "objective_type", columnDefinition = "tinyint not null", nullable = false)
+    private ObjectiveType objectiveType;
+
+    /**
+     * Indicates if this objective is counted into Team Score.
+     */
+    @Column(name = "scored", nullable = false)
+    private Boolean scored;
 }

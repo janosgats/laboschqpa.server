@@ -5,7 +5,8 @@ import com.laboschqpa.server.api.errorhandling.ApiErrorDescriptor;
 
 @ApiErrorCategory("fieldValidationFailed")
 public enum FieldValidationFailedApiError implements ApiErrorDescriptor {
-    FIELD_VALIDATION_FAILED(1);
+    FIELD_VALIDATION_FAILED(1),
+    HTTP_MESSAGE_IS_NOT_READABLE(2);
 
     private Integer apiErrorCode;
 
