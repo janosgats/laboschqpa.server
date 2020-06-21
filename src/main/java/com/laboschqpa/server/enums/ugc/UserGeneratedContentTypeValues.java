@@ -5,4 +5,5 @@ public class UserGeneratedContentTypeValues {
     public static final String OBJECTIVE = "2";
     public static final String SUBMISSION = "3";
     public static final String RIDDLE = "4";
+    public static final String SPEED_DRINKING = "5";
 }

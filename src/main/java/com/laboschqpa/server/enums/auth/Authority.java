@@ -11,6 +11,7 @@ public enum Authority {
     ObjectiveEditor("ObjectiveEditor"),
     RiddleEditor("RiddleEditor"),
     TeamScoreEditor("TeamScoreEditor"),
+    SpeedDrinkingEditor("SpeedDrinkingEditor"),
     Admin("Admin");
 
     private String stringValue;

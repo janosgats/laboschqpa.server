@@ -21,7 +21,7 @@ public class NewsPostController {
     private final NewsPostService newsPostService;
 
     @GetMapping("/newsPost")
-    public GetNewsPostDto getNewsPost(@RequestParam(name = "newsPostId") Long newsPostId) {
+    public GetNewsPostDto getNewsPost(@RequestParam(name = "id") Long newsPostId) {
         return new GetNewsPostDto(newsPostService.getNewsPost(newsPostId), true);
     }
 
