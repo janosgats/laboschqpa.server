@@ -7,7 +7,6 @@ import com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHt
 import com.laboschqpa.server.config.filterchain.filter.AddLoginMethodFilter;
 import com.laboschqpa.server.config.filterchain.filter.ApiInternalAuthInterServiceFilter;
 import com.laboschqpa.server.config.filterchain.filter.ApiRedirectionOAuth2AuthorizationRequestRedirectFilter;
-import com.laboschqpa.server.config.filterchain.filter.RequestCounterFilter;
 import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.config.userservice.CustomOAuth2UserService;
 import com.laboschqpa.server.config.userservice.CustomOidcUserService;
@@ -63,6 +62,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                .antMatchers(AppConstants.prometheusMetricsExposeUrl)
+                .permitAll()
                 .antMatchers(AppConstants.adminBaseUrl + "**", springBootActuatorBaseUrl + "/**", springBootActuatorBaseUrl + "**")
                 .hasAuthority(Authority.Admin.getStringValue())
                 .antMatchers("/", AppConstants.apiNoAuthRequiredUrl + "**", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuth2AuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
@@ -112,9 +113,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     private void insertCustomFilters(HttpSecurity http) {
-        http.addFilterAfter(applicationContext.getBean(RequestCounterFilter.class), WebAsyncManagerIntegrationFilter.class);
-
-        http.addFilterAfter(applicationContext.getBean((ApiInternalAuthInterServiceFilter.class)), RequestCounterFilter.class);
+        http.addFilterAfter(applicationContext.getBean((ApiInternalAuthInterServiceFilter.class)), WebAsyncManagerIntegrationFilter.class);
 
         http.addFilterBefore(new SecurityContextPersistenceFilter(new ReloadUserPerRequestHttpSessionSecurityContextRepository(userAccRepository)),
                 SecurityContextPersistenceFilter.class);//Replacing original SecurityContextPersistenceFilter (by using FILTER_APPLIED flag with the same key as the original filter)

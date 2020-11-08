@@ -2,9 +2,7 @@ package com.laboschqpa.server.config.helper;
 
 import org.springframework.ui.Model;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class AppConstants {
@@ -23,6 +21,8 @@ public class AppConstants {
 
     public static final String apiInternalUrl = "/api/internal/";//This HAS TO HAVE a "/" (slash) character at the end!
     public static final String apiNoAuthRequiredUrl = "/api/noAuthRequired/";//This HAS TO HAVE a "/" (slash) character at the end!
+
+    public static final String prometheusMetricsExposeUrl = "/actuator/prometheus";
 
     public static final String authInterServiceHeaderName = "AuthInterService";
 
