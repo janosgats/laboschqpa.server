@@ -14,10 +14,10 @@ public class ApiCallerFactory {
     private String authInterServiceKey;
 
     public ApiCaller createGeneral(String apiBaseUrl) {
-        return new ApiCaller(apiBaseUrl, webClient);
+        return new ApiCaller(apiBaseUrl, webClient, new String[0]);
     }
 
     public ApiCaller createForAuthInterService(String apiBaseUrl) {
-        return new ApiCaller(apiBaseUrl, webClient, authInterServiceKey);
+        return new ApiCaller(apiBaseUrl, webClient, new String[0], authInterServiceKey);
     }
 }
