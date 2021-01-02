@@ -6,6 +6,7 @@ import com.laboschqpa.server.exceptions.UnAuthorizedException;
 import com.laboschqpa.server.util.ServletHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,9 @@ import java.io.IOException;
 @Service
 public class ApiInternalAuthInterServiceFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(ApiInternalAuthInterServiceFilter.class);
+
+    @Value("${auth.interservice.key}")
+    private String authInterServiceKey;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -58,10 +62,10 @@ public class ApiInternalAuthInterServiceFilter implements Filter {
     private boolean isAuthInterServiceHeaderValid(String authHeader) {
         return authHeader != null
                 && !authHeader.isBlank()
-                && authHeader.equals(System.getProperty("auth.interservice.key"));
+                && authHeader.equals(authInterServiceKey);
     }
 
     private void writeErrorResponseBody(HttpServletResponse httpServletResponse, String errorMessage, HttpStatus httpStatus) {
-        ServletHelper.setJsonResponse(httpServletResponse, new ApiErrorResponseBody(errorMessage),httpStatus.value());
+        ServletHelper.setJsonResponse(httpServletResponse, new ApiErrorResponseBody(errorMessage), httpStatus.value());
     }
 }
