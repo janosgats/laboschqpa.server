@@ -24,8 +24,6 @@ public class AppConstants {
 
     public static final String prometheusMetricsExposeUrl = "/actuator/prometheus";
 
-    public static final String authInterServiceHeaderName = "AuthInterService";
-
     //language=RegExp
     public static final String generalNameValidatorPattern = "^[a-zA-Z0-9!_'áéíóöőúüűÁÉÍÓÖŐÚÜŰ -]+$";
 

@@ -1,7 +1,7 @@
 package com.laboschqpa.server.service.apiclient;
 
+import com.laboschqpa.server.service.authinterservice.AuthInterServiceCrypto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -9,15 +9,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class ApiCallerFactory {
     private final WebClient webClient;
-
-    @Value("${auth.interservice.key}")
-    private String authInterServiceKey;
+    private final AuthInterServiceCrypto authInterServiceCrypto;
 
     public ApiCaller createGeneral(String apiBaseUrl) {
         return new ApiCaller(apiBaseUrl, webClient, new String[0]);
     }
 
     public ApiCaller createForAuthInterService(String apiBaseUrl) {
-        return new ApiCaller(apiBaseUrl, webClient, new String[0], authInterServiceKey);
+        return new ApiCaller(apiBaseUrl, webClient, new String[0], authInterServiceCrypto);
     }
 }

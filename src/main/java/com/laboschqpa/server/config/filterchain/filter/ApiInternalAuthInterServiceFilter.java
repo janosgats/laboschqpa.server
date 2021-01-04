@@ -3,10 +3,10 @@ package com.laboschqpa.server.config.filterchain.filter;
 import com.laboschqpa.server.api.errorhandling.ApiErrorResponseBody;
 import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.exceptions.UnAuthorizedException;
+import com.laboschqpa.server.service.authinterservice.AuthInterServiceCrypto;
 import com.laboschqpa.server.util.ServletHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +15,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Log4j2
+@RequiredArgsConstructor
 @Service
 public class ApiInternalAuthInterServiceFilter implements Filter {
-    private static final Logger logger = LoggerFactory.getLogger(ApiInternalAuthInterServiceFilter.class);
+    private static final String HEADER_NAME_AUTH_INTER_SERVICE = "AuthInterService";
 
-    @Value("${auth.interservice.key}")
-    private String authInterServiceKey;
+    private final AuthInterServiceCrypto authInterServiceCrypto;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -32,7 +33,7 @@ public class ApiInternalAuthInterServiceFilter implements Filter {
         } catch (UnAuthorizedException e) {
             writeErrorResponseBody((HttpServletResponse) response, "Unauthorized: " + e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.debug("Exception thrown while trying to authenticate incoming request!", e);
+            log.debug("Exception thrown while trying to authenticate incoming request!", e);
             writeErrorResponseBody((HttpServletResponse) response, "Exception thrown while trying to authenticate incoming request!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -45,24 +46,18 @@ public class ApiInternalAuthInterServiceFilter implements Filter {
         if (httpServletRequest.getRequestURI().contains(
                 AppConstants.apiInternalUrl.substring(1, AppConstants.apiInternalUrl.length() - 1))) {
 
-            String authInterServiceHeader = httpServletRequest.getHeader(AppConstants.authInterServiceHeaderName);
-            if (isAuthInterServiceHeaderValid(authInterServiceHeader)) {
-                logger.trace("AuthInterService auth passed. URL: {}", httpServletRequest.getRequestURI());
+            String authInterServiceHeader = httpServletRequest.getHeader(HEADER_NAME_AUTH_INTER_SERVICE);
+            if (authInterServiceCrypto.isHeaderValid(authInterServiceHeader)) {
+                log.trace("AuthInterService auth passed. URL: {}", httpServletRequest.getRequestURI());
                 return true;
             } else {
-                logger.trace("AuthInterService auth failed. URL: {}", httpServletRequest.getRequestURI());
+                log.trace("AuthInterService auth failed. URL: {}", httpServletRequest.getRequestURI());
                 throw new UnAuthorizedException("AuthInterService header is invalid.");
             }
         } else {
-            logger.trace("AuthInterService auth not required. URL: {}", httpServletRequest.getRequestURI());
+            log.trace("AuthInterService auth not required. URL: {}", httpServletRequest.getRequestURI());
             return true;
         }
-    }
-
-    private boolean isAuthInterServiceHeaderValid(String authHeader) {
-        return authHeader != null
-                && !authHeader.isBlank()
-                && authHeader.equals(authInterServiceKey);
     }
 
     private void writeErrorResponseBody(HttpServletResponse httpServletResponse, String errorMessage, HttpStatus httpStatus) {

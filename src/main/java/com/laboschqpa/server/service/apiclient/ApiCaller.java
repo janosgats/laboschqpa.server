@@ -1,14 +1,15 @@
 package com.laboschqpa.server.service.apiclient;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.exceptions.apiclient.ResponseCodeIsNotSuccessApiClientException;
+import com.laboschqpa.server.service.authinterservice.AuthInterServiceCrypto;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ReactiveHttpOutputMessage;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -22,11 +23,12 @@ import java.util.stream.Collectors;
 
 @Log4j2
 public class ApiCaller {
+    private static final String HEADER_NAME_AUTH_INTER_SERVICE = "AuthInterService";
 
     private String apiBaseUrl;
     private WebClient webClient;
     private final boolean useAuthInterService;
-    private String authInterServiceKey;
+    private AuthInterServiceCrypto authInterServiceCrypto;
     private String[] secretsToHideInLogs;
 
     public ApiCaller(String apiBaseUrl, WebClient webClient, String[] secretsToHideInLogs) {
@@ -36,12 +38,12 @@ public class ApiCaller {
         this.secretsToHideInLogs = secretsToHideInLogs;
     }
 
-    public ApiCaller(String apiBaseUrl, WebClient webClient, String[] secretsToHideInLogs, String authInterServiceKey) {
+    public ApiCaller(String apiBaseUrl, WebClient webClient, String[] secretsToHideInLogs, AuthInterServiceCrypto authInterServiceCrypto) {
         this.useAuthInterService = true;
         this.apiBaseUrl = apiBaseUrl;
         this.webClient = webClient;
         this.secretsToHideInLogs = secretsToHideInLogs;
-        this.authInterServiceKey = authInterServiceKey;
+        this.authInterServiceCrypto = authInterServiceCrypto;
     }
 
     public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod) {
@@ -52,9 +54,8 @@ public class ApiCaller {
         return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, null);
     }
 
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod,
-                                                             BodyInserter<? extends Object, ReactiveHttpOutputMessage> requestBodyInserter) {
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, requestBodyInserter, null);
+    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, JsonNode requestBody) {
+        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, requestBody);
     }
 
     public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod,
@@ -69,35 +70,41 @@ public class ApiCaller {
             httpHeaders.add("Content-Type", "application/json");
         }
 
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, requestBodyInserter, httpHeaders, false);
+        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, requestBodyInserter, httpHeaders, null, false);
     }
 
     public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, HttpHeaders headers) {
 
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, BodyInserters.empty(), headers, false);
+        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, BodyInserters.empty(), headers, null, false);
     }
 
     public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
                                                              BodyInserter<? extends Object, ReactiveHttpOutputMessage> requestBodyInserter, HttpHeaders headers) {
 
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, requestBodyInserter, headers, false);
+        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, requestBodyInserter, headers, null, false);
     }
 
     public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
                                                              String stringRequestBody, HttpHeaders headers) {
         return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams,
-                BodyInserters.fromValue(stringRequestBody), headers, false);
+                BodyInserters.fromValue(stringRequestBody), headers, null, false);
+    }
+
+    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod,
+                                                             BodyInserter<?, ? super ClientHttpRequest> requestBodyInserter) {
+        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null,
+                requestBodyInserter, new HttpHeaders(), null, false);
     }
 
     public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
-                                                             BodyInserter<?, ? super ClientHttpRequest> requestBodyInserter, HttpHeaders headers, final boolean disableUrlEncodingOfQueryParams) {
+                                                             BodyInserter<?, ? super ClientHttpRequest> requestBodyInserter, HttpHeaders headers, MultiValueMap<String, String> cookies, final boolean disableUrlEncodingOfQueryParams) {
         if (headers == null) {
             return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams,
-                    requestBodyInserter, new HttpHeaders(), disableUrlEncodingOfQueryParams);
+                    requestBodyInserter, new HttpHeaders(), cookies, disableUrlEncodingOfQueryParams);
         }
 
         if (this.useAuthInterService) {
-            headers.add(AppConstants.authInterServiceHeaderName, authInterServiceKey);
+            headers.add(HEADER_NAME_AUTH_INTER_SERVICE, authInterServiceCrypto.generateHeader());
         }
 
         if (requestBodyInserter == null)
@@ -109,8 +116,15 @@ public class ApiCaller {
         final Mono<T> responseBodyMono = this.webClient
                 .method(httpMethod)
                 .uri(fullUriString)
+                .cookies(requestCookies -> {
+                    if (cookies != null)
+                        requestCookies.addAll(cookies);
+                })
                 .body(requestBodyInserter)
-                .headers(httpHeaders -> httpHeaders.addAll(headers))
+                .headers(httpHeaders -> {
+                    if (headers != null)
+                        httpHeaders.addAll(headers);
+                })
                 .exchange()
                 .flatMap((clientResponse) -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
