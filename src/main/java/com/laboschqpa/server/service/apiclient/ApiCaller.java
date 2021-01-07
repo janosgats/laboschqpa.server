@@ -1,6 +1,7 @@
 package com.laboschqpa.server.service.apiclient;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.laboschqpa.server.config.filterchain.filter.ApiInternalAuthInterServiceFilter;
 import com.laboschqpa.server.exceptions.apiclient.ResponseCodeIsNotSuccessApiClientException;
 import com.laboschqpa.server.service.authinterservice.AuthInterServiceCrypto;
 import lombok.extern.log4j.Log4j2;
@@ -23,8 +24,6 @@ import java.util.stream.Collectors;
 
 @Log4j2
 public class ApiCaller {
-    private static final String HEADER_NAME_AUTH_INTER_SERVICE = "AuthInterService";
-
     private String apiBaseUrl;
     private WebClient webClient;
     private final boolean useAuthInterService;
@@ -104,7 +103,7 @@ public class ApiCaller {
         }
 
         if (this.useAuthInterService) {
-            headers.add(HEADER_NAME_AUTH_INTER_SERVICE, authInterServiceCrypto.generateHeader());
+            headers.add(ApiInternalAuthInterServiceFilter.HEADER_NAME_AUTH_INTER_SERVICE, authInterServiceCrypto.generateHeader());
         }
 
         if (requestBodyInserter == null)

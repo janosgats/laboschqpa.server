@@ -16,6 +16,11 @@ import java.util.Optional;
  * Accessible riddles = Solved riddles + riddles visible for solving as next.
  */
 public interface RiddleRepository extends JpaRepository<Riddle, Long> {
+    /**
+     * The teams can see this many pieces of the next unsolved riddles in the row. (number of riddles visible for solving as next)
+     */
+    String NUMBER_OF_FORWARD_VISIBLE_RIDDLES = "2";
+
     @Modifying
     @Query("delete from Riddle where id = :id")
     int deleteByIdAndGetDeletedRowCount(Long id);
@@ -46,7 +51,7 @@ public interface RiddleRepository extends JpaRepository<Riddle, Long> {
                     "         where resolution.status is NULL\n" +
                     "            or resolution.status = " + RiddleResolutionStatusValues.UNSOLVED + "\n" +
                     "         order by riddle.id asc\n" +
-                    "         limit 2\n" +
+                    "         limit " + NUMBER_OF_FORWARD_VISIBLE_RIDDLES + "\n" +
                     "     ) as next_riddles_to_solve_ids";
 
     @Query(value = QUERY_TO_SELECT_ACCESSIBLE_RIDDLE_IDS,

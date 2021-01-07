@@ -3,7 +3,6 @@ package com.laboschqpa.server.api.dto.internal;
 import com.laboschqpa.server.enums.filehost.FileAccessType;
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.*;
-import org.springframework.http.HttpMethod;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -14,8 +13,11 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @ToString
 public class IsUserAuthorizedToResourceRequestDto extends SelfValidator {
+    /**
+     * Unencoded (NOT Base64 encoded) session ID
+     */
     @NotNull
-    private HttpMethod httpMethod;
+    private String sessionId;
     private String csrfToken;
     @NotNull
     private FileAccessType fileAccessType;

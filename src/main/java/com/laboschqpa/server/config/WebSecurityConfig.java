@@ -62,11 +62,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers(AppConstants.prometheusMetricsExposeUrl)
+                .antMatchers(AppConstants.prometheusMetricsExposeUrl, AppConstants.apiInternalUrlAntPattern)
                 .permitAll()
-                .antMatchers(AppConstants.adminBaseUrl + "**", springBootActuatorBaseUrl + "/**", springBootActuatorBaseUrl + "**")
+                .antMatchers(springBootActuatorBaseUrl + "/**", springBootActuatorBaseUrl + "**")
                 .hasAuthority(Authority.Admin.getStringValue())
-                .antMatchers("/", AppConstants.apiNoAuthRequiredUrl + "**", AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuth2AuthorizationRequestBaseUri + "**", AppConstants.errorPageUrl + "**")
+                .antMatchers("/", AppConstants.apiNoAuthRequiredUrlAntPattern, AppConstants.loginPageUrl, AppConstants.defaultLoginFailureUrl, AppConstants.oAuth2AuthorizationRequestBaseUri + "**", AppConstants.errorPageUrlAntPattern)
                 .permitAll()
                 .anyRequest()
                 .hasAnyAuthority(Authority.User.getStringValue(), Authority.Admin.getStringValue())
@@ -94,7 +94,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf()
                 .csrfTokenRepository(csrfTokenRepository())
-                .ignoringAntMatchers(AppConstants.apiNoAuthRequiredUrl + "**")
+                .ignoringAntMatchers(AppConstants.apiNoAuthRequiredUrlAntPattern)
 
                 .and()
                 .cors()
@@ -113,7 +113,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     private void insertCustomFilters(HttpSecurity http) {
-        http.addFilterAfter(applicationContext.getBean((ApiInternalAuthInterServiceFilter.class)), WebAsyncManagerIntegrationFilter.class);
+        http.addFilterAfter(applicationContext.getBean(ApiInternalAuthInterServiceFilter.class), WebAsyncManagerIntegrationFilter.class);
 
         http.addFilterBefore(new SecurityContextPersistenceFilter(new ReloadUserPerRequestHttpSessionSecurityContextRepository(userAccRepository)),
                 SecurityContextPersistenceFilter.class);//Replacing original SecurityContextPersistenceFilter (by using FILTER_APPLIED flag with the same key as the original filter)
@@ -121,7 +121,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(applicationContext.getBean(AddLoginMethodFilter.class), OAuth2AuthorizationRequestRedirectFilter.class);
 
         http.addFilterBefore(new ApiRedirectionOAuth2AuthorizationRequestRedirectFilter(
-                applicationContext.getBean((ClientRegistrationRepository.class)),
+                applicationContext.getBean(ClientRegistrationRepository.class),
                 AppConstants.oAuth2AuthorizationRequestBaseUri
         ), OAuth2AuthorizationRequestRedirectFilter.class);
         // TODO: The original filter is also called during the FilterChain execution, so this isn't the best solution.
@@ -130,7 +130,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
-        return new LazyCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
+        HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
+        httpSessionCsrfTokenRepository.setSessionAttributeName(AppConstants.sessionAttributeNameCsrfToken);
+
+        return new LazyCsrfTokenRepository(httpSessionCsrfTokenRepository);
     }
 
     @Bean

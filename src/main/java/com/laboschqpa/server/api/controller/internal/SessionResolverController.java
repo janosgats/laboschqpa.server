@@ -1,17 +1,15 @@
 package com.laboschqpa.server.api.controller.internal;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceRequestDto;
 import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceResponseDto;
 import com.laboschqpa.server.api.service.internal.SessionResolverService;
 import com.laboschqpa.server.config.helper.AppConstants;
-import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,17 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 public class SessionResolverController {
     private final SessionResolverService sessionResolverService;
 
-    @GetMapping("/user")
-    public ObjectNode getUserAcc(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
-        objectNode.put("userAccId", authenticationPrincipal.getUserId());
-        return objectNode;
-    }
-
     @GetMapping("/isUserAuthorizedToResource")
-    public IsUserAuthorizedToResourceResponseDto getIsAuthorizedToResource(@RequestBody IsUserAuthorizedToResourceRequestDto isUserAuthorizedToResourceRequestDto,
-                                                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal,
-                                                                           HttpServletRequest request) {
-        return sessionResolverService.getIsAuthorizedToResource(isUserAuthorizedToResourceRequestDto, authenticationPrincipal, request);
+    public IsUserAuthorizedToResourceResponseDto getIsUserAuthorizedToResource(@RequestBody IsUserAuthorizedToResourceRequestDto isUserAuthorizedToResourceRequestDto) {
+        return sessionResolverService.getIsUserAuthorizedToResource(isUserAuthorizedToResourceRequestDto);
     }
 }

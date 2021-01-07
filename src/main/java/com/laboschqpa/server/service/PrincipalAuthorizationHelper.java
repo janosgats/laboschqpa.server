@@ -36,7 +36,7 @@ public class PrincipalAuthorizationHelper {
             );
     }
 
-    private boolean hasAnySufficientAuthority(Authority... sufficientAuthorities) {
+    public boolean hasAnySufficientAuthority(Authority... sufficientAuthorities) {
         return authenticationPrincipal.getUserAccEntity()
                 .getAuthorities().stream()
                 .anyMatch(

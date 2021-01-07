@@ -24,6 +24,13 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
         this.userAccRepository = userAccRepository;
     }
 
+    /**
+     * TODO: Get rid of this reloading per request and replace it by these two steps below:
+     *  <ol>
+     *      <li>Store the GrantedAuthorities in the AuthenticationPrincipal (the {@link CustomOauth2User}) and serialize them into the session</li>
+     *      <li>Implement a service to force reload the granted authorities into user sessions/expire sessions</li>
+     *  </ol>
+     */
     @Override
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
         loggerOfChildClass.trace("Entering custom SecurityContext loader.");
@@ -34,46 +41,9 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
             return loadedSecurityContext;//No user in session auth so we cannot load it from DB.
         }
 
-        Authentication originalAuthentication = loadedSecurityContext.getAuthentication();
+        boolean canUserLogIn = decideIfUserCanLogIn(loadedSecurityContext);
 
-        Object originalPrincipal = originalAuthentication.getPrincipal();
-
-        boolean shouldBeUnauthenticated = true;
-
-        if (originalPrincipal instanceof CustomOauth2User) {
-            CustomOauth2User originalCustomOauth2User = (CustomOauth2User) originalPrincipal;
-            Long userIdFromSession = originalCustomOauth2User.getUserId();
-
-            if (userIdFromSession != null) {
-                loggerOfChildClass.debug("Loading user from DB with ID: " + userIdFromSession);
-                Optional<UserAcc> userFromDBOptional = userAccRepository.findById(userIdFromSession);
-
-                if (userFromDBOptional.isPresent()) {
-                    UserAcc userAccFromDB = userFromDBOptional.get();
-
-                    if (userAccFromDB.getEnabled()) {
-                        originalCustomOauth2User.setUserAccEntity(userAccFromDB);
-
-                        Authentication newAuthentication;
-                        if (originalAuthentication instanceof UsernamePasswordAuthenticationToken) {
-                            newAuthentication = new UsernamePasswordAuthenticationToken(originalCustomOauth2User, originalAuthentication.getCredentials(), originalCustomOauth2User.getAuthorities());
-                        } else if (originalAuthentication instanceof OAuth2AuthenticationToken) {
-                            newAuthentication = new OAuth2AuthenticationToken(originalCustomOauth2User, originalCustomOauth2User.getAuthorities(), ((OAuth2AuthenticationToken) originalAuthentication).getAuthorizedClientRegistrationId());
-                        } else {
-                            throw new RuntimeException("Unexpected authentication type of originalAuthentication: " + originalAuthentication.getClass().getName());
-                        }
-
-                        loadedSecurityContext.setAuthentication(newAuthentication);
-                        shouldBeUnauthenticated = false;
-                    }
-                }
-            }
-        } else {
-            throw new RuntimeException("Authentication Principal is NOT instance of 'CustomOauth2User'!");
-//            shouldBeUnauthenticated = false;//User isn't logged in
-        }
-
-        if (shouldBeUnauthenticated) {
+        if (!canUserLogIn) {
             loggerOfChildClass.info("UnAuthenticating user.");
             loadedSecurityContext.setAuthentication(null);
 
@@ -84,5 +54,48 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
 
         loggerOfChildClass.trace("End of custom SecurityContext loader.");
         return loadedSecurityContext;
+    }
+
+    boolean decideIfUserCanLogIn(SecurityContext loadedSecurityContext) {
+        final Authentication originalAuthentication = loadedSecurityContext.getAuthentication();
+        final Object originalPrincipal = originalAuthentication.getPrincipal();
+
+
+        if (!(originalPrincipal instanceof CustomOauth2User)) {
+            throw new RuntimeException("Authentication Principal is NOT instance of 'CustomOauth2User'!");
+        }
+
+        final CustomOauth2User originalCustomOauth2User = (CustomOauth2User) originalPrincipal;
+        final Long userIdFromSession = originalCustomOauth2User.getUserId();
+
+        if (userIdFromSession == null) {
+            return false;
+        }
+
+        loggerOfChildClass.debug("Loading user from DB with ID: " + userIdFromSession);
+        final Optional<UserAcc> userFromDBOptional = userAccRepository.findById(userIdFromSession);
+        if (userFromDBOptional.isEmpty()) {
+            return false;
+        }
+
+        final UserAcc userAccFromDB = userFromDBOptional.get();
+
+        if (!userAccFromDB.getEnabled()) {
+            return false;
+        }
+
+        originalCustomOauth2User.setUserAccEntity(userAccFromDB);
+
+        Authentication newAuthentication;
+        if (originalAuthentication instanceof UsernamePasswordAuthenticationToken) {
+            newAuthentication = new UsernamePasswordAuthenticationToken(originalCustomOauth2User, originalAuthentication.getCredentials(), originalCustomOauth2User.getAuthorities());
+        } else if (originalAuthentication instanceof OAuth2AuthenticationToken) {
+            newAuthentication = new OAuth2AuthenticationToken(originalCustomOauth2User, originalCustomOauth2User.getAuthorities(), ((OAuth2AuthenticationToken) originalAuthentication).getAuthorizedClientRegistrationId());
+        } else {
+            throw new RuntimeException("Unexpected authentication type of originalAuthentication: " + originalAuthentication.getClass().getName());
+        }
+
+        loadedSecurityContext.setAuthentication(newAuthentication);
+        return true;
     }
 }

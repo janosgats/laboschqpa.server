@@ -4,13 +4,16 @@ import com.laboschqpa.server.api.service.noauthrequired.RegisterByEmailService;
 import com.laboschqpa.server.config.helper.AppConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Email;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(AppConstants.apiNoAuthRequiredUrl + "registerByEmail")
+@RequestMapping(AppConstants.apiNoAuthRequiredUrl + "/registerByEmail")
 @Validated
 public class RegisterByEmailController {
     private final RegisterByEmailService registerByEmailService;
