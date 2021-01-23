@@ -5,6 +5,9 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'org.springframework.boot' version '2.4.1'
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+    id "io.freefair.lombok" version "5.3.0"
 }
 
 repositories {
@@ -15,34 +18,45 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.4.1'
-    implementation 'org.springframework.boot:spring-boot-starter-validation:2.4.1'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.4.1'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.4.1'
-    implementation 'org.springframework.boot:spring-boot-starter-security:2.4.1'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:2.4.1'
-    implementation 'org.springframework.boot:spring-boot-starter-web:2.4.1'
-    implementation 'org.springframework.session:spring-session-jdbc:2.4.1'
-    implementation 'org.springframework.boot:spring-boot-configuration-processor:2.4.1'
-    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.9.RELEASE'
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2:2.4.1'
-    implementation 'com.janosgats.logging:flexible-appender:1.1.5'
-    implementation 'org.apache.commons:commons-lang3:3.10'
-    implementation 'org.springframework.boot:spring-boot-starter-mail:2.2.5.RELEASE'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux:2.4.1'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.session:spring-session-jdbc'
+    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.4.0'
+    implementation 'io.micrometer:micrometer-core'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator:2.4.1'
-    implementation 'io.micrometer:micrometer-core:1.6.2'
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.6.2'
-    runtimeOnly 'org.springframework.boot:spring-boot-devtools:2.4.1'
-    runtimeOnly 'mysql:mysql-connector-java:8.0.22'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.1'
-    testImplementation 'org.springframework.security:spring-security-test:5.4.2'
+    implementation 'org.apache.commons:commons-lang3:3.10'
+    implementation 'com.janosgats.logging:flexible-appender:1.1.5'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'com.vaadin.external.google', module: 'android-json'
+    }
+    testImplementation('org.springframework.security:spring-security-test') {
+        exclude group: 'com.vaadin.external.google', module: 'android-json'
+    }
     testImplementation 'org.junit.jupiter:junit-jupiter:5.6.0'
     testImplementation 'com.squareup.okhttp3:okhttp:4.0.1'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
-    compileOnly 'org.projectlombok:lombok:1.18.12'
+}
+
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
 }
 
 group = 'com.laboschqpa'
@@ -60,4 +74,38 @@ publishing {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+bootJar {
+    archiveFileName = 'laboschqpa.server.jar'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = 'full'
+}
+
+task resolveDependencies {
+    doLast {
+        println "Resolving dependencies"
+        project.rootProject.allprojects.each { subProject ->
+            subProject.buildscript.configurations.each { configuration ->
+                tryToResolveConfiguration(subProject, configuration)
+            }
+            subProject.configurations.each { configuration ->
+                tryToResolveConfiguration(subProject, configuration)
+            }
+        }
+    }
+}
+
+void tryToResolveConfiguration(Project subProject, Configuration configuration) {
+    print "Resolving configuration: $subProject -> $configuration ... "
+    if (configuration.canBeResolved) {
+        configuration.resolve()
+        println "DONE"
+    } else {
+        println "CAN NOT BE RESOLVED"
+    }
 }

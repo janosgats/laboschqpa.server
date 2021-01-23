@@ -1,7 +1,11 @@
-.idea/
+.idea/*
+!.idea/runConfigurations
+
 target/
 server.iml
 secret/
+
+build/
 
 out/
 .gradle

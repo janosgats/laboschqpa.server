@@ -1,15 +1,18 @@
 package com.laboschqpa.server.entity.account;
 
-import com.laboschqpa.server.entity.Team;
-import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.config.helper.EnumBasedAuthority;
+import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GithubExternalAccountDetail;
 import com.laboschqpa.server.entity.account.externalaccountdetail.GoogleExternalAccountDetail;
+import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.auth.TeamRole;
 import com.laboschqpa.server.enums.converter.attributeconverter.AuthorityAttributeConverter;
 import com.laboschqpa.server.enums.converter.attributeconverter.TeamRoleAttributeConverter;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -43,6 +46,7 @@ public class UserAcc implements Serializable {
     @Column(name = "enabled", nullable = false)
     private Boolean enabled;
 
+    @Builder.Default
     @Convert(converter = TeamRoleAttributeConverter.class)
     @Column(name = "team_role", nullable = false)
     private TeamRole teamRole = TeamRole.NOTHING;
@@ -60,10 +64,12 @@ public class UserAcc implements Serializable {
     @Column(name = "nick_name", unique = true)
     private String nickName;
 
+    @Builder.Default
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<UserEmailAddress> userEmailAddresses = new HashSet<>();
 
+    @Builder.Default
     @ElementCollection(targetClass = Authority.class, fetch = FetchType.EAGER)
     @JoinTable(name = "granted_authority",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -73,14 +79,17 @@ public class UserAcc implements Serializable {
     @Convert(converter = AuthorityAttributeConverter.class)
     private Set<Authority> authorities = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<ExternalAccountDetail> externalAccountDetails = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<GoogleExternalAccountDetail> googleExternalAccountDetails = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<GithubExternalAccountDetail> githubExternalAccountDetails = new HashSet<>();

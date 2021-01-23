@@ -3,10 +3,12 @@ package com.laboschqpa.server.api.dto.ugc.profileinfo;
 import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Pattern;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class EditCurrentProfileInfoDto extends SelfValidator {
     @Length(max = 25)

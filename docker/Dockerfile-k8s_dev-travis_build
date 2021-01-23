@@ -2,11 +2,13 @@ FROM maven:3 AS builder_image
 
 WORKDIR /app
 
-COPY pom.xml ./
-RUN mvn dependency:go-offline
+COPY build.gradle ./
+COPY settings.gradle ./
+RUN gradle resolveDependencies --no-daemon
+
 COPY src ./src/
 
-RUN mvn package
+RUN gradle bootJar test --no-daemon
 
 FROM openjdk:11
 MAINTAINER "János Gats <gatsjanos@gmail.com>"
@@ -36,5 +38,5 @@ HEALTHCHECK --interval=15s \
 
 #CMD ["java", "-jar", "-Dspring.profiles.active=k8s_dev", "laboschqpa.server.jar"]
 
-COPY --from=builder_image --chown=spring-user:spring-user /app/target/laboschqpa.server.jar ${APP_HOME}/laboschqpa.server.jar
+COPY --from=builder_image --chown=spring-user:spring-user /app/build/libs/laboschqpa.server.jar ${APP_HOME}/laboschqpa.server.jar
 USER spring-user

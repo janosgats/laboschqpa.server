@@ -5,6 +5,7 @@ import com.laboschqpa.server.enums.converter.jackson.ObjectiveTypeFromValueJacks
 import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Set;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class EditObjectiveDto extends SelfValidator {
     @NotNull
