@@ -62,7 +62,7 @@ configurations {
 group = 'com.laboschqpa'
 version = '0.0.1-SNAPSHOT'
 description = 'Server of Qpa and CST web'
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 publishing {
     publications {
