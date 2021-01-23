@@ -1,4 +1,4 @@
-FROM maven:3 AS builder_image
+FROM gradle:jdk11-openj9 AS builder_image
 
 WORKDIR /app
 
