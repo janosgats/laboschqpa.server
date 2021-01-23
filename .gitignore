@@ -2,3 +2,10 @@
 target/
 server.iml
 secret/
+
+out/
+.gradle
+# Ignore Gradle GUI config
+gradle-app.setting
+# Cache of project
+.gradletasknamecache
