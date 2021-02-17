@@ -33,11 +33,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     }
 
     private void handleSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        CustomOauth2User customOauth2User = (CustomOauth2User) authentication.getPrincipal();
         LoginSuccessResultDto loginSuccessResultDto = LoginSuccessResultDto.builder()
                 .sessionId(encodeToBase64(getCurrentSessionId()))
                 .csrfToken(getCurrentCsrfToken(request, response).getToken())
-                .authorities(((CustomOauth2User) authentication.getPrincipal())
-                        .getAuthorities().stream()
+                .newlyRegistered(customOauth2User.isNewlyRegistered())
+                .authorities(customOauth2User.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toSet()))
                 .build();

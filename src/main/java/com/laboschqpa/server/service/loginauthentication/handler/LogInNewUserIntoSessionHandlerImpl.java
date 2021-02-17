@@ -123,6 +123,8 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
                                                            final OAuth2ProviderRegistrations providerRegistration,
                                                            final AbstractOAuth2ProviderService oAuth2ProviderService,
                                                            final ExtractedOAuth2UserRequestDataDto extractedOAuth2UserRequestDataDto) {
+        boolean isUserNewlyRegistered = false;
+
         switch (accountResolutionResult) {
             case ByBoth:
                 //Nothing to do here. Both E-mail and EAD is already saved for the user.
@@ -140,6 +142,7 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
             case ByNeither:
                 log.trace("User is not found neither by E-mail nor by EAD.");
                 userAccEntity = attemptToRegisterNewUser(extractedOAuth2UserRequestDataDto, oAuth2ProviderService);
+                isUserNewlyRegistered = true;
                 log.info("Registered new user ({}) from: {}", userAccEntity.getId(), providerRegistration);
                 break;
             default:
@@ -147,7 +150,10 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
         }
 
         Objects.requireNonNull(userAccEntity, "userAccEntity shouldn't be null here!");
-        return new CustomOauth2User(loginAuthenticationHelper.reloadUserAccFromDB(userAccEntity));
+
+        CustomOauth2User customOauth2User = new CustomOauth2User(loginAuthenticationHelper.reloadUserAccFromDB(userAccEntity));
+        customOauth2User.setNewlyRegistered(isUserNewlyRegistered);
+        return customOauth2User;
     }
 
     private UserAccountResolutionSource determineUserAccountResolvingResult(boolean userFoundByExternalAccountDetail, boolean userFoundByEmailAddress) {

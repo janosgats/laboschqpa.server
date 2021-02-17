@@ -4,7 +4,9 @@ import com.laboschqpa.server.config.helper.EnumBasedAuthority;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.exceptions.NotImplementedException;
 import com.laboschqpa.server.repo.UserAccRepository;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -18,6 +20,10 @@ import java.util.*;
 public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
     static final long serialVersionUID = 42L;
     private Map<String, Object> attributes;
+
+    @Getter
+    @Setter
+    private transient boolean newlyRegistered = false;
 
     private transient UserAcc userAccEntity;
     private Long userId;

@@ -15,5 +15,6 @@ import java.util.Set;
 public class LoginSuccessResultDto {
     private String sessionId;
     private String csrfToken;
+    private boolean newlyRegistered;
     private Set<String> authorities;
 }
