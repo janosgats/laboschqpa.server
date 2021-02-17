@@ -19,7 +19,7 @@ public class LoginAuthenticationHelper {
 
     public void assertUserAccIsEnabled(UserAcc userAccEntity) {
         if (!userAccEntity.getEnabled()) {
-            throw new UserAccountIsDisabledAuthenticationException("The user account is disabled!.");
+            throw new UserAccountIsDisabledAuthenticationException("User account " + userAccEntity.getId() + " is disabled.");
         }
     }
 

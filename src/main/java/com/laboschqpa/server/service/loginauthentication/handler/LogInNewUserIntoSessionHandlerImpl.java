@@ -5,7 +5,6 @@ import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.RegistrationRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.account.UserEmailAddress;
-import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschqpa.server.enums.RegistrationRequestPhase;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
@@ -31,7 +30,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.laboschqpa.server.service.loginauthentication.UserAccountResolutionSource.*;
-import static com.laboschqpa.server.service.loginauthentication.UserAccountResolutionSource.ByNeither;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -155,40 +153,39 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
     private UserAccountResolutionSource determineUserAccountResolvingResult(boolean userFoundByExternalAccountDetail, boolean userFoundByEmailAddress) {
         if (userFoundByExternalAccountDetail && userFoundByEmailAddress) {
             return ByBoth;
-        } else if (userFoundByExternalAccountDetail && !userFoundByEmailAddress) {
-            return OnlyByExternalAccountDetail;
-        } else if (!userFoundByExternalAccountDetail && userFoundByEmailAddress) {
-            return OnlyByEmail;
-        } else if (!userFoundByExternalAccountDetail && !userFoundByEmailAddress) {
-            return ByNeither;
-        } else {
-            throw new IllegalStateException("This code part shouldn't have been reached!");
         }
+        if (userFoundByExternalAccountDetail) {
+            return OnlyByExternalAccountDetail;
+        }
+        if (userFoundByEmailAddress) {
+            return OnlyByEmail;
+        }
+        return ByNeither;
     }
 
     private UserAcc attemptToRegisterNewUser(final ExtractedOAuth2UserRequestDataDto extractedOAuth2UserRequestDataDto, AbstractOAuth2ProviderService oAuth2ProviderService) {
         final JoinFlowSessionDto joinFlowSessionDto = JoinFlowSessionDto.readFromCurrentSession();
-        if (joinFlowSessionDto != null && joinFlowSessionDto.getRegistrationRequestId() != null) {
-            final RegistrationRequest registrationRequest = getValidRegistrationRequestById(joinFlowSessionDto.getRegistrationRequestId());
-
-            final UserAcc registeredUserAccEntity = initNewUserAccEntity(extractedOAuth2UserRequestDataDto);
-            oAuth2ProviderService.saveExternalAccountDetailForUserAcc(extractedOAuth2UserRequestDataDto.getExternalAccountDetail(), registeredUserAccEntity);
-
-            loginAuthenticationHelper.saveNewEmailAddressForUserIfEmailIsNotNull(extractedOAuth2UserRequestDataDto.getEmailAddress(), registeredUserAccEntity);
-            //Saving both mails to the user if they are different
-            if (!registrationRequest.getEmail().equals(extractedOAuth2UserRequestDataDto.getEmailAddress())) {
-                loginAuthenticationHelper.saveNewEmailAddressForUserIfEmailIsNotNull(registrationRequest.getEmail(), registeredUserAccEntity);
-            }
-
-            joinFlowSessionDto.setRegistrationRequestId(null);
-            joinFlowSessionDto.writeToCurrentSession();
-            registrationRequest.setPhase(RegistrationRequestPhase.REGISTERED);
-            registrationRequestRepository.save(registrationRequest);
-
-            return registeredUserAccEntity;
-        } else {
+        if (joinFlowSessionDto == null || joinFlowSessionDto.getRegistrationRequestId() == null) {
             throw new CannotFindExistingAccountAndNoRegistrationSessionDataIsSetAuthenticationException("Cannot find existing user account or e-mail that this login can be merged to!");
         }
+
+        final RegistrationRequest registrationRequest = getValidRegistrationRequestById(joinFlowSessionDto.getRegistrationRequestId());
+
+        final UserAcc registeredUserAccEntity = initNewUserAccEntity(extractedOAuth2UserRequestDataDto);
+        oAuth2ProviderService.saveExternalAccountDetailForUserAcc(extractedOAuth2UserRequestDataDto.getExternalAccountDetail(), registeredUserAccEntity);
+
+        loginAuthenticationHelper.saveNewEmailAddressForUserIfEmailIsNotNull(extractedOAuth2UserRequestDataDto.getEmailAddress(), registeredUserAccEntity);
+        //Saving both mails to the user if they are different
+        if (!registrationRequest.getEmail().equals(extractedOAuth2UserRequestDataDto.getEmailAddress())) {
+            loginAuthenticationHelper.saveNewEmailAddressForUserIfEmailIsNotNull(registrationRequest.getEmail(), registeredUserAccEntity);
+        }
+
+        joinFlowSessionDto.setRegistrationRequestId(null);
+        joinFlowSessionDto.writeToCurrentSession();
+        registrationRequest.setPhase(RegistrationRequestPhase.REGISTERED);
+        registrationRequestRepository.save(registrationRequest);
+
+        return registeredUserAccEntity;
     }
 
     private RegistrationRequest getValidRegistrationRequestById(long registrationRequestId) {

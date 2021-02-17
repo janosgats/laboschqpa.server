@@ -113,7 +113,7 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
                                                                                       UserEmailAddress userEmailAddress) {
         if (!existingUserAcc.getId().equals(userEmailAddress.getUserAcc().getId())) {
             log.info("During addLoginMethod to existing user: User is found by E-mail, but it's NOT the same as the initiator user.");
-            //If the user is found by EAD and also by Email, than the two users HAVE TO BE THE SAME!
+            //If the user is found by EAD or by Email, then the two users HAVE TO BE THE SAME!
             throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
                     "E-mail got from OAuth2 response is saved in the system as a different User's e-mail address: "
                             + userEmailAddress.getEmail()
@@ -126,7 +126,7 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
                                                                                                OAuth2ProviderRegistrations providerRegistration) {
         if (!existingUserAcc.getId().equals(userAccLoadedByExternalAccountDetail.getId())) {
             log.info("During addLoginMethod to existing user: User is found by EAD, but it's NOT the same as the initiator user.");
-            //If the user is found by EAD and also by Email, than the two users HAVE TO BE THE SAME!
+            //If the user is found by EAD, then the two users HAVE TO BE THE SAME!
             throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
                     "EAD got from OAuth2 response is saved in the system as a different User's EAD. "
                             + "Provider: " + providerRegistration
