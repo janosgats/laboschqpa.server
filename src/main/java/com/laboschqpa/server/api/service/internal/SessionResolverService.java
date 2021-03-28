@@ -104,7 +104,7 @@ public class SessionResolverService {
             return new LoadUserReturn(true, unauthenticatedResponseDto(), null, null);
         }
         if (!(loadedAuthenticationPrincipal instanceof CustomOauth2User)) {
-            throw new UnsupportedOperationException("Loaded AuthenticationPrincipal is is not instance of CustomOauth2User. ClassName: "
+            throw new UnsupportedOperationException("Loaded AuthenticationPrincipal is not instance of CustomOauth2User. ClassName: "
                     + loadedAuthenticationPrincipal.getClass().getName());
         }
 
