@@ -3,6 +3,7 @@ package com.laboschqpa.server.config;
 import com.laboschqpa.server.config.authprovider.OAuth2ProviderRegistrationFactory;
 import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationFailureHandler;
 import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationSuccessHandler;
+import com.laboschqpa.server.config.filterchain.extension.CustomLogoutSuccessHandler;
 import com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHttpSessionSecurityContextRepository;
 import com.laboschqpa.server.config.filterchain.filter.AddLoginMethodFilter;
 import com.laboschqpa.server.config.filterchain.filter.ApiInternalAuthInterServiceFilter;
@@ -102,7 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                 .logoutUrl(AppConstants.logOutUrl)
-                .logoutSuccessUrl(AppConstants.logOutSuccessUrl)
+                .logoutSuccessHandler(new CustomLogoutSuccessHandler())
                 .invalidateHttpSession(true)
 
                 .and()
@@ -167,6 +168,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public OAuth2ClientContext oAuth2ClientContext() {
+        //TODO: Update this deprecated thing
         return new DefaultOAuth2ClientContext();
     }
 }

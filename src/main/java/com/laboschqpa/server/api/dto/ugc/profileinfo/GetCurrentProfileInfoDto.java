@@ -30,7 +30,9 @@ public class GetCurrentProfileInfoDto {
         this.enabled = userAcc.getEnabled();
 
         this.teamRole = userAcc.getTeamRole();
-        this.teamId = userAcc.getTeam().getId();
+        if (userAcc.getTeam() != null) {
+            this.teamId = userAcc.getTeam().getId();
+        }
 
         this.firstName = userAcc.getFirstName();
         this.lastName = userAcc.getLastName();

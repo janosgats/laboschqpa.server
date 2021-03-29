@@ -30,7 +30,7 @@ public class RegisterByEmailService {
 
         RegistrationRequest registrationRequest = new RegistrationRequest();
         registrationRequest.setEmail(emailToRegister);
-        registrationRequest.setKey(RandomStringUtils.random(100, 0, 0, true, true, null, new SecureRandom()));
+        registrationRequest.setKey(RandomStringUtils.random(40, 0, 0, true, true, null, new SecureRandom()));
         registrationRequest.setPhase(RegistrationRequestPhase.EMAIL_SUBMITTED);
         registrationRequestRepository.save(registrationRequest);
 

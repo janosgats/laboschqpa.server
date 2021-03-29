@@ -1,4 +1,4 @@
-package com.laboschqpa.server.config;
+package com.laboschqpa.server.config.csrf;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
