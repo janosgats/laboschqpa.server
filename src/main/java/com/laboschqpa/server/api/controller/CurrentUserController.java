@@ -1,6 +1,9 @@
 package com.laboschqpa.server.api.controller;
 
+import com.laboschqpa.server.api.dto.userinfo.UserInfoResponse;
+import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,11 +14,16 @@ import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(path = "/api/csrf")
-public class CsrfController {
+@RequestMapping(path = "/api/currentUser")
+public class CurrentUserController {
     private final CsrfTokenRepository csrfTokenRepository;
 
-    @GetMapping("/token")
+    @GetMapping("/userInfo")
+    public UserInfoResponse getUserInfo(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        return new UserInfoResponse(authenticationPrincipal.getUserId());
+    }
+
+    @GetMapping("/csrfToken")
     public String getToken(HttpServletRequest httpServletRequest) {
         final CsrfToken loadedToken = csrfTokenRepository.loadToken(httpServletRequest);
         if (loadedToken == null) {
