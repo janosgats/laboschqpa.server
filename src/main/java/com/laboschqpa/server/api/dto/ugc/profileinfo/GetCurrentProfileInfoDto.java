@@ -2,8 +2,8 @@ package com.laboschqpa.server.api.dto.ugc.profileinfo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.laboschqpa.server.entity.account.UserAcc;
+import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.auth.Authority;
-import com.laboschqpa.server.enums.auth.TeamRole;
 import com.laboschqpa.server.enums.converter.jackson.TeamRoleToValueJacksonConverter;
 import lombok.Data;
 

@@ -1,9 +1,9 @@
 package com.laboschqpa.server.statemachine;
 
 import com.laboschqpa.server.entity.account.UserAcc;
+import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.SubmissionRepository;
-import com.laboschqpa.server.repo.UserAccRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +14,8 @@ public class StateMachineFactory {
     private final ObjectiveRepository objectiveRepository;
     private final SubmissionRepository submissionRepository;
 
-    public TeamUserRelationStateMachine buildTeamUserRelationStateMachine(UserAcc alteredUserAcc, UserAcc initiatorUserAcc) {
-        return new TeamUserRelationStateMachine(alteredUserAcc, initiatorUserAcc, userAccRepository);
+    public TeamLifecycleStateMachine buildTeamUserRelationStateMachine(UserAcc alteredUserAcc, UserAcc initiatorUserAcc) {
+        return new TeamLifecycleStateMachine(alteredUserAcc, initiatorUserAcc, userAccRepository);
     }
 
     public SubmissionStateMachine buildSubmissionStateMachine(UserAcc initiatorUserAcc) {

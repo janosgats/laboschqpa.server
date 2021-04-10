@@ -29,6 +29,9 @@
         <Logger name="com.laboschqpa.server" level="all" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
         </Logger>
+        <Logger name="org.hibernate.SQL" level="debug" additivity="false">
+            <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
+        </Logger>
         <Root level="info">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
 <!--            <AppenderRef ref="AsyncAwsCloudWatchConsoleAppender"/>-->

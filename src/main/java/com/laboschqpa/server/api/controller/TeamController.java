@@ -1,80 +1,106 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
-import com.laboschqpa.server.api.dto.team.GetTeamDto;
+import com.laboschqpa.server.api.dto.team.CreateNewTeamRequest;
+import com.laboschqpa.server.api.dto.team.GetTeamMemberResponse;
+import com.laboschqpa.server.api.dto.team.GetTeamResponse;
+import com.laboschqpa.server.api.dto.team.GetTeamWithScoreResponse;
 import com.laboschqpa.server.api.service.TeamService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
+import com.laboschqpa.server.service.TeamLifecycleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/api/team")
 public class TeamController {
+    private final TeamLifecycleService teamLifecycleService;
     private final TeamService teamService;
 
     @PostMapping("/createNewTeam")
-    public GetTeamDto postCreateNewTeam(@RequestBody CreateNewTeamDto createNewTeamDto,
-                                        @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        return new GetTeamDto(
-                teamService.createNewTeam(createNewTeamDto, authenticationPrincipal.getUserId())
+    public GetTeamResponse postCreateNewTeam(@RequestBody CreateNewTeamRequest createNewTeamRequest,
+                                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        return new GetTeamResponse(
+                teamLifecycleService.createNewTeam(createNewTeamRequest, authenticationPrincipal.getUserId())
         );
     }
 
     @PostMapping("/applyToTeam")
     public void postApplyToTeam(@RequestParam("teamId") Long teamId,
                                 @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.applyToTeam(teamId, authenticationPrincipal.getUserId());
+        teamLifecycleService.applyToTeam(teamId, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/cancelApplicationToTeam")
     public void postCancelApplicationToTeam(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.cancelApplicationToTeam(authenticationPrincipal.getUserId());
+        teamLifecycleService.cancelApplicationToTeam(authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/declineApplicationToTeam")
     public void postDeclineApplicationToTeam(@RequestParam("userAccIdToDecline") Long userAccIdToDecline,
                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.declineApplicationToTeam(userAccIdToDecline, authenticationPrincipal.getUserId());
+        teamLifecycleService.declineApplicationToTeam(userAccIdToDecline, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/approveApplicationToTeam")
     public void postApproveApplicationToTeam(@RequestParam("userAccIdToApprove") Long userAccIdToApprove,
                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.approveApplicationToTeam(userAccIdToApprove, authenticationPrincipal.getUserId());
+        teamLifecycleService.approveApplicationToTeam(userAccIdToApprove, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/leaveTeam")
     public void postLeaveTeam(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.leaveTeam(authenticationPrincipal.getUserId());
+        teamLifecycleService.leaveTeam(authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/kickFromTeam")
     public void postKickFromTeam(@RequestParam("userAccIdToKick") Long userAccIdToKick,
                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.kickFromTeam(userAccIdToKick, authenticationPrincipal.getUserId());
+        teamLifecycleService.kickFromTeam(userAccIdToKick, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/archiveAndLeaveTeam")
     public void postArchiveAndLeaveTeam(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.archiveAndLeaveTeam(authenticationPrincipal.getUserId());
+        teamLifecycleService.archiveAndLeaveTeam(authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/giveLeaderRights")
     public void postGiveLeaderRights(@RequestParam("userAccIdToGiveLeaderRights") Long userAccIdToGiveLeaderRights,
                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.giveLeaderRights(userAccIdToGiveLeaderRights, authenticationPrincipal.getUserId());
+        teamLifecycleService.giveLeaderRights(userAccIdToGiveLeaderRights, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/takeAwayLeaderRights")
     public void postTakeAwayLeaderRights(@RequestParam("userAccIdToTakeAwayLeaderRights") Long userAccIdToTakeAwayLeaderRights,
                                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.takeAwayLeaderRights(userAccIdToTakeAwayLeaderRights, authenticationPrincipal.getUserId());
+        teamLifecycleService.takeAwayLeaderRights(userAccIdToTakeAwayLeaderRights, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/resignFromLeadership")
     public void postResignFromLeadership(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamService.resignFromLeadership(authenticationPrincipal.getUserId());
+        teamLifecycleService.resignFromLeadership(authenticationPrincipal.getUserId());
+    }
+
+    @GetMapping("/listActiveTeamsWithScores")
+    public List<GetTeamWithScoreResponse> getListActiveTeamsWithScores() {
+        return teamService.listActiveTeamsWithScores().stream()
+                .map(GetTeamWithScoreResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/info")
+    public GetTeamResponse getInfo(@RequestParam("id") Long id) {
+        return new GetTeamResponse(teamService.getById(id));
+    }
+
+    @GetMapping("/listMembers")
+    public List<GetTeamMemberResponse> listMembers(@RequestParam("id") Long id) {
+        return teamService.listMembers(id).stream()
+                .map(GetTeamMemberResponse::new)
+                .collect(Collectors.toList());
     }
 }

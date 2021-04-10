@@ -1,4 +1,4 @@
-package com.laboschqpa.server.enums.auth;
+package com.laboschqpa.server.enums;
 
 import com.laboschqpa.server.exceptions.NotImplementedException;
 

@@ -17,7 +17,7 @@ import javax.validation.constraints.Pattern;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateNewTeamDto extends SelfValidator {
+public class CreateNewTeamRequest extends SelfValidator {
     @Length(max = 50)
     @Pattern(regexp = AppConstants.generalNameValidatorPattern)
     @NotEmpty

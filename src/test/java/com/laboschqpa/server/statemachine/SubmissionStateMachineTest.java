@@ -6,7 +6,7 @@ import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
-import com.laboschqpa.server.enums.auth.TeamRole;
+import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.apierrordescriptor.SubmissionApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.SubmissionException;
 import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;

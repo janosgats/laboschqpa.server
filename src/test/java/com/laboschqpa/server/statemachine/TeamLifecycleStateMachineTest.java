@@ -1,9 +1,9 @@
 package com.laboschqpa.server.statemachine;
 
-import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
+import com.laboschqpa.server.api.dto.team.CreateNewTeamRequest;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.enums.auth.TeamRole;
+import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamUserRelationApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.TeamUserRelationException;
 import com.laboschqpa.server.repo.TeamRepository;
@@ -18,11 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TeamUserRelationStateMachineTest {
+class TeamLifecycleStateMachineTest {
     @Mock
     UserAccRepository userAccRepositoryMock;
     @Mock
@@ -99,25 +98,25 @@ class TeamUserRelationStateMachineTest {
 
     @Test
     void createNewTeam() {
-        CreateNewTeamDto createNewTeamDto = new CreateNewTeamDto("test name");
-        Team team = new Team(10L, createNewTeamDto.getName(), false);
+        CreateNewTeamRequest createNewTeamRequest = new CreateNewTeamRequest("test name");
+        Team team = new Team(10L, createNewTeamRequest.getName(), false);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamUserRelationApiError.YOU_ARE_ALREADY_MEMBER_OF_A_TEAM, () ->
                 stateMachineFactory.buildTeamUserRelationStateMachine(
                         UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build(),
                         UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build()
-                ).createNewTeam(createNewTeamDto)
+                ).createNewTeam(createNewTeamRequest)
         );
 
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(null).teamRole(TeamRole.NOTHING).build(),
                 UserAcc.builder().id(1L).team(null).teamRole(TeamRole.NOTHING).build()
         ));
-        teamUserRelationStateMachine.createNewTeam(createNewTeamDto);
+        teamLifecycleStateMachine.createNewTeam(createNewTeamRequest);
 
-        assertEquals(team.getName(), teamUserRelationStateMachine.getAlteredUserAcc().getTeam().getName());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        assertEquals(team.getName(), teamLifecycleStateMachine.getAlteredUserAcc().getTeam().getName());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
     @Test
@@ -132,15 +131,15 @@ class TeamUserRelationStateMachineTest {
         );
 
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(null).teamRole(TeamRole.NOTHING).build(),
                 UserAcc.builder().id(1L).team(null).teamRole(TeamRole.NOTHING).build()
         ));
-        teamUserRelationStateMachine.applyToTeam(team);
+        teamLifecycleStateMachine.applyToTeam(team);
 
-        assertEquals(team.getId(), teamUserRelationStateMachine.getAlteredUserAcc().getTeam().getId());
-        assertEquals(TeamRole.APPLIED, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        assertEquals(team.getId(), teamLifecycleStateMachine.getAlteredUserAcc().getTeam().getId());
+        assertEquals(TeamRole.APPLIED, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
     @Test
@@ -155,15 +154,15 @@ class TeamUserRelationStateMachineTest {
         );
 
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build()
         ));
-        teamUserRelationStateMachine.cancelApplicationToTeam();
+        teamLifecycleStateMachine.cancelApplicationToTeam();
 
-        assertNull(teamUserRelationStateMachine.getAlteredUserAcc().getTeam());
-        assertEquals(TeamRole.NOTHING, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        assertNull(teamLifecycleStateMachine.getAlteredUserAcc().getTeam());
+        assertEquals(TeamRole.NOTHING, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
     @Test
@@ -178,15 +177,15 @@ class TeamUserRelationStateMachineTest {
         );
 
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
                 UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
         ));
-        teamUserRelationStateMachine.declineApplicationToTeam();
+        teamLifecycleStateMachine.declineApplicationToTeam();
 
-        assertNull(teamUserRelationStateMachine.getAlteredUserAcc().getTeam());
-        assertEquals(TeamRole.NOTHING, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
+        assertNull(teamLifecycleStateMachine.getAlteredUserAcc().getTeam());
+        assertEquals(TeamRole.NOTHING, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
     }
 
     @Test
@@ -201,15 +200,15 @@ class TeamUserRelationStateMachineTest {
         );
 
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
                 UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
         ));
-        teamUserRelationStateMachine.approveApplication();
+        teamLifecycleStateMachine.approveApplication();
 
-        assertEquals(team.getId(), teamUserRelationStateMachine.getAlteredUserAcc().getTeam().getId());
-        assertEquals(TeamRole.MEMBER, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
+        assertEquals(team.getId(), teamLifecycleStateMachine.getAlteredUserAcc().getTeam().getId());
+        assertEquals(TeamRole.MEMBER, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
     }
 
     @Test
@@ -224,15 +223,15 @@ class TeamUserRelationStateMachineTest {
         );
 
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build(),
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build()
         ));
-        teamUserRelationStateMachine.leaveTeam();
+        teamLifecycleStateMachine.leaveTeam();
 
-        assertNull(teamUserRelationStateMachine.getAlteredUserAcc().getTeam());
-        assertEquals(TeamRole.NOTHING, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        assertNull(teamLifecycleStateMachine.getAlteredUserAcc().getTeam());
+        assertEquals(TeamRole.NOTHING, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
     @Test
@@ -248,30 +247,30 @@ class TeamUserRelationStateMachineTest {
 
         when(userAccRepositoryMock.getCountOfEnabledLeadersInTeam(team)).thenReturn(1);
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build()
         ));
 
-        assertThrowsTeamUserRelationExceptionWithSpecificError(TeamUserRelationApiError.THERE_IS_NO_OTHER_LEADER, teamUserRelationStateMachine::leaveTeam);
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        assertThrowsTeamUserRelationExceptionWithSpecificError(TeamUserRelationApiError.THERE_IS_NO_OTHER_LEADER, teamLifecycleStateMachine::leaveTeam);
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
     @Test
     void leaveTeam_asLeader_success() {
         Team team = new Team(10L, "test", false);
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build()
         ));
 
         when(userAccRepositoryMock.getCountOfEnabledLeadersInTeam(team)).thenReturn(5);
-        teamUserRelationStateMachine.leaveTeam();
+        teamLifecycleStateMachine.leaveTeam();
 
-        assertNull(teamUserRelationStateMachine.getAlteredUserAcc().getTeam());
-        assertEquals(TeamRole.NOTHING, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        assertNull(teamLifecycleStateMachine.getAlteredUserAcc().getTeam());
+        assertEquals(TeamRole.NOTHING, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
     @Test
@@ -286,15 +285,15 @@ class TeamUserRelationStateMachineTest {
         );
 
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),
                 UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
         ));
-        teamUserRelationStateMachine.kickFromTeam();
+        teamLifecycleStateMachine.kickFromTeam();
 
-        assertNull(teamUserRelationStateMachine.getAlteredUserAcc().getTeam());
-        assertEquals(TeamRole.NOTHING, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
+        assertNull(teamLifecycleStateMachine.getAlteredUserAcc().getTeam());
+        assertEquals(TeamRole.NOTHING, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
     }
 
     @Test
@@ -308,15 +307,15 @@ class TeamUserRelationStateMachineTest {
                 ).archiveAndLeaveTeam()
         );
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build()
         ));
-        teamUserRelationStateMachine.archiveAndLeaveTeam();
+        teamLifecycleStateMachine.archiveAndLeaveTeam();
 
         assertTrue(team.getArchived());
         verify(userAccRepositoryMock, times(1)).kickEveryoneFromTeam(team);
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
     @Test
@@ -331,14 +330,14 @@ class TeamUserRelationStateMachineTest {
         );
 
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build(),
                 UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
         ));
-        teamUserRelationStateMachine.giveLeaderRights();
+        teamLifecycleStateMachine.giveLeaderRights();
 
-        assertEquals(TeamRole.LEADER, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
+        assertEquals(TeamRole.LEADER, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
     }
 
     @Test
@@ -352,14 +351,14 @@ class TeamUserRelationStateMachineTest {
                 ).takeAwayLeaderRights()
         );
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),
                 UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
         ));
-        teamUserRelationStateMachine.takeAwayLeaderRights();
+        teamLifecycleStateMachine.takeAwayLeaderRights();
 
-        assertEquals(TeamRole.MEMBER, teamUserRelationStateMachine.getAlteredUserAcc().getTeamRole());
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
+        assertEquals(TeamRole.MEMBER, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
     }
 
     @Test
@@ -373,27 +372,27 @@ class TeamUserRelationStateMachineTest {
                 ).resignFromLeadership()
         );
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build()
         ));
-        assertThrowsTeamUserRelationExceptionWithSpecificError(TeamUserRelationApiError.THERE_IS_NO_OTHER_LEADER, teamUserRelationStateMachine::resignFromLeadership);
+        assertThrowsTeamUserRelationExceptionWithSpecificError(TeamUserRelationApiError.THERE_IS_NO_OTHER_LEADER, teamLifecycleStateMachine::resignFromLeadership);
 
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
     @Test
     void resignFromLeadership_success() {
         Team team = new Team(10L, "test", false);
 
-        TeamUserRelationStateMachine teamUserRelationStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
+        TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamUserRelationStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build()
         ));
 
         when(userAccRepositoryMock.getCountOfEnabledLeadersInTeam(team)).thenReturn(2);
-        teamUserRelationStateMachine.resignFromLeadership();
+        teamLifecycleStateMachine.resignFromLeadership();
 
-        verify(teamUserRelationStateMachine, times(1)).assertInitiatorIsSameAsAltered();
+        verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 }

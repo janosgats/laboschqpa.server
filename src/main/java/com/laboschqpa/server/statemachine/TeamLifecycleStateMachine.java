@@ -1,9 +1,9 @@
 package com.laboschqpa.server.statemachine;
 
-import com.laboschqpa.server.api.dto.team.CreateNewTeamDto;
+import com.laboschqpa.server.api.dto.team.CreateNewTeamRequest;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.enums.auth.TeamRole;
+import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamUserRelationApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.TeamUserRelationException;
 import com.laboschqpa.server.repo.UserAccRepository;
@@ -12,23 +12,23 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class TeamUserRelationStateMachine {
+public class TeamLifecycleStateMachine {
     private final UserAcc alteredUserAcc;
     private final UserAcc initiatorUserAcc;
     private final UserAccRepository userAccRepository;
 
-    public void createNewTeam(CreateNewTeamDto createNewTeamDto) {
+    public void createNewTeam(CreateNewTeamRequest createNewTeamRequest) {
         assertInitiatorIsSameAsAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.NOTHING || alteredUserAcc.getTeam() != null)
             throw new TeamUserRelationException(TeamUserRelationApiError.YOU_ARE_ALREADY_MEMBER_OF_A_TEAM, "You can create a new team only if you aren't a member or applicant of an other team!");
 
         Team newTeam = new Team();
-        newTeam.setName(createNewTeamDto.getName());
+        newTeam.setName(createNewTeamRequest.getName());
         alteredUserAcc.setTeam(newTeam);
         alteredUserAcc.setTeamRole(TeamRole.LEADER);
 
-        log.debug("UserAcc {} created new team: {}", alteredUserAcc.getId(), createNewTeamDto.getName());
+        log.debug("UserAcc {} created new team: {}", alteredUserAcc.getId(), createNewTeamRequest.getName());
     }
 
     public void applyToTeam(Team team) {

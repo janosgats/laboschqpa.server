@@ -2,7 +2,6 @@ package com.laboschqpa.server.repo;
 
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.enums.auth.TeamRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -26,7 +25,7 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
             "from UserAcc userAcc " +
             "where " +
             "    userAcc.team = :team " +
-            "    and userAcc.teamRole = com.laboschqpa.server.enums.auth.TeamRole.LEADER " +
+            "    and userAcc.teamRole = com.laboschqpa.server.enums.TeamRole.LEADER " +
             "    and userAcc.enabled = true ")
     Integer getCountOfEnabledLeadersInTeam(Team team);
 
@@ -34,7 +33,7 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
     @Query("update UserAcc userAcc " +
             "set " +
             "    userAcc.team = null, " +
-            "    userAcc.teamRole = com.laboschqpa.server.enums.auth.TeamRole.NOTHING " +
+            "    userAcc.teamRole = com.laboschqpa.server.enums.TeamRole.NOTHING " +
             "where userAcc.team = :team ")
     void kickEveryoneFromTeam(Team team);
 }
