@@ -26,7 +26,7 @@ public class AppConstants {
     public static final String prometheusMetricsExposeUrl = "/actuator/prometheus";
 
     //language=RegExp
-    public static final String generalNameValidatorPattern = "^[a-zA-Z0-9!_'áéíóöőúüűÁÉÍÓÖŐÚÜŰ -]+$";
+    public static final String generalNameValidatorPattern = "^[a-zA-Z0-9!_'áéíóöőúüűÁÉÍÓÖŐÚÜŰ -]*$";
 
     public static final String sessionAttributeNameCsrfToken = "CSRF_TOKEN";
 

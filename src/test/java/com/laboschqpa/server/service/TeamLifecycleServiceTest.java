@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Optional;
@@ -30,23 +29,25 @@ import static org.mockito.Mockito.*;
 class TeamLifecycleServiceTest {
 
     @Mock
-    TeamLifecycleStateMachine teamLifecycleStateMachineMock;
+    TeamLifecycleStateMachine teamLifecycleStateMachine;
     @Mock
-    StateMachineFactory stateMachineFactoryMock;
+    StateMachineFactory stateMachineFactory;
     @Mock
-    TransactionTemplate transactionTemplateMock;
+    TransactionTemplate transactionTemplate;
     @Mock
-    UserAccRepository userAccRepositoryMock;
+    UserAccRepository userAccRepository;
     @Mock
-    TeamRepository teamRepositoryMock;
+    TeamRepository teamRepository;
     @InjectMocks
     TeamLifecycleService teamLifecycleService;
 
     @BeforeEach
     void setUp() {
-        lenient().when(transactionTemplateMock.execute(argThat(TransactionCallbackWithoutResult.class::isInstance)))
-                .then(transactionCallback -> ((TransactionCallbackWithoutResult) transactionCallback.getArgument(0)).doInTransaction(new SimpleTransactionStatus()));
-        lenient().when(stateMachineFactoryMock.buildTeamUserRelationStateMachine(any(), any())).thenReturn(teamLifecycleStateMachineMock);
+        lenient().when(transactionTemplate.execute(any()))
+                .then(invocationOnMock -> ((TransactionCallback) (invocationOnMock.getArgument(0))).doInTransaction(new SimpleTransactionStatus()));
+        lenient().doCallRealMethod()
+                .when(transactionTemplate).executeWithoutResult(any());
+        lenient().when(stateMachineFactory.buildTeamUserRelationStateMachine(any(), any())).thenReturn(teamLifecycleStateMachine);
     }
 
     @Test
@@ -55,24 +56,22 @@ class TeamLifecycleServiceTest {
         Team createdTeam = new Team();
         Long creatorUserId = 12L;
         UserAcc creatorUser = UserAcc.builder().id(creatorUserId).enabled(true).team(createdTeam).build();
-        when(transactionTemplateMock.execute(argThat(TransactionCallback.class::isInstance)))
-                .then(transactionCallback -> ((TransactionCallback<Team>) transactionCallback.getArgument(0)).doInTransaction(new SimpleTransactionStatus()));
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(creatorUserId)).thenReturn(Optional.of(creatorUser));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(creatorUserId)).thenReturn(Optional.of(creatorUser));
 
         Team resultTeam = teamLifecycleService.createNewTeam(createNewTeamRequest, creatorUserId);
 
         assertEquals(createdTeam, resultTeam);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(creatorUser, creatorUser);
-        verify(teamLifecycleStateMachineMock, times(1))
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(creatorUser, creatorUser);
+        verify(teamLifecycleStateMachine, times(1))
                 .createNewTeam(argThat((a)
                         -> a.equals(createNewTeamRequest)
                         && a.getName().equals(createNewTeamRequest.getName().trim())
                 ));
 
-        verify(teamRepositoryMock, times(1)).save(creatorUser.getTeam());
-        verify(userAccRepositoryMock, times(1)).save(creatorUser);
+        verify(teamRepository, times(1)).save(creatorUser.getTeam());
+        verify(userAccRepository, times(1)).save(creatorUser);
         verify(createNewTeamRequest, times(1)).validateSelf();
     }
 
@@ -82,15 +81,15 @@ class TeamLifecycleServiceTest {
         Long userAccId = 12L;
         UserAcc userAcc = UserAcc.builder().id(userAccId).enabled(true).team(team).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
-        when(teamRepositoryMock.findByIdAndArchivedIsFalse_WithPessimisticWriteLock(team.getId())).thenReturn(Optional.of(team));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
+        when(teamRepository.findByIdAndArchivedIsFalse_WithPessimisticWriteLock(team.getId())).thenReturn(Optional.of(team));
 
         teamLifecycleService.applyToTeam(team.getId(), userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).applyToTeam(team);
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamLifecycleStateMachine, times(1)).applyToTeam(team);
 
-        verify(userAccRepositoryMock, times(1)).save(userAcc);
+        verify(userAccRepository, times(1)).save(userAcc);
     }
 
     @Test
@@ -99,8 +98,8 @@ class TeamLifecycleServiceTest {
         Long userAccId = 12L;
         UserAcc userAcc = UserAcc.builder().id(userAccId).enabled(true).team(team).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
-        when(teamRepositoryMock.findByIdAndArchivedIsFalse_WithPessimisticWriteLock(team.getId())).thenReturn(Optional.empty());
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
+        when(teamRepository.findByIdAndArchivedIsFalse_WithPessimisticWriteLock(team.getId())).thenReturn(Optional.empty());
 
         assertThrows(ContentNotFoundException.class, () -> teamLifecycleService.applyToTeam(team.getId(), userAccId));
 
@@ -111,7 +110,7 @@ class TeamLifecycleServiceTest {
         Team team = new Team(1L, "test", false);
         Long userAccId = 12L;
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.empty());
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.empty());
 
         assertThrows(ContentNotFoundException.class, () -> teamLifecycleService.applyToTeam(team.getId(), userAccId));
 
@@ -122,14 +121,14 @@ class TeamLifecycleServiceTest {
         Long userAccId = 12L;
         UserAcc userAcc = UserAcc.builder().id(userAccId).enabled(true).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
 
         teamLifecycleService.cancelApplicationToTeam(userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).cancelApplicationToTeam();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamLifecycleStateMachine, times(1)).cancelApplicationToTeam();
 
-        verify(userAccRepositoryMock, times(1)).save(userAcc);
+        verify(userAccRepository, times(1)).save(userAcc);
     }
 
     @Test
@@ -139,15 +138,15 @@ class TeamLifecycleServiceTest {
         UserAcc userAccToDecline = UserAcc.builder().id(userAccIdToDecline).enabled(true).build();
         UserAcc initiatorUserAcc = UserAcc.builder().id(initiatorUserAccId).enabled(true).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToDecline)).thenReturn(Optional.of(userAccToDecline));
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToDecline)).thenReturn(Optional.of(userAccToDecline));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
 
         teamLifecycleService.declineApplicationToTeam(userAccIdToDecline, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToDecline, initiatorUserAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).declineApplicationToTeam();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToDecline, initiatorUserAcc);
+        verify(teamLifecycleStateMachine, times(1)).declineApplicationToTeam();
 
-        verify(userAccRepositoryMock, times(1)).save(userAccToDecline);
+        verify(userAccRepository, times(1)).save(userAccToDecline);
     }
 
     @Test
@@ -157,15 +156,15 @@ class TeamLifecycleServiceTest {
         UserAcc userAccToApprove = UserAcc.builder().id(userAccIdToApprove).enabled(true).build();
         UserAcc initiatorUserAcc = UserAcc.builder().id(initiatorUserAccId).enabled(true).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToApprove)).thenReturn(Optional.of(userAccToApprove));
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToApprove)).thenReturn(Optional.of(userAccToApprove));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
 
         teamLifecycleService.approveApplicationToTeam(userAccIdToApprove, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToApprove, initiatorUserAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).approveApplication();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToApprove, initiatorUserAcc);
+        verify(teamLifecycleStateMachine, times(1)).approveApplication();
 
-        verify(userAccRepositoryMock, times(1)).save(userAccToApprove);
+        verify(userAccRepository, times(1)).save(userAccToApprove);
     }
 
     @Test
@@ -173,14 +172,14 @@ class TeamLifecycleServiceTest {
         Long userAccId = 12L;
         UserAcc userAcc = UserAcc.builder().id(userAccId).enabled(true).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
 
         teamLifecycleService.leaveTeam(userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).leaveTeam();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamLifecycleStateMachine, times(1)).leaveTeam();
 
-        verify(userAccRepositoryMock, times(1)).save(userAcc);
+        verify(userAccRepository, times(1)).save(userAcc);
     }
 
     @Test
@@ -190,15 +189,15 @@ class TeamLifecycleServiceTest {
         UserAcc userAccToKick = UserAcc.builder().id(userAccIdToKick).enabled(true).build();
         UserAcc initiatorUserAcc = UserAcc.builder().id(initiatorUserAccId).enabled(true).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToKick)).thenReturn(Optional.of(userAccToKick));
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToKick)).thenReturn(Optional.of(userAccToKick));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
 
         teamLifecycleService.kickFromTeam(userAccIdToKick, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToKick, initiatorUserAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).kickFromTeam();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToKick, initiatorUserAcc);
+        verify(teamLifecycleStateMachine, times(1)).kickFromTeam();
 
-        verify(userAccRepositoryMock, times(1)).save(userAccToKick);
+        verify(userAccRepository, times(1)).save(userAccToKick);
     }
 
     @Test
@@ -206,15 +205,15 @@ class TeamLifecycleServiceTest {
         Long userAccId = 12L;
         UserAcc userAcc = UserAcc.builder().id(userAccId).enabled(true).team(new Team()).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
 
         teamLifecycleService.archiveAndLeaveTeam(userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).archiveAndLeaveTeam();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamLifecycleStateMachine, times(1)).archiveAndLeaveTeam();
 
-        verify(teamRepositoryMock, times(1)).save(userAcc.getTeam());
-        verify(userAccRepositoryMock, times(1)).save(userAcc);
+        verify(teamRepository, times(1)).save(userAcc.getTeam());
+        verify(userAccRepository, times(1)).save(userAcc);
     }
 
     @Test
@@ -224,15 +223,15 @@ class TeamLifecycleServiceTest {
         UserAcc userAccToGiveLeaderRights = UserAcc.builder().id(userAccIdToGiveLeaderRights).enabled(true).build();
         UserAcc initiatorUserAcc = UserAcc.builder().id(initiatorUserAccId).enabled(true).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToGiveLeaderRights)).thenReturn(Optional.of(userAccToGiveLeaderRights));
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToGiveLeaderRights)).thenReturn(Optional.of(userAccToGiveLeaderRights));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
 
         teamLifecycleService.giveLeaderRights(userAccIdToGiveLeaderRights, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).giveLeaderRights();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
+        verify(teamLifecycleStateMachine, times(1)).giveLeaderRights();
 
-        verify(userAccRepositoryMock, times(1)).save(userAccToGiveLeaderRights);
+        verify(userAccRepository, times(1)).save(userAccToGiveLeaderRights);
     }
 
     @Test
@@ -242,15 +241,15 @@ class TeamLifecycleServiceTest {
         UserAcc userAccToTakeAwayLeaderRights = UserAcc.builder().id(userAccIdToTakeAwayLeaderRights).enabled(true).build();
         UserAcc initiatorUserAcc = UserAcc.builder().id(initiatorUserAccId).enabled(true).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToTakeAwayLeaderRights)).thenReturn(Optional.of(userAccToTakeAwayLeaderRights));
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccIdToTakeAwayLeaderRights)).thenReturn(Optional.of(userAccToTakeAwayLeaderRights));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(initiatorUserAccId)).thenReturn(Optional.of(initiatorUserAcc));
 
         teamLifecycleService.takeAwayLeaderRights(userAccIdToTakeAwayLeaderRights, initiatorUserAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).takeAwayLeaderRights();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
+        verify(teamLifecycleStateMachine, times(1)).takeAwayLeaderRights();
 
-        verify(userAccRepositoryMock, times(1)).save(userAccToTakeAwayLeaderRights);
+        verify(userAccRepository, times(1)).save(userAccToTakeAwayLeaderRights);
     }
 
     @Test
@@ -258,13 +257,13 @@ class TeamLifecycleServiceTest {
         Long userAccId = 12L;
         UserAcc userAcc = UserAcc.builder().id(userAccId).enabled(true).build();
 
-        when(userAccRepositoryMock.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
+        when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.of(userAcc));
 
         teamLifecycleService.resignFromLeadership(userAccId);
 
-        verify(stateMachineFactoryMock, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
-        verify(teamLifecycleStateMachineMock, times(1)).resignFromLeadership();
+        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(teamLifecycleStateMachine, times(1)).resignFromLeadership();
 
-        verify(userAccRepositoryMock, times(1)).save(userAcc);
+        verify(userAccRepository, times(1)).save(userAcc);
     }
 }

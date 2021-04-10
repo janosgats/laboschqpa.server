@@ -10,15 +10,21 @@ import javax.validation.ValidatorFactory;
 import java.util.Collection;
 
 public abstract class SelfValidator {
-    private final Validator validator;
+    private Validator validator;
 
-    public SelfValidator() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
+    /**
+     * Get Lazy-initialized validator
+     */
+    private Validator getValidator() {
+        if (validator == null) {
+            final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+            validator = factory.getValidator();
+        }
+        return validator;
     }
 
     public void validateSelf() {
-        Collection<ConstraintViolation> violations = (Collection) validator.validate(this);
+        Collection<ConstraintViolation> violations = (Collection) getValidator().validate(this);
         if (!violations.isEmpty()) {
             throw new FieldValidationFailedException(ConstraintHelper.convertConstraintViolationsToFieldValidationErrors(violations));
         }
@@ -26,7 +32,7 @@ public abstract class SelfValidator {
 
     @JsonIgnore
     public boolean isValid() {
-        Collection<ConstraintViolation> violations = (Collection) validator.validate(this);
+        Collection<ConstraintViolation> violations = (Collection) getValidator().validate(this);
         return violations.isEmpty();
     }
 }

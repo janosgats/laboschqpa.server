@@ -61,7 +61,7 @@ public class UserAcc implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "nick_name", unique = true)
+    @Column(name = "nick_name")
     private String nickName;
 
     @Builder.Default

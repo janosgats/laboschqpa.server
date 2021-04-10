@@ -1,6 +1,7 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.userinfo.UserInfoResponse;
+import com.laboschqpa.server.api.dto.user.UserInfoResponse;
+import com.laboschqpa.server.api.service.UserService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,10 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping(path = "/api/currentUser")
 public class CurrentUserController {
     private final CsrfTokenRepository csrfTokenRepository;
+    private final UserService userService;
 
     @GetMapping("/userInfo")
     public UserInfoResponse getUserInfo(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        return new UserInfoResponse(authenticationPrincipal.getUserId());
+        return new UserInfoResponse(userService.getById(authenticationPrincipal.getUserId()));
     }
 
     @GetMapping("/csrfToken")
