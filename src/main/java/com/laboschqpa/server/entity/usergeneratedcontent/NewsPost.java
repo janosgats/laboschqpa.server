@@ -4,7 +4,10 @@ import com.laboschqpa.server.enums.ugc.UserGeneratedContentTypeValues;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -12,6 +15,6 @@ import javax.persistence.*;
 @Table(name = "news_post")
 @DiscriminatorValue(value = UserGeneratedContentTypeValues.NEWS_POST)
 public class NewsPost extends UserGeneratedContent {
-    @Column(name = "content")
-    private String content;//Possibly Markdown
+    @Column(name = "content", columnDefinition = "text")
+    private String content;
 }

@@ -26,6 +26,6 @@ public class SpeedDrinking extends UserGeneratedContent {
     @Column(name = "category", columnDefinition = "tinyint not null", nullable = false)
     private SpeedDrinkingCategory category;
 
-    @Column(name = "note")
+    @Column(name = "note", columnDefinition = "text")
     private String note;
 }

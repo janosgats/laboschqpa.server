@@ -9,16 +9,21 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EditObjectiveDto extends SelfValidator {
+public class EditObjectiveRequest extends SelfValidator {
     @NotNull
     @Min(1)
     private Long id;
+    @NotNull
+    @NotBlank
+    @Length(max = 300)
+    private String title;
     @NotNull
     @Length(max = 10000)
     private String description;

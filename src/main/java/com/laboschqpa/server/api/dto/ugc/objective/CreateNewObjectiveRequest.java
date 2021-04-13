@@ -8,15 +8,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CreateNewObjectiveDto extends SelfValidator {
+public class CreateNewObjectiveRequest extends SelfValidator {
     @NotNull
-    @Length(max = 10000)
+    @NotBlank
+    @Length(max = 300)
+    private String title;
+    @NotNull
+    @Length(max = 30000)
     private String description;
     @NotNull
     private Boolean submittable;

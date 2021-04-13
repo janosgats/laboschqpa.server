@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveDto;
-import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveDto;
+import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveRequest;
+import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
@@ -31,40 +31,42 @@ public class ObjectiveService {
         return objectiveOptional.get();
     }
 
-    public Objective createNewObjective(CreateNewObjectiveDto createNewObjectiveDto, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewObjectiveDto.getAttachments());
+    public Objective createNewObjective(CreateNewObjectiveRequest createNewObjectiveRequest, UserAcc creatorUserAcc) {
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewObjectiveRequest.getAttachments());
 
         Objective objective = new Objective();
         objective.setUGCAsCreatedByUser(creatorUserAcc);
-        objective.setAttachments(createNewObjectiveDto.getAttachments());
+        objective.setAttachments(createNewObjectiveRequest.getAttachments());
 
-        objective.setDescription(createNewObjectiveDto.getDescription());
-        objective.setSubmittable(createNewObjectiveDto.getSubmittable());
-        objective.setDeadline(createNewObjectiveDto.getDeadline());
-        objective.setObjectiveType(createNewObjectiveDto.getObjectiveType());
-        objective.setScored(createNewObjectiveDto.getScored());
+        objective.setTitle(createNewObjectiveRequest.getTitle());
+        objective.setDescription(createNewObjectiveRequest.getDescription());
+        objective.setSubmittable(createNewObjectiveRequest.getSubmittable());
+        objective.setDeadline(createNewObjectiveRequest.getDeadline());
+        objective.setObjectiveType(createNewObjectiveRequest.getObjectiveType());
+        objective.setScored(createNewObjectiveRequest.getScored());
 
         objectiveRepository.save(objective);
         log.info("Objective {} created by user {}.", objective.getId(), creatorUserAcc.getId());
         return objective;
     }
 
-    public void editObjective(EditObjectiveDto editObjectiveDto, UserAcc editorUserAcc) {
-        Optional<Objective> objectiveOptional = objectiveRepository.findById(editObjectiveDto.getId());
+    public void editObjective(EditObjectiveRequest editObjectiveRequest, UserAcc editorUserAcc) {
+        Optional<Objective> objectiveOptional = objectiveRepository.findById(editObjectiveRequest.getId());
         if (objectiveOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find Objective with Id: " + editObjectiveDto.getId());
+            throw new ContentNotFoundException("Cannot find Objective with Id: " + editObjectiveRequest.getId());
 
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editObjectiveDto.getAttachments());
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editObjectiveRequest.getAttachments());
 
         Objective objective = objectiveOptional.get();
         objective.setUGCAsEditedByUser(editorUserAcc);
-        objective.setAttachments(editObjectiveDto.getAttachments());
+        objective.setAttachments(editObjectiveRequest.getAttachments());
 
-        objective.setDescription(editObjectiveDto.getDescription());
-        objective.setSubmittable(editObjectiveDto.getSubmittable());
-        objective.setDeadline(editObjectiveDto.getDeadline());
-        objective.setObjectiveType(editObjectiveDto.getObjectiveType());
-        objective.setScored(editObjectiveDto.getScored());
+        objective.setTitle(editObjectiveRequest.getTitle());
+        objective.setDescription(editObjectiveRequest.getDescription());
+        objective.setSubmittable(editObjectiveRequest.getSubmittable());
+        objective.setDeadline(editObjectiveRequest.getDeadline());
+        objective.setObjectiveType(editObjectiveRequest.getObjectiveType());
+        objective.setScored(editObjectiveRequest.getScored());
 
         objectiveRepository.save(objective);
 

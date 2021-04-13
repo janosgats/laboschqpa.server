@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.ugc.newspost.CreateNewNewsPostDto;
-import com.laboschqpa.server.api.dto.ugc.newspost.EditNewsPostDto;
+import com.laboschqpa.server.api.dto.ugc.newspost.CreateNewNewsPostRequest;
+import com.laboschqpa.server.api.dto.ugc.newspost.EditNewsPostRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.NewsPost;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
@@ -33,34 +33,34 @@ public class NewsPostService {
         return newsPostOptional.get();
     }
 
-    public NewsPost createNewsPost(CreateNewNewsPostDto createNewNewsPostDto, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewNewsPostDto.getAttachments());
+    public NewsPost createNewsPost(CreateNewNewsPostRequest createNewNewsPostRequest, UserAcc creatorUserAcc) {
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewNewsPostRequest.getAttachments());
 
         NewsPost newsPost = new NewsPost();
         newsPost.setUGCAsCreatedByUser(creatorUserAcc);
-        newsPost.setAttachments(createNewNewsPostDto.getAttachments());
+        newsPost.setAttachments(createNewNewsPostRequest.getAttachments());
 
-        newsPost.setContent(createNewNewsPostDto.getContent());
+        newsPost.setContent(createNewNewsPostRequest.getContent());
 
         newsPostRepository.save(newsPost);
         logger.info("NewsPost {} created by user {}.", newsPost.getId(), creatorUserAcc.getId());
         return newsPost;
     }
 
-    public void editNewsPost(EditNewsPostDto editNewsPostDto, UserAcc editorUserAcc) {
-        Long newsPostId = editNewsPostDto.getId();
+    public void editNewsPost(EditNewsPostRequest editNewsPostRequest, UserAcc editorUserAcc) {
+        Long newsPostId = editNewsPostRequest.getId();
         Optional<NewsPost> newsPostOptional = newsPostRepository.findById(newsPostId);
         if (newsPostOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find NewsPost with Id: " + newsPostId);
 
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editNewsPostDto.getAttachments());
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editNewsPostRequest.getAttachments());
 
         NewsPost newsPost = newsPostOptional.get();
         newsPost.setUGCAsEditedByUser(editorUserAcc);
-        newsPost.setAttachments(editNewsPostDto.getAttachments());
+        newsPost.setAttachments(editNewsPostRequest.getAttachments());
 
 
-        newsPost.setContent(editNewsPostDto.getContent());
+        newsPost.setContent(editNewsPostRequest.getContent());
 
         newsPostRepository.save(newsPost);
 

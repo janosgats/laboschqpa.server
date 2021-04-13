@@ -1,12 +1,13 @@
 package com.laboschqpa.server.api.controller;
 
+import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleDto;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleDto;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.GetRiddleDto;
 import com.laboschqpa.server.api.service.RiddleEditorService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
-import com.laboschqpa.server.service.PrincipalAuthorizationHelper;
+import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,11 +37,12 @@ public class RiddleEditorController {
     }
 
     @PostMapping("/createNew")
-    public Long postCreateNewRiddle(@RequestBody CreateNewRiddleDto createNewRiddleDto,
-                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public CreatedEntityResponse postCreateNewRiddle(@RequestBody CreateNewRiddleDto createNewRiddleDto,
+                                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewRiddleDto.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
-        return riddleEditorService.createNewRiddle(createNewRiddleDto, authenticationPrincipal.getUserAccEntity()).getId();
+        long newId = riddleEditorService.createNewRiddle(createNewRiddleDto, authenticationPrincipal.getUserAccEntity()).getId();
+        return new CreatedEntityResponse(newId);
     }
 
     @PostMapping("/edit")

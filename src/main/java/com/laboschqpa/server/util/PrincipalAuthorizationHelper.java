@@ -1,4 +1,4 @@
-package com.laboschqpa.server.service;
+package com.laboschqpa.server.util;
 
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;

@@ -1,5 +1,6 @@
 package com.laboschqpa.server.api.controller;
 
+import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.GetSubmissionDto;
@@ -24,10 +25,11 @@ public class SubmissionController {
     }
 
     @PostMapping("/createNew")
-    public Long postCreateNewSubmission(@RequestBody CreateNewSubmissionDto createNewSubmissionDto,
-                                        @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public CreatedEntityResponse postCreateNewSubmission(@RequestBody CreateNewSubmissionDto createNewSubmissionDto,
+                                                         @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewSubmissionDto.validateSelf();
-        return submissionService.createNewSubmission(createNewSubmissionDto, authenticationPrincipal.getUserAccEntity()).getId();
+        long newId = submissionService.createNewSubmission(createNewSubmissionDto, authenticationPrincipal.getUserAccEntity()).getId();
+        return new CreatedEntityResponse(newId);
     }
 
     @PostMapping("/edit")

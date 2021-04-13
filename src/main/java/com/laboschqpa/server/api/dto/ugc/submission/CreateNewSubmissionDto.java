@@ -16,7 +16,7 @@ public class CreateNewSubmissionDto extends SelfValidator {
     @Min(1)
     private Long objectiveId;
     @NotNull
-    @Length(max = 10000)
+    @Length(max = 20000)
     private String content;
 
     private Set<Long> attachments;

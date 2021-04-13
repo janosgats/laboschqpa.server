@@ -1,12 +1,13 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.ugc.newspost.CreateNewNewsPostDto;
-import com.laboschqpa.server.api.dto.ugc.newspost.EditNewsPostDto;
-import com.laboschqpa.server.api.dto.ugc.newspost.GetNewsPostDto;
+import com.laboschqpa.server.api.dto.CreatedEntityResponse;
+import com.laboschqpa.server.api.dto.ugc.newspost.CreateNewNewsPostRequest;
+import com.laboschqpa.server.api.dto.ugc.newspost.EditNewsPostRequest;
+import com.laboschqpa.server.api.dto.ugc.newspost.GetNewsPostResponse;
 import com.laboschqpa.server.api.service.NewsPostService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
-import com.laboschqpa.server.service.PrincipalAuthorizationHelper;
+import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,31 +22,32 @@ public class NewsPostController {
     private final NewsPostService newsPostService;
 
     @GetMapping("/newsPost")
-    public GetNewsPostDto getNewsPost(@RequestParam(name = "id") Long newsPostId) {
-        return new GetNewsPostDto(newsPostService.getNewsPost(newsPostId), true);
+    public GetNewsPostResponse getNewsPost(@RequestParam(name = "id") Long newsPostId) {
+        return new GetNewsPostResponse(newsPostService.getNewsPost(newsPostId), true);
     }
 
     @GetMapping("/listAll")
-    public List<GetNewsPostDto> getListAllNewsPosts() {
+    public List<GetNewsPostResponse> getListAllNewsPosts() {
         return newsPostService.listAllNewsPosts().stream()
-                .map(GetNewsPostDto::new)
+                .map(GetNewsPostResponse::new)
                 .collect(Collectors.toList());
     }
 
     @PostMapping("/createNew")
-    public Long postCreateNewsPost(@RequestBody CreateNewNewsPostDto createNewNewsPostDto,
-                                   @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        createNewNewsPostDto.validateSelf();
+    public CreatedEntityResponse postCreateNewsPost(@RequestBody CreateNewNewsPostRequest createNewNewsPostRequest,
+                                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        createNewNewsPostRequest.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
-        return newsPostService.createNewsPost(createNewNewsPostDto, authenticationPrincipal.getUserAccEntity()).getId();
+        long newId = newsPostService.createNewsPost(createNewNewsPostRequest, authenticationPrincipal.getUserAccEntity()).getId();
+        return new CreatedEntityResponse(newId);
     }
 
     @PostMapping("/edit")
-    public void postEditNewsPost(@RequestBody EditNewsPostDto editNewsPostDto,
+    public void postEditNewsPost(@RequestBody EditNewsPostRequest editNewsPostRequest,
                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        editNewsPostDto.validateSelf();
+        editNewsPostRequest.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
-        newsPostService.editNewsPost(editNewsPostDto, authenticationPrincipal.getUserAccEntity());
+        newsPostService.editNewsPost(editNewsPostRequest, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")

@@ -1,12 +1,13 @@
 package com.laboschqpa.server.api.controller;
 
+import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.speeddrinking.CreateNewSpeedDrinkingDto;
 import com.laboschqpa.server.api.dto.ugc.speeddrinking.EditSpeedDrinkingDto;
 import com.laboschqpa.server.api.dto.ugc.speeddrinking.GetSpeedDrinkingDto;
 import com.laboschqpa.server.api.service.SpeedDrinkingService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
-import com.laboschqpa.server.service.PrincipalAuthorizationHelper;
+import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,11 +34,12 @@ public class SpeedDrinkingController {
     }
 
     @PostMapping("/createNew")
-    public Long postCreateNewsPost(@RequestBody CreateNewSpeedDrinkingDto createNewSpeedDrinkingDto,
-                                   @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public CreatedEntityResponse postCreateNewsPost(@RequestBody CreateNewSpeedDrinkingDto createNewSpeedDrinkingDto,
+                                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewSpeedDrinkingDto.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.SpeedDrinkingEditor, Authority.Admin);
-        return speedDrinkingService.createSpeedDrinking(createNewSpeedDrinkingDto, authenticationPrincipal.getUserAccEntity()).getId();
+        long newId = speedDrinkingService.createSpeedDrinking(createNewSpeedDrinkingDto, authenticationPrincipal.getUserAccEntity()).getId();
+        return new CreatedEntityResponse(newId);
     }
 
     @PostMapping("/edit")

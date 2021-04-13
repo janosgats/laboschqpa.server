@@ -14,7 +14,7 @@ import java.util.Set;
 public class CreateNewRiddleDto extends SelfValidator {
     @NotNull
     @NotEmpty
-    @Length(max = 120)
+    @Length(max = 300)
     private String title;
     @NotNull
     @NotEmpty
@@ -22,7 +22,7 @@ public class CreateNewRiddleDto extends SelfValidator {
     private String hint;
     @NotNull
     @NotEmpty
-    @Length(max = 120)
+    @Length(max = 300)
     private String solution;
 
     private Set<Long> attachments;

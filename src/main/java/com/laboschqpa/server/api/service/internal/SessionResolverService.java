@@ -11,7 +11,7 @@ import com.laboschqpa.server.enums.ugc.UserGeneratedContentType;
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.RiddleRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.UserGeneratedContentRepository;
-import com.laboschqpa.server.service.PrincipalAuthorizationHelper;
+import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

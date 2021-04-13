@@ -12,7 +12,8 @@ import java.time.Instant;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GetObjectiveDto extends GetUserGeneratedContentDto {
+public class GetObjectiveResponse extends GetUserGeneratedContentDto {
+    private String title;
     private String description;
     private Boolean submittable;
     private Instant deadline;
@@ -20,11 +21,11 @@ public class GetObjectiveDto extends GetUserGeneratedContentDto {
     private ObjectiveType objectiveType;
     private Boolean scored;
 
-    public GetObjectiveDto() {
+    public GetObjectiveResponse() {
         super();
     }
 
-    public GetObjectiveDto(Objective objective) {
+    public GetObjectiveResponse(Objective objective) {
         this(objective, false);
     }
 
@@ -32,8 +33,9 @@ public class GetObjectiveDto extends GetUserGeneratedContentDto {
      * @param includeAttachments Set this to {@code false} if the attachments should not be got
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
-    public GetObjectiveDto(Objective objective, boolean includeAttachments) {
+    public GetObjectiveResponse(Objective objective, boolean includeAttachments) {
         super(objective, includeAttachments);
+        this.title = objective.getTitle();
         this.description = objective.getDescription();
         this.submittable = objective.getSubmittable();
         this.deadline = objective.getDeadline();

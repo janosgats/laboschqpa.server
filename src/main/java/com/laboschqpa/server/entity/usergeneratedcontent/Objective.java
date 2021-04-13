@@ -15,8 +15,11 @@ import java.time.Instant;
 @Table(name = "objective")
 @DiscriminatorValue(value = UserGeneratedContentTypeValues.OBJECTIVE)
 public class Objective extends UserGeneratedContent {
-    @Column(name = "description")
-    private String description;//Possibly Markdown
+    @Column(name = "title", columnDefinition = "text")
+    private String title;
+
+    @Column(name = "description", columnDefinition = "text")
+    private String description;
 
     /**
      * Indicates if team members can submit a {@link Submission} to this objective.

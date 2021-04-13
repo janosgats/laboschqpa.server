@@ -25,6 +25,6 @@ public class Submission extends UserGeneratedContent {
     @JoinColumn(name = "objective_id", nullable = false)
     private Objective objective;
 
-    @Column(name = "content")
-    private String content;//Possibly Markdown
+    @Column(name = "content", columnDefinition = "text")
+    private String content;
 }
