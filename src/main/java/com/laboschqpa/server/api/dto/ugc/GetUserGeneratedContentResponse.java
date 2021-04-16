@@ -11,7 +11,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class GetUserGeneratedContentDto {
+public class GetUserGeneratedContentResponse {
     private Long id;
     private Long creatorUserId;
     private Long editorUserId;
@@ -19,7 +19,7 @@ public class GetUserGeneratedContentDto {
     private Instant editTime;
     private Set<Long> attachments;
 
-    public GetUserGeneratedContentDto(UserGeneratedContent userGeneratedContent) {
+    public GetUserGeneratedContentResponse(UserGeneratedContent userGeneratedContent) {
         this(userGeneratedContent, false);
     }
 
@@ -27,7 +27,7 @@ public class GetUserGeneratedContentDto {
      * @param includeAttachments Set this to {@code false} if the attachments should not be get
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
-    public GetUserGeneratedContentDto(UserGeneratedContent userGeneratedContent, boolean includeAttachments) {
+    public GetUserGeneratedContentResponse(UserGeneratedContent userGeneratedContent, boolean includeAttachments) {
         this.id = userGeneratedContent.getId();
         this.creatorUserId = userGeneratedContent.getCreatorUser().getId();
         this.editorUserId = userGeneratedContent.getEditorUser().getId();

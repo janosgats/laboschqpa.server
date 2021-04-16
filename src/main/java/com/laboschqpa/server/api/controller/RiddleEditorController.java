@@ -1,9 +1,9 @@
 package com.laboschqpa.server.api.controller;
 
 import com.laboschqpa.server.api.dto.CreatedEntityResponse;
-import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleDto;
-import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleDto;
-import com.laboschqpa.server.api.dto.ugc.riddleeditor.GetRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleRequest;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleRequest;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.GetRiddleResponse;
 import com.laboschqpa.server.api.service.RiddleEditorService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
@@ -22,35 +22,35 @@ public class RiddleEditorController {
     private final RiddleEditorService riddleEditorService;
 
     @GetMapping("/riddle")
-    public GetRiddleDto getRiddle(@RequestParam(name = "id") Long riddleId,
-                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public GetRiddleResponse getRiddle(@RequestParam(name = "id") Long riddleId,
+                                       @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
-        return new GetRiddleDto(riddleEditorService.getRiddle(riddleId), true, true, true);
+        return new GetRiddleResponse(riddleEditorService.getRiddle(riddleId), true, true, true);
     }
 
     @GetMapping("/listAll")
-    public List<GetRiddleDto> getListAllRiddles(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public List<GetRiddleResponse> getListAllRiddles(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
         return riddleEditorService.listAllRiddles().stream()
-                .map((riddle -> new GetRiddleDto(riddle, true, true, false)))
+                .map((riddle -> new GetRiddleResponse(riddle, true, true, false)))
                 .collect(Collectors.toList());
     }
 
     @PostMapping("/createNew")
-    public CreatedEntityResponse postCreateNewRiddle(@RequestBody CreateNewRiddleDto createNewRiddleDto,
+    public CreatedEntityResponse postCreateNewRiddle(@RequestBody CreateNewRiddleRequest createNewRiddleRequest,
                                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        createNewRiddleDto.validateSelf();
+        createNewRiddleRequest.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
-        long newId = riddleEditorService.createNewRiddle(createNewRiddleDto, authenticationPrincipal.getUserAccEntity()).getId();
+        long newId = riddleEditorService.createNewRiddle(createNewRiddleRequest, authenticationPrincipal.getUserAccEntity()).getId();
         return new CreatedEntityResponse(newId);
     }
 
     @PostMapping("/edit")
-    public void postEditRiddle(@RequestBody EditRiddleDto editRiddleDto,
+    public void postEditRiddle(@RequestBody EditRiddleRequest editRiddleRequest,
                                @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        editRiddleDto.validateSelf();
+        editRiddleRequest.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin);
-        riddleEditorService.editRiddle(editRiddleDto, authenticationPrincipal.getUserAccEntity());
+        riddleEditorService.editRiddle(editRiddleRequest, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")

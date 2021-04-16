@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleDto;
-import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleDto;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleRequest;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
@@ -31,36 +31,36 @@ public class RiddleEditorService {
         return riddleOptional.get();
     }
 
-    public Riddle createNewRiddle(CreateNewRiddleDto createNewRiddleDto, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewRiddleDto.getAttachments());
+    public Riddle createNewRiddle(CreateNewRiddleRequest createNewRiddleRequest, UserAcc creatorUserAcc) {
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewRiddleRequest.getAttachments());
 
         Riddle riddle = new Riddle();
         riddle.setUGCAsCreatedByUser(creatorUserAcc);
-        riddle.setAttachments(createNewRiddleDto.getAttachments());
+        riddle.setAttachments(createNewRiddleRequest.getAttachments());
 
-        riddle.setTitle(createNewRiddleDto.getTitle());
-        riddle.setHint(createNewRiddleDto.getHint());
-        riddle.setSolution(createNewRiddleDto.getSolution());
+        riddle.setTitle(createNewRiddleRequest.getTitle());
+        riddle.setHint(createNewRiddleRequest.getHint());
+        riddle.setSolution(createNewRiddleRequest.getSolution());
 
         riddleRepository.save(riddle);
         log.info("Riddle {} created by user {}.", riddle.getId(), creatorUserAcc.getId());
         return riddle;
     }
 
-    public void editRiddle(EditRiddleDto editRiddleDto, UserAcc editorUserAcc) {
-        Optional<Riddle> riddleOptional = riddleRepository.findById(editRiddleDto.getId());
+    public void editRiddle(EditRiddleRequest editRiddleRequest, UserAcc editorUserAcc) {
+        Optional<Riddle> riddleOptional = riddleRepository.findById(editRiddleRequest.getId());
         if (riddleOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find Riddle with Id: " + editRiddleDto.getId());
+            throw new ContentNotFoundException("Cannot find Riddle with Id: " + editRiddleRequest.getId());
 
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editRiddleDto.getAttachments());
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editRiddleRequest.getAttachments());
 
         Riddle riddle = riddleOptional.get();
         riddle.setUGCAsEditedByUser(editorUserAcc);
-        riddle.setAttachments(editRiddleDto.getAttachments());
+        riddle.setAttachments(editRiddleRequest.getAttachments());
 
-        riddle.setTitle(editRiddleDto.getTitle());
-        riddle.setHint(editRiddleDto.getHint());
-        riddle.setSolution(editRiddleDto.getSolution());
+        riddle.setTitle(editRiddleRequest.getTitle());
+        riddle.setHint(editRiddleRequest.getHint());
+        riddle.setSolution(editRiddleRequest.getSolution());
 
         riddleRepository.save(riddle);
 

@@ -11,7 +11,7 @@ import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CreateNewRiddleDto extends SelfValidator {
+public class CreateNewRiddleRequest extends SelfValidator {
     @NotNull
     @NotEmpty
     @Length(max = 300)

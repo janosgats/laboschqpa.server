@@ -1,21 +1,22 @@
 package com.laboschqpa.server.api.dto.ugc.submission;
 
-import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentDto;
+import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentResponse;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GetSubmissionDto extends GetUserGeneratedContentDto {
+public class GetSubmissionResponse extends GetUserGeneratedContentResponse {
     private Long objectiveId;
     private Long teamId;
     private String content;
 
-    public GetSubmissionDto() {
+    public GetSubmissionResponse() {
         super();
     }
 
-    public GetSubmissionDto(Submission submission) {
+    public GetSubmissionResponse(Submission submission) {
         this(submission, false);
     }
 
@@ -23,7 +24,7 @@ public class GetSubmissionDto extends GetUserGeneratedContentDto {
      * @param includeAttachments Set this to {@code false} if the attachments should not be got
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
-    public GetSubmissionDto(Submission submission, boolean includeAttachments) {
+    public GetSubmissionResponse(Submission submission, boolean includeAttachments) {
         super(submission, includeAttachments);
         this.objectiveId = submission.getObjective().getId();
         this.teamId = submission.getTeam().getId();

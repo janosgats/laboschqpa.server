@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.dto.ugc.objective;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentDto;
+import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentResponse;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.enums.converter.jackson.ObjectiveTypeToValueJacksonConverter;
 import com.laboschqpa.server.enums.ugc.ObjectiveType;
@@ -12,7 +12,7 @@ import java.time.Instant;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GetObjectiveResponse extends GetUserGeneratedContentDto {
+public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
     private String title;
     private String description;
     private Boolean submittable;

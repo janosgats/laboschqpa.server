@@ -1,13 +1,13 @@
 package com.laboschqpa.server.api.dto.ugc.newspost;
 
-import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentDto;
+import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentResponse;
 import com.laboschqpa.server.entity.usergeneratedcontent.NewsPost;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GetNewsPostResponse extends GetUserGeneratedContentDto {
+public class GetNewsPostResponse extends GetUserGeneratedContentResponse {
     private String content;
 
     public GetNewsPostResponse() {

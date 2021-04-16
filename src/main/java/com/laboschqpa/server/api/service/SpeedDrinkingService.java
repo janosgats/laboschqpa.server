@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.ugc.speeddrinking.CreateNewSpeedDrinkingDto;
-import com.laboschqpa.server.api.dto.ugc.speeddrinking.EditSpeedDrinkingDto;
+import com.laboschqpa.server.api.dto.ugc.speeddrinking.CreateNewSpeedDrinkingRequest;
+import com.laboschqpa.server.api.dto.ugc.speeddrinking.EditSpeedDrinkingRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.SpeedDrinking;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
@@ -35,41 +35,41 @@ public class SpeedDrinkingService {
         return speedDrinkingOptional.get();
     }
 
-    public SpeedDrinking createSpeedDrinking(CreateNewSpeedDrinkingDto createNewSpeedDrinkingDto, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewSpeedDrinkingDto.getAttachments());
-        final UserAcc drinkerUserAcc = getExistingUserAcc(createNewSpeedDrinkingDto.getDrinkerUserId());
+    public SpeedDrinking createSpeedDrinking(CreateNewSpeedDrinkingRequest createNewSpeedDrinkingRequest, UserAcc creatorUserAcc) {
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewSpeedDrinkingRequest.getAttachments());
+        final UserAcc drinkerUserAcc = getExistingUserAcc(createNewSpeedDrinkingRequest.getDrinkerUserId());
 
         SpeedDrinking speedDrinking = new SpeedDrinking();
         speedDrinking.setUGCAsCreatedByUser(creatorUserAcc);
-        speedDrinking.setAttachments(createNewSpeedDrinkingDto.getAttachments());
+        speedDrinking.setAttachments(createNewSpeedDrinkingRequest.getAttachments());
 
         speedDrinking.setDrinkerUserAcc(drinkerUserAcc);
-        speedDrinking.setTime(createNewSpeedDrinkingDto.getTime());
-        speedDrinking.setCategory(createNewSpeedDrinkingDto.getCategory());
-        speedDrinking.setNote(createNewSpeedDrinkingDto.getNote());
+        speedDrinking.setTime(createNewSpeedDrinkingRequest.getTime());
+        speedDrinking.setCategory(createNewSpeedDrinkingRequest.getCategory());
+        speedDrinking.setNote(createNewSpeedDrinkingRequest.getNote());
 
         speedDrinkingRepository.save(speedDrinking);
         logger.info("SpeedDrinking {} created by user {}.", speedDrinking.getId(), creatorUserAcc.getId());
         return speedDrinking;
     }
 
-    public void editSpeedDrinking(EditSpeedDrinkingDto editSpeedDrinkingDto, UserAcc editorUserAcc) {
-        Long speedDrinkingId = editSpeedDrinkingDto.getId();
+    public void editSpeedDrinking(EditSpeedDrinkingRequest editSpeedDrinkingRequest, UserAcc editorUserAcc) {
+        Long speedDrinkingId = editSpeedDrinkingRequest.getId();
         Optional<SpeedDrinking> speedDrinkingOptional = speedDrinkingRepository.findById(speedDrinkingId);
         if (speedDrinkingOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find SpeedDrinking with Id: " + speedDrinkingId);
 
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editSpeedDrinkingDto.getAttachments());
-        final UserAcc drinkerUserAcc = getExistingUserAcc(editSpeedDrinkingDto.getDrinkerUserId());
+        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editSpeedDrinkingRequest.getAttachments());
+        final UserAcc drinkerUserAcc = getExistingUserAcc(editSpeedDrinkingRequest.getDrinkerUserId());
 
         SpeedDrinking speedDrinking = speedDrinkingOptional.get();
         speedDrinking.setUGCAsEditedByUser(editorUserAcc);
-        speedDrinking.setAttachments(editSpeedDrinkingDto.getAttachments());
+        speedDrinking.setAttachments(editSpeedDrinkingRequest.getAttachments());
 
         speedDrinking.setDrinkerUserAcc(drinkerUserAcc);
-        speedDrinking.setTime(editSpeedDrinkingDto.getTime());
-        speedDrinking.setCategory(editSpeedDrinkingDto.getCategory());
-        speedDrinking.setNote(editSpeedDrinkingDto.getNote());
+        speedDrinking.setTime(editSpeedDrinkingRequest.getTime());
+        speedDrinking.setCategory(editSpeedDrinkingRequest.getCategory());
+        speedDrinking.setNote(editSpeedDrinkingRequest.getNote());
 
         speedDrinkingRepository.save(speedDrinking);
 

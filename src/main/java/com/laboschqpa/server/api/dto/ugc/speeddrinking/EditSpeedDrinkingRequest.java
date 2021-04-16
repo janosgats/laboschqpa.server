@@ -15,7 +15,10 @@ import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CreateNewSpeedDrinkingDto extends SelfValidator {
+public class EditSpeedDrinkingRequest extends SelfValidator {
+    @NotNull
+    @Min(1)
+    private Long id;
     @NotNull
     @Min(1)
     private Long drinkerUserId;
@@ -25,7 +28,7 @@ public class CreateNewSpeedDrinkingDto extends SelfValidator {
     @NotNull
     @JsonDeserialize(converter = SpeedDrinkingCategoryFromValueJacksonConverter.class)
     private SpeedDrinkingCategory category;
-    @Length(max = 500)
+    @Length(max = 250)
     private String note;
 
     private Set<Long> attachments;

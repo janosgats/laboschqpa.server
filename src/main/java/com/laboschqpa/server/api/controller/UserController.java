@@ -16,7 +16,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/info")
-    public UserInfoResponse getInfo(long id) {
+    public UserInfoResponse getInfo(@RequestParam("id") Long id) {
         return new UserInfoResponse(userService.getById(id));
     }
 

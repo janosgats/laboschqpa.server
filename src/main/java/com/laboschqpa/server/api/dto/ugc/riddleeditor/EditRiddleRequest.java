@@ -12,7 +12,7 @@ import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EditRiddleDto extends SelfValidator {
+public class EditRiddleRequest extends SelfValidator {
     @NotNull
     @Min(1)
     private Long id;

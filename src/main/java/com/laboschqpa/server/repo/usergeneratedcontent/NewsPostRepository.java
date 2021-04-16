@@ -19,4 +19,8 @@ public interface NewsPostRepository extends JpaRepository<NewsPost, Long> {
     @EntityGraph(attributePaths = {"attachments"})
     @Query("select np from NewsPost np where np.id = :id")
     Optional<NewsPost> findByIdWithEagerAttachments(Long id);
+
+    @EntityGraph(attributePaths = {"attachments"})
+    @Query("select np from NewsPost np order by np.creationTime desc")
+    List<NewsPost> findAllByOrderByCreationTimeDesc_withEagerAttachments();
 }

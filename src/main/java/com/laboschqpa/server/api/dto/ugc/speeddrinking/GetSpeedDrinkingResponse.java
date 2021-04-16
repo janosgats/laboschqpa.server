@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.dto.ugc.speeddrinking;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentDto;
+import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentResponse;
 import com.laboschqpa.server.entity.usergeneratedcontent.SpeedDrinking;
 import com.laboschqpa.server.enums.converter.jackson.SpeedDrinkingCategoryToValueJacksonConverter;
 import com.laboschqpa.server.enums.ugc.SpeedDrinkingCategory;
@@ -10,18 +10,18 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GetSpeedDrinkingDto extends GetUserGeneratedContentDto {
+public class GetSpeedDrinkingResponse extends GetUserGeneratedContentResponse {
     private Long drinkerUserId;
     private Double time;
     @JsonSerialize(converter = SpeedDrinkingCategoryToValueJacksonConverter.class)
     private SpeedDrinkingCategory category;
     private String note;
 
-    public GetSpeedDrinkingDto() {
+    public GetSpeedDrinkingResponse() {
         super();
     }
 
-    public GetSpeedDrinkingDto(SpeedDrinking speedDrinking) {
+    public GetSpeedDrinkingResponse(SpeedDrinking speedDrinking) {
         this(speedDrinking, false);
     }
 
@@ -29,7 +29,7 @@ public class GetSpeedDrinkingDto extends GetUserGeneratedContentDto {
      * @param includeAttachments Set this to {@code false} if the attachments should not be got
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
-    public GetSpeedDrinkingDto(SpeedDrinking speedDrinking, boolean includeAttachments) {
+    public GetSpeedDrinkingResponse(SpeedDrinking speedDrinking, boolean includeAttachments) {
         super(speedDrinking, includeAttachments);
 
         this.drinkerUserId = speedDrinking.getDrinkerUserAcc().getId();

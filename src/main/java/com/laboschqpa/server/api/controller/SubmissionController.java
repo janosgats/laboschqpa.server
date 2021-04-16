@@ -3,7 +3,7 @@ package com.laboschqpa.server.api.controller;
 import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
-import com.laboschqpa.server.api.dto.ugc.submission.GetSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.GetSubmissionResponse;
 import com.laboschqpa.server.api.service.SubmissionService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ public class SubmissionController {
     private final SubmissionService submissionService;
 
     @GetMapping("/submission")
-    public GetSubmissionDto getSubmission(@RequestParam(name = "id") Long submissionId) {
-        return new GetSubmissionDto(submissionService.getSubmission(submissionId), true);
+    public GetSubmissionResponse getSubmission(@RequestParam(name = "id") Long submissionId) {
+        return new GetSubmissionResponse(submissionService.getSubmission(submissionId), true);
     }
 
     @PostMapping("/createNew")
@@ -46,9 +46,9 @@ public class SubmissionController {
     }
 
     @GetMapping("/listAll")
-    public List<GetSubmissionDto> getListAll() {
+    public List<GetSubmissionResponse> getListAll() {
         return submissionService.listAll().stream()
-                .map(GetSubmissionDto::new)
+                .map(GetSubmissionResponse::new)
                 .collect(Collectors.toList());
     }
 }

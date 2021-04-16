@@ -23,37 +23,44 @@ public class NewsPostController {
 
     @GetMapping("/newsPost")
     public GetNewsPostResponse getNewsPost(@RequestParam(name = "id") Long newsPostId) {
-        return new GetNewsPostResponse(newsPostService.getNewsPost(newsPostId), true);
+        return new GetNewsPostResponse(newsPostService.get(newsPostId), true);
     }
 
     @GetMapping("/listAll")
-    public List<GetNewsPostResponse> getListAllNewsPosts() {
-        return newsPostService.listAllNewsPosts().stream()
+    public List<GetNewsPostResponse> getListAll() {
+        return newsPostService.listAll().stream()
                 .map(GetNewsPostResponse::new)
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/listAllWithAttachments")
+    public List<GetNewsPostResponse> getListAllWithAttachments() {
+        return newsPostService.listAllWithAttachments().stream()
+                .map(np -> new GetNewsPostResponse(np, true))
+                .collect(Collectors.toList());
+    }
+
     @PostMapping("/createNew")
-    public CreatedEntityResponse postCreateNewsPost(@RequestBody CreateNewNewsPostRequest createNewNewsPostRequest,
-                                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public CreatedEntityResponse postCreateNew(@RequestBody CreateNewNewsPostRequest createNewNewsPostRequest,
+                                               @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewNewsPostRequest.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
-        long newId = newsPostService.createNewsPost(createNewNewsPostRequest, authenticationPrincipal.getUserAccEntity()).getId();
+        long newId = newsPostService.create(createNewNewsPostRequest, authenticationPrincipal.getUserAccEntity()).getId();
         return new CreatedEntityResponse(newId);
     }
 
     @PostMapping("/edit")
-    public void postEditNewsPost(@RequestBody EditNewsPostRequest editNewsPostRequest,
-                                 @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public void postEdit(@RequestBody EditNewsPostRequest editNewsPostRequest,
+                         @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         editNewsPostRequest.validateSelf();
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
-        newsPostService.editNewsPost(editNewsPostRequest, authenticationPrincipal.getUserAccEntity());
+        newsPostService.edit(editNewsPostRequest, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
-    public void deleteNewsPost(@RequestParam(name = "id") Long newsPostId,
-                               @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public void deleteDelete(@RequestParam(name = "id") Long newsPostId,
+                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
-        newsPostService.deleteNewsPost(newsPostId, authenticationPrincipal.getUserAccEntity());
+        newsPostService.delete(newsPostId, authenticationPrincipal.getUserAccEntity());
     }
 }

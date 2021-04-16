@@ -24,7 +24,7 @@ public class NewsPostService {
     private final NewsPostRepository newsPostRepository;
     private final AttachmentHelper attachmentHelper;
 
-    public NewsPost getNewsPost(Long newsPostId) {
+    public NewsPost get(Long newsPostId) {
         Optional<NewsPost> newsPostOptional = newsPostRepository.findByIdWithEagerAttachments(newsPostId);
 
         if (newsPostOptional.isEmpty())
@@ -33,7 +33,7 @@ public class NewsPostService {
         return newsPostOptional.get();
     }
 
-    public NewsPost createNewsPost(CreateNewNewsPostRequest createNewNewsPostRequest, UserAcc creatorUserAcc) {
+    public NewsPost create(CreateNewNewsPostRequest createNewNewsPostRequest, UserAcc creatorUserAcc) {
         attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewNewsPostRequest.getAttachments());
 
         NewsPost newsPost = new NewsPost();
@@ -47,7 +47,7 @@ public class NewsPostService {
         return newsPost;
     }
 
-    public void editNewsPost(EditNewsPostRequest editNewsPostRequest, UserAcc editorUserAcc) {
+    public void edit(EditNewsPostRequest editNewsPostRequest, UserAcc editorUserAcc) {
         Long newsPostId = editNewsPostRequest.getId();
         Optional<NewsPost> newsPostOptional = newsPostRepository.findById(newsPostId);
         if (newsPostOptional.isEmpty())
@@ -68,7 +68,7 @@ public class NewsPostService {
     }
 
     @Transactional
-    public void deleteNewsPost(Long newsPostId, UserAcc deleterUserAcc) {
+    public void delete(Long newsPostId, UserAcc deleterUserAcc) {
         int deletedRowCount;
         if ((deletedRowCount = newsPostRepository.deleteByIdAndGetDeletedRowCount(newsPostId)) != 1) {
             throw new ContentNotFoundException("Count of deleted rows is " + deletedRowCount + "!");
@@ -77,7 +77,11 @@ public class NewsPostService {
         logger.info("NewsPost {} deleted by user {}.", newsPostId, deleterUserAcc.getId());
     }
 
-    public List<NewsPost> listAllNewsPosts() {
+    public List<NewsPost> listAll() {
         return newsPostRepository.findAllByOrderByCreationTimeDesc();
+    }
+
+    public List<NewsPost> listAllWithAttachments() {
+        return newsPostRepository.findAllByOrderByCreationTimeDesc_withEagerAttachments();
     }
 }
