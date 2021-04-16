@@ -14,7 +14,7 @@ public class StateMachineFactory {
     private final ObjectiveRepository objectiveRepository;
     private final SubmissionRepository submissionRepository;
 
-    public TeamLifecycleStateMachine buildTeamUserRelationStateMachine(UserAcc alteredUserAcc, UserAcc initiatorUserAcc) {
+    public TeamLifecycleStateMachine buildTeamLifecycleStateMachine(UserAcc alteredUserAcc, UserAcc initiatorUserAcc) {
         return new TeamLifecycleStateMachine(alteredUserAcc, initiatorUserAcc, userAccRepository);
     }
 

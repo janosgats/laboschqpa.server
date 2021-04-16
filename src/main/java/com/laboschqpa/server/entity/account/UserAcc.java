@@ -70,7 +70,7 @@ public class UserAcc implements Serializable {
     private Set<UserEmailAddress> userEmailAddresses = new HashSet<>();
 
     @Builder.Default
-    @ElementCollection(targetClass = Authority.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = Authority.class, fetch = FetchType.LAZY)
     @JoinTable(name = "granted_authority",
             joinColumns = @JoinColumn(name = "user_id"),
             indexes = @Index(columnList = "granted_authority", name = "granted_authority")

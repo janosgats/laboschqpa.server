@@ -47,7 +47,7 @@ class TeamLifecycleServiceTest {
                 .then(invocationOnMock -> ((TransactionCallback) (invocationOnMock.getArgument(0))).doInTransaction(new SimpleTransactionStatus()));
         lenient().doCallRealMethod()
                 .when(transactionTemplate).executeWithoutResult(any());
-        lenient().when(stateMachineFactory.buildTeamUserRelationStateMachine(any(), any())).thenReturn(teamLifecycleStateMachine);
+        lenient().when(stateMachineFactory.buildTeamLifecycleStateMachine(any(), any())).thenReturn(teamLifecycleStateMachine);
     }
 
     @Test
@@ -63,7 +63,7 @@ class TeamLifecycleServiceTest {
 
         assertEquals(createdTeam, resultTeam);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(creatorUser, creatorUser);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(creatorUser, creatorUser);
         verify(teamLifecycleStateMachine, times(1))
                 .createNewTeam(argThat((a)
                         -> a.equals(createNewTeamRequest)
@@ -86,7 +86,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.applyToTeam(team.getId(), userAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAcc, userAcc);
         verify(teamLifecycleStateMachine, times(1)).applyToTeam(team);
 
         verify(userAccRepository, times(1)).save(userAcc);
@@ -125,7 +125,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.cancelApplicationToTeam(userAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAcc, userAcc);
         verify(teamLifecycleStateMachine, times(1)).cancelApplicationToTeam();
 
         verify(userAccRepository, times(1)).save(userAcc);
@@ -143,7 +143,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.declineApplicationToTeam(userAccIdToDecline, initiatorUserAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToDecline, initiatorUserAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAccToDecline, initiatorUserAcc);
         verify(teamLifecycleStateMachine, times(1)).declineApplicationToTeam();
 
         verify(userAccRepository, times(1)).save(userAccToDecline);
@@ -161,7 +161,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.approveApplicationToTeam(userAccIdToApprove, initiatorUserAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToApprove, initiatorUserAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAccToApprove, initiatorUserAcc);
         verify(teamLifecycleStateMachine, times(1)).approveApplication();
 
         verify(userAccRepository, times(1)).save(userAccToApprove);
@@ -176,7 +176,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.leaveTeam(userAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAcc, userAcc);
         verify(teamLifecycleStateMachine, times(1)).leaveTeam();
 
         verify(userAccRepository, times(1)).save(userAcc);
@@ -194,7 +194,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.kickFromTeam(userAccIdToKick, initiatorUserAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToKick, initiatorUserAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAccToKick, initiatorUserAcc);
         verify(teamLifecycleStateMachine, times(1)).kickFromTeam();
 
         verify(userAccRepository, times(1)).save(userAccToKick);
@@ -209,7 +209,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.archiveAndLeaveTeam(userAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAcc, userAcc);
         verify(teamLifecycleStateMachine, times(1)).archiveAndLeaveTeam();
 
         verify(teamRepository, times(1)).save(userAcc.getTeam());
@@ -228,7 +228,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.giveLeaderRights(userAccIdToGiveLeaderRights, initiatorUserAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
         verify(teamLifecycleStateMachine, times(1)).giveLeaderRights();
 
         verify(userAccRepository, times(1)).save(userAccToGiveLeaderRights);
@@ -246,7 +246,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.takeAwayLeaderRights(userAccIdToTakeAwayLeaderRights, initiatorUserAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);
         verify(teamLifecycleStateMachine, times(1)).takeAwayLeaderRights();
 
         verify(userAccRepository, times(1)).save(userAccToTakeAwayLeaderRights);
@@ -261,7 +261,7 @@ class TeamLifecycleServiceTest {
 
         teamLifecycleService.resignFromLeadership(userAccId);
 
-        verify(stateMachineFactory, times(1)).buildTeamUserRelationStateMachine(userAcc, userAcc);
+        verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAcc, userAcc);
         verify(teamLifecycleStateMachine, times(1)).resignFromLeadership();
 
         verify(userAccRepository, times(1)).save(userAcc);

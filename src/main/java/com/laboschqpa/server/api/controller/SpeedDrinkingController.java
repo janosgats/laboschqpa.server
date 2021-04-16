@@ -23,7 +23,7 @@ public class SpeedDrinkingController {
 
     @GetMapping("/speedDrinking")
     public GetSpeedDrinkingResponse getNewsPost(@RequestParam(name = "id") Long speedDrinkingId) {
-        return new GetSpeedDrinkingResponse(speedDrinkingService.getSpeedDrinking(speedDrinkingId), true);
+        return new GetSpeedDrinkingResponse(speedDrinkingService.getSpeedDrinking(speedDrinkingId));
     }
 
     @GetMapping("/listAll")

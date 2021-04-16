@@ -19,7 +19,6 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
     private Instant deadline;
     @JsonSerialize(converter = ObjectiveTypeToValueJacksonConverter.class)
     private ObjectiveType objectiveType;
-    private Boolean scored;
 
     public GetObjectiveResponse() {
         super();
@@ -40,6 +39,5 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
         this.submittable = objective.getSubmittable();
         this.deadline = objective.getDeadline();
         this.objectiveType = objective.getObjectiveType();
-        this.scored = objective.getScored();
     }
 }

@@ -43,7 +43,6 @@ public class ObjectiveService {
         objective.setSubmittable(createNewObjectiveRequest.getSubmittable());
         objective.setDeadline(createNewObjectiveRequest.getDeadline());
         objective.setObjectiveType(createNewObjectiveRequest.getObjectiveType());
-        objective.setScored(createNewObjectiveRequest.getScored());
 
         objectiveRepository.save(objective);
         log.info("Objective {} created by user {}.", objective.getId(), creatorUserAcc.getId());
@@ -66,7 +65,6 @@ public class ObjectiveService {
         objective.setSubmittable(editObjectiveRequest.getSubmittable());
         objective.setDeadline(editObjectiveRequest.getDeadline());
         objective.setObjectiveType(editObjectiveRequest.getObjectiveType());
-        objective.setScored(editObjectiveRequest.getScored());
 
         objectiveRepository.save(objective);
 

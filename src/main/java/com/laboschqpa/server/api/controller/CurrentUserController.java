@@ -20,9 +20,9 @@ public class CurrentUserController {
     private final CsrfTokenRepository csrfTokenRepository;
     private final UserService userService;
 
-    @GetMapping("/userInfo")
-    public UserInfoResponse getUserInfo(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        return new UserInfoResponse(userService.getById(authenticationPrincipal.getUserId()));
+    @GetMapping("/userInfoWithAuthorities")
+    public UserInfoResponse getUserInfoWithAuthorities(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        return new UserInfoResponse(userService.getByIdWithAuthorities(authenticationPrincipal.getUserId()), true);
     }
 
     @GetMapping("/csrfToken")

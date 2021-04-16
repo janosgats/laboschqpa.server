@@ -7,7 +7,6 @@ import com.laboschqpa.server.entity.usergeneratedcontent.SpeedDrinking;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.SpeedDrinkingRepository;
-import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,6 @@ public class SpeedDrinkingService {
 
     private final SpeedDrinkingRepository speedDrinkingRepository;
     private final UserAccRepository userAccRepository;
-    private final AttachmentHelper attachmentHelper;
 
     public SpeedDrinking getSpeedDrinking(Long newsPostId) {
         Optional<SpeedDrinking> speedDrinkingOptional = speedDrinkingRepository.findByIdWithEagerAttachments(newsPostId);
@@ -36,12 +34,10 @@ public class SpeedDrinkingService {
     }
 
     public SpeedDrinking createSpeedDrinking(CreateNewSpeedDrinkingRequest createNewSpeedDrinkingRequest, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewSpeedDrinkingRequest.getAttachments());
         final UserAcc drinkerUserAcc = getExistingUserAcc(createNewSpeedDrinkingRequest.getDrinkerUserId());
 
         SpeedDrinking speedDrinking = new SpeedDrinking();
         speedDrinking.setUGCAsCreatedByUser(creatorUserAcc);
-        speedDrinking.setAttachments(createNewSpeedDrinkingRequest.getAttachments());
 
         speedDrinking.setDrinkerUserAcc(drinkerUserAcc);
         speedDrinking.setTime(createNewSpeedDrinkingRequest.getTime());
@@ -59,12 +55,10 @@ public class SpeedDrinkingService {
         if (speedDrinkingOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find SpeedDrinking with Id: " + speedDrinkingId);
 
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editSpeedDrinkingRequest.getAttachments());
         final UserAcc drinkerUserAcc = getExistingUserAcc(editSpeedDrinkingRequest.getDrinkerUserId());
 
         SpeedDrinking speedDrinking = speedDrinkingOptional.get();
         speedDrinking.setUGCAsEditedByUser(editorUserAcc);
-        speedDrinking.setAttachments(editSpeedDrinkingRequest.getAttachments());
 
         speedDrinking.setDrinkerUserAcc(drinkerUserAcc);
         speedDrinking.setTime(editSpeedDrinkingRequest.getTime());

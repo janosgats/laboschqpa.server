@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/api/user")
@@ -20,6 +23,11 @@ public class UserController {
         return new UserInfoResponse(userService.getById(id));
     }
 
+    @GetMapping("/infoWithAuthorities")
+    public UserInfoResponse getInfoWithAuthorities(@RequestParam("id") Long id) {
+        return new UserInfoResponse(userService.getByIdWithAuthorities(id), true);
+    }
+
     @PostMapping("/setInfo")
     public void postSetInfo(@RequestBody PostSetUserInfoRequest postSetUserInfoRequest,
                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
@@ -28,5 +36,12 @@ public class UserController {
             throw new UnAuthorizedException("You don't have permissions to edit someone else's profile!");
         }
         userService.setUserInfo(postSetUserInfoRequest);
+    }
+
+    @GetMapping("/listAll")
+    public List<UserInfoResponse> getListAll() {
+        return userService.listAll().stream()
+                .map(UserInfoResponse::new)
+                .collect(Collectors.toList());
     }
 }

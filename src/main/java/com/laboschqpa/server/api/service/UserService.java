@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Log4j2
 @RequiredArgsConstructor
 @Service
@@ -15,11 +18,15 @@ public class UserService {
     private final UserAccRepository userAccRepository;
 
     public UserAcc getById(long id) {
-        return getValidUser(id);
+        return getValidUser(id, false);
+    }
+
+    public UserAcc getByIdWithAuthorities(long id) {
+        return getValidUser(id, true);
     }
 
     public void setUserInfo(PostSetUserInfoRequest postSetUserInfoRequest) {
-        UserAcc userAcc = getValidUser(postSetUserInfoRequest.getUserId());
+        UserAcc userAcc = getValidUser(postSetUserInfoRequest.getUserId(), false);
 
         userAcc.setFirstName(postSetUserInfoRequest.getFirstName());
         userAcc.setLastName(postSetUserInfoRequest.getLastName());
@@ -28,7 +35,17 @@ public class UserService {
         userAccRepository.save(userAcc);
     }
 
-    private UserAcc getValidUser(long id) {
-        return userAccRepository.findById(id).orElseThrow(() -> new ContentNotFoundException("User with id " + id + " is not found."));
+    public List<UserAcc> listAll() {
+        return userAccRepository.findAll();
+    }
+
+    private UserAcc getValidUser(long id, boolean withAuthorities) {
+        final Optional<UserAcc> userAccOptional;
+        if (withAuthorities) {
+            userAccOptional = userAccRepository.findByIdWithAuthorities(id);
+        } else {
+            userAccOptional = userAccRepository.findById(id);
+        }
+        return userAccOptional.orElseThrow(() -> new ContentNotFoundException("User with id " + id + " is not found."));
     }
 }

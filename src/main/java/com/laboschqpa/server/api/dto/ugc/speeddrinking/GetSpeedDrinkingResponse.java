@@ -22,15 +22,7 @@ public class GetSpeedDrinkingResponse extends GetUserGeneratedContentResponse {
     }
 
     public GetSpeedDrinkingResponse(SpeedDrinking speedDrinking) {
-        this(speedDrinking, false);
-    }
-
-    /**
-     * @param includeAttachments Set this to {@code false} if the attachments should not be got
-     *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
-     */
-    public GetSpeedDrinkingResponse(SpeedDrinking speedDrinking, boolean includeAttachments) {
-        super(speedDrinking, includeAttachments);
+        super(speedDrinking, false);
 
         this.drinkerUserId = speedDrinking.getDrinkerUserAcc().getId();
         this.time = speedDrinking.getTime();

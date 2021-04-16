@@ -33,7 +33,7 @@ public class LoginAuthenticationHelper {
     }
 
     public UserAcc reloadUserAccFromDB(UserAcc previousUserAcc) {
-        Optional<UserAcc> userAccOptional = userAccRepository.findById(previousUserAcc.getId());
+        Optional<UserAcc> userAccOptional = userAccRepository.findByIdWithAuthorities(previousUserAcc.getId());
         if (userAccOptional.isEmpty()) {
             throw new CorruptedContextAuthenticationException("Cannot reload user account. Please contact support about this error message!");
         }

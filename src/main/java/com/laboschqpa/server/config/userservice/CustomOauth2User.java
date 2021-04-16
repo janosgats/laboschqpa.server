@@ -49,7 +49,7 @@ public class CustomOauth2User implements OidcUser, OAuth2User, Serializable {
         if (userId == null)
             this.setUserAccEntity(null);
         else {
-            Optional<UserAcc> userAccOptional = userAccRepository.findById(userId);
+            Optional<UserAcc> userAccOptional = userAccRepository.findByIdWithAuthorities(userId);
             if (userAccOptional.isEmpty())
                 throw new RuntimeException("User account with Id " + userId + " not found in DB. Cannot refresh userAccEntity!");
 

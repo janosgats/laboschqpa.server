@@ -19,8 +19,6 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
             "    and userAcc.enabled = true")
     Optional<UserAcc> findByIdAndEnabledIsTrue_WithPessimisticWriteLock(long id);
 
-    Optional<UserAcc> findByIdAndEnabledIsTrue(long id);
-
     @Query("select count(userAcc.id) " +
             "from UserAcc userAcc " +
             "where " +
@@ -36,4 +34,11 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
             "    userAcc.teamRole = com.laboschqpa.server.enums.TeamRole.NOTHING " +
             "where userAcc.team = :team ")
     void kickEveryoneFromTeam(Team team);
+
+    @Query("select userAcc " +
+            "from UserAcc userAcc " +
+            " join fetch userAcc.authorities a " +
+            "where " +
+            "    userAcc.id = :id ")
+    Optional<UserAcc> findByIdWithAuthorities(long id);
 }

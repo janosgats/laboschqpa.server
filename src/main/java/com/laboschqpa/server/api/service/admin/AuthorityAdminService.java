@@ -18,7 +18,7 @@ public class AuthorityAdminService {
     private final UserAccRepository userAccRepository;
 
     public Set<Authority> getUserAuthorities(Long userAccId) {
-        Optional<UserAcc> userAccOptional = userAccRepository.findById(userAccId);
+        Optional<UserAcc> userAccOptional = userAccRepository.findByIdWithAuthorities(userAccId);
         if (userAccOptional.isEmpty())
             throw new ContentNotFoundException("UserAcc not found with id: " + userAccId);
 
@@ -26,7 +26,7 @@ public class AuthorityAdminService {
     }
 
     public void deleteUserAuthority(Long userAccId, Authority authority) {
-        Optional<UserAcc> userAccOptional = userAccRepository.findById(userAccId);
+        Optional<UserAcc> userAccOptional = userAccRepository.findByIdWithAuthorities(userAccId);
         if (userAccOptional.isEmpty())
             throw new ContentNotFoundException("UserAcc not found with id: " + userAccId);
         UserAcc userAcc = userAccOptional.get();
@@ -40,7 +40,7 @@ public class AuthorityAdminService {
     }
 
     public void addUserAuthority(Long userAccId, Authority authority) {
-        Optional<UserAcc> userAccOptional = userAccRepository.findById(userAccId);
+        Optional<UserAcc> userAccOptional = userAccRepository.findByIdWithAuthorities(userAccId);
         if (userAccOptional.isEmpty())
             throw new ContentNotFoundException("UserAcc not found with id: " + userAccId);
         UserAcc userAcc = userAccOptional.get();

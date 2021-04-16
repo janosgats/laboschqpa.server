@@ -11,7 +11,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -30,6 +29,4 @@ public class EditSpeedDrinkingRequest extends SelfValidator {
     private SpeedDrinkingCategory category;
     @Length(max = 250)
     private String note;
-
-    private Set<Long> attachments;
 }

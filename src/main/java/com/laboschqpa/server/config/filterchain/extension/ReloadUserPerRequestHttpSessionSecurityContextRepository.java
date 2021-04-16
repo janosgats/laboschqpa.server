@@ -73,7 +73,7 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
         }
 
         loggerOfChildClass.debug("Loading user from DB with ID: " + userIdFromSession);
-        final Optional<UserAcc> userFromDBOptional = userAccRepository.findById(userIdFromSession);
+        final Optional<UserAcc> userFromDBOptional = userAccRepository.findByIdWithAuthorities(userIdFromSession);
         if (userFromDBOptional.isEmpty()) {
             return false;
         }
