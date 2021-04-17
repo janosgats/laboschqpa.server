@@ -38,6 +38,10 @@ public class TeamScoreService {
         return teamScoreOptional.get();
     }
 
+    public Optional<TeamScore> find(Long objectiveId, Long teamId) {
+        return teamScoreRepository.findByObjectiveIdAndTeamId(objectiveId, teamId);
+    }
+
     public TeamScore createNewTeamScore(CreateNewTeamScoreDto createNewTeamScoreDto, UserAcc creatorUserAcc) {
         Pair<Objective, Team> objectiveTeamPair = getExistingObjectiveAndTeam(createNewTeamScoreDto.getObjectiveId(), createNewTeamScoreDto.getTeamId());
 
@@ -56,16 +60,12 @@ public class TeamScoreService {
         if (teamScoreOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find TeamScore with Id: " + editTeamScoreDto.getId());
 
-        Pair<Objective, Team> objectiveTeamPair = getExistingObjectiveAndTeam(editTeamScoreDto.getObjectiveId(), editTeamScoreDto.getTeamId());
-
         TeamScore teamScore = teamScoreOptional.get();
         teamScore.setScore(editTeamScoreDto.getScore());
-        teamScore.setObjective(objectiveTeamPair.getLeft());
-        teamScore.setTeam(objectiveTeamPair.getRight());
 
         teamScoreRepository.save(teamScore);
 
-        log.info("Objective {} edited by user {}.", teamScore.getId(), editorUserAcc.getId());
+        log.info("TeamScore {} edited by user {}.", teamScore.getId(), editorUserAcc.getId());
     }
 
     @Transactional

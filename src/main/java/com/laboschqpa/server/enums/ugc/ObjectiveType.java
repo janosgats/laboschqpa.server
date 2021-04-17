@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public enum ObjectiveType {
     MAIN_OBJECTIVE(Integer.parseInt(ObjectiveTypeValues.MAIN_OBJECTIVE)),
-    SWARM_TASK(Integer.parseInt(ObjectiveTypeValues.SWARM_TASK)),
     PRE_WEEK_TASK(Integer.parseInt(ObjectiveTypeValues.PRE_WEEK_TASK));
 
     private Integer value;

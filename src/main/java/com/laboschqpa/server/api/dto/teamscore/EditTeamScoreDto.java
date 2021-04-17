@@ -14,11 +14,5 @@ public class EditTeamScoreDto extends SelfValidator {
     @Min(1)
     private Long id;
     @NotNull
-    @Min(1)
-    private Long objectiveId;
-    @NotNull
-    @Min(1)
-    private Long teamId;
-    @NotNull
     private Integer score;
 }

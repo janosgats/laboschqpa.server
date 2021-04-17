@@ -15,7 +15,7 @@ import java.time.Instant;
 @Table(name = "objective")
 @DiscriminatorValue(value = UserGeneratedContentTypeValues.OBJECTIVE)
 public class Objective extends UserGeneratedContent {
-    @Column(name = "title", columnDefinition = "text")
+    @Column(name = "title", columnDefinition = "text", nullable = false)
     private String title;
 
     @Column(name = "description", columnDefinition = "text")

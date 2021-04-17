@@ -3,6 +3,7 @@ package com.laboschqpa.server.api.controller;
 import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveRequest;
 import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveRequest;
+import com.laboschqpa.server.api.dto.ugc.objective.GetListObjectivesRequest;
 import com.laboschqpa.server.api.dto.ugc.objective.GetObjectiveResponse;
 import com.laboschqpa.server.api.service.ObjectiveService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
@@ -30,6 +31,14 @@ public class ObjectiveController {
     public List<GetObjectiveResponse> getListAllObjectives() {
         return objectiveService.listAllObjectives().stream()
                 .map(GetObjectiveResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/listWithAttachments")
+    public List<GetObjectiveResponse> getListAllWithAttachments(@RequestBody GetListObjectivesRequest request) {
+        request.validateSelf();
+        return objectiveService.listWithAttachments(request.getObjectiveTypes()).stream()
+                .map(o -> new GetObjectiveResponse(o, true))
                 .collect(Collectors.toList());
     }
 

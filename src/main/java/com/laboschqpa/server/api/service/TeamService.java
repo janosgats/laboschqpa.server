@@ -30,6 +30,10 @@ public class TeamService {
         return teamRepository.findAllMembers(id);
     }
 
+    public List<Team> listAll() {
+        return teamRepository.findAll();
+    }
+
     private Team getValidTeam(long id) {
         return teamRepository.findById(id).orElseThrow(() -> new ContentNotFoundException("Team with id " + id + " is not found."));
     }

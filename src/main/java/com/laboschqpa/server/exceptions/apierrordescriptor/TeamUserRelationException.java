@@ -1,13 +1,13 @@
 package com.laboschqpa.server.exceptions.apierrordescriptor;
 
-import com.laboschqpa.server.enums.apierrordescriptor.TeamUserRelationApiError;
+import com.laboschqpa.server.enums.apierrordescriptor.TeamLifecycleApiError;
 
 public class TeamUserRelationException extends ApiErrorDescriptorException {
-    public TeamUserRelationException(TeamUserRelationApiError teamUserRelationApiError) {
-        super(teamUserRelationApiError);
+    public TeamUserRelationException(TeamLifecycleApiError teamLifecycleApiError) {
+        super(teamLifecycleApiError);
     }
 
-    public TeamUserRelationException(TeamUserRelationApiError teamUserRelationApiError, String message) {
-        super(teamUserRelationApiError, message);
+    public TeamUserRelationException(TeamLifecycleApiError teamLifecycleApiError, String message) {
+        super(teamLifecycleApiError, message);
     }
 }

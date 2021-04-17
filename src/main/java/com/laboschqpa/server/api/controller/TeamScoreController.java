@@ -8,6 +8,7 @@ import com.laboschqpa.server.api.service.TeamScoreService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,14 @@ public class TeamScoreController {
     @GetMapping("/teamScore")
     public GetTeamScoreDto getTeamScore(@RequestParam(name = "id") Long teamScoreId) {
         return new GetTeamScoreDto(teamScoreService.getTeamScore(teamScoreId));
+    }
+
+    @ApiOperation("Returns a 1 element long array with the found dto, or an empty array if not found.")
+    @GetMapping("/find")
+    public List<GetTeamScoreDto> getTeamScore(@RequestParam(name = "objectiveId") Long objectiveId, @RequestParam(name = "teamId") Long teamId) {
+        return teamScoreService.find(objectiveId, teamId).stream()
+                .map(GetTeamScoreDto::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/listAll")

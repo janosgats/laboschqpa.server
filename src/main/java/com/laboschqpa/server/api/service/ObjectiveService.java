@@ -4,6 +4,7 @@ import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveRequest;
 import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
+import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
@@ -12,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,5 +85,9 @@ public class ObjectiveService {
 
     public List<Objective> listAllObjectives() {
         return objectiveRepository.findAll();
+    }
+
+    public List<Objective> listWithAttachments(Collection<ObjectiveType> objectiveTypes) {
+        return objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes);
     }
 }

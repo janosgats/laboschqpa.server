@@ -97,6 +97,13 @@ public class TeamController {
         return new GetTeamResponse(teamService.getById(id));
     }
 
+    @GetMapping("/listAll")
+    public List<GetTeamResponse> getListAll() {
+        return teamService.listAll().stream()
+                .map(GetTeamResponse::new)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/listMembers")
     public List<GetTeamMemberResponse> listMembers(@RequestParam("id") Long id) {
         return teamService.listMembers(id).stream()

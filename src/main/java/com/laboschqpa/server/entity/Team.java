@@ -10,7 +10,11 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "team")
+@Table(name = "team",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name"}, name = "name__unique")
+        }
+)
 public class Team {
     public Team(Long id) {
         this.id = id;
