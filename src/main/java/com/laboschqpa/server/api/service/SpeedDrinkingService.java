@@ -1,6 +1,7 @@
 package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.api.dto.ugc.speeddrinking.CreateNewSpeedDrinkingRequest;
+import com.laboschqpa.server.api.dto.ugc.speeddrinking.DisplayListSpeedDrinkingRequest;
 import com.laboschqpa.server.api.dto.ugc.speeddrinking.EditSpeedDrinkingRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.SpeedDrinking;
@@ -24,13 +25,8 @@ public class SpeedDrinkingService {
     private final SpeedDrinkingRepository speedDrinkingRepository;
     private final UserAccRepository userAccRepository;
 
-    public SpeedDrinking getSpeedDrinking(Long newsPostId) {
-        Optional<SpeedDrinking> speedDrinkingOptional = speedDrinkingRepository.findByIdWithEagerAttachments(newsPostId);
-
-        if (speedDrinkingOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find SpeedDrinking with Id: " + newsPostId);
-
-        return speedDrinkingOptional.get();
+    public SpeedDrinking getSpeedDrinking(Long id, boolean withDrinkerUserAccAndTeam) {
+        return getExistingSpeedDrinking(id, withDrinkerUserAccAndTeam);
     }
 
     public SpeedDrinking createSpeedDrinking(CreateNewSpeedDrinkingRequest createNewSpeedDrinkingRequest, UserAcc creatorUserAcc) {
@@ -51,13 +47,13 @@ public class SpeedDrinkingService {
 
     public void editSpeedDrinking(EditSpeedDrinkingRequest editSpeedDrinkingRequest, UserAcc editorUserAcc) {
         Long speedDrinkingId = editSpeedDrinkingRequest.getId();
-        Optional<SpeedDrinking> speedDrinkingOptional = speedDrinkingRepository.findById(speedDrinkingId);
-        if (speedDrinkingOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find SpeedDrinking with Id: " + speedDrinkingId);
 
-        SpeedDrinking speedDrinking = speedDrinkingOptional.get();
+        SpeedDrinking speedDrinking = getExistingSpeedDrinking(speedDrinkingId, false);
+        UserAcc drinkerUserAcc = getExistingUserAcc(editSpeedDrinkingRequest.getDrinkerUserId());
+
         speedDrinking.setUGCAsEditedByUser(editorUserAcc);
 
+        speedDrinking.setDrinkerUserAcc(drinkerUserAcc);
         speedDrinking.setTime(editSpeedDrinkingRequest.getTime());
         speedDrinking.setCategory(editSpeedDrinkingRequest.getCategory());
         speedDrinking.setNote(editSpeedDrinkingRequest.getNote());
@@ -77,15 +73,28 @@ public class SpeedDrinkingService {
         logger.info("SpeedDrinking {} deleted by user {}.", speedDrinkingId, deleterUserAcc.getId());
     }
 
-    public List<SpeedDrinking> listAllSpeedDrinkings() {
-        return speedDrinkingRepository.findAllByOrderByCreationTimeDesc();
+    public List<SpeedDrinking> listAll() {
+        return speedDrinkingRepository.findAllByOrderByTimeAsc();
+    }
+
+    public List<SpeedDrinking> listWithDrinkerUserAccAndTeam(DisplayListSpeedDrinkingRequest request) {
+        return speedDrinkingRepository.findByCategory_withDrinkerUserAccAndTeam_orderByTimeAsc(request.getCategory());
+    }
+
+    public SpeedDrinking getExistingSpeedDrinking(Long id, boolean withUserAccAndTeam) {
+        final Optional<SpeedDrinking> speedDrinkingOptional;
+        if (withUserAccAndTeam) {
+            speedDrinkingOptional = speedDrinkingRepository.findById_withDrinkerUserAccAndTeam(id);
+        } else {
+            speedDrinkingOptional = speedDrinkingRepository.findById(id);
+        }
+
+        return speedDrinkingOptional
+                .orElseThrow(() -> new ContentNotFoundException("Cannot find SpeedDrinking with Id: " + id));
     }
 
     public UserAcc getExistingUserAcc(Long userAccId) {
-        Optional<UserAcc> userAccOptional = userAccRepository.findById(userAccId);
-        if (userAccOptional.isEmpty()) {
-            throw new ContentNotFoundException("UserAcc is not found: " + userAccId);
-        }
-        return userAccOptional.get();
+        return userAccRepository.findById(userAccId)
+                .orElseThrow(() -> new ContentNotFoundException("UserAcc is not found: " + userAccId));
     }
 }

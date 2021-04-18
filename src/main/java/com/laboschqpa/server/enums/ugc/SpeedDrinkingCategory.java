@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public enum SpeedDrinkingCategory {
     BEER(1),
-    SPRITZER(2),
-    OTHER(3);
+    RANDOM(2);
+
     private Integer value;
 
     SpeedDrinkingCategory(Integer value) {

@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GetDisplayListSubmissionRequest extends SelfValidator {
+public class DisplayListSubmissionRequest extends SelfValidator {
     private Long objectiveId;
     private Long teamId;
 }

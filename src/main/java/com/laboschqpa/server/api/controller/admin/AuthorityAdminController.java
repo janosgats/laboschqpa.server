@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 public class AuthorityAdminController {
     private final AuthorityAdminService authorityAdminService;
 
-    @GetMapping("userAuthority")
+    @GetMapping("user/get")
     public Set<String> getUserAuthorities(@RequestParam("userAccId") Long userAccId,
                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
         return authorityAdminService.getUserAuthorities(userAccId).stream().map(Authority::getStringValue).collect(Collectors.toSet());
     }
 
-    @PostMapping("userAuthority")
+    @PostMapping("user/add")
     public void postAddUserAuthority(@RequestParam("userAccId") Long userAccId,
                                      @RequestParam("authority") String authorityStringValue,
                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
@@ -32,7 +32,7 @@ public class AuthorityAdminController {
         authorityAdminService.addUserAuthority(userAccId, Authority.fromStringValue(authorityStringValue));
     }
 
-    @DeleteMapping("userAuthority")
+    @DeleteMapping("user/delete")
     public void deleteUserAuthority(@RequestParam("userAccId") Long userAccId,
                                     @RequestParam("authority") String authorityStringValue,
                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {

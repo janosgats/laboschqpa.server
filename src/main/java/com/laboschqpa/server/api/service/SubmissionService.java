@@ -1,8 +1,8 @@
 package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.DisplayListSubmissionRequest;
 import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
-import com.laboschqpa.server.api.dto.ugc.submission.GetDisplayListSubmissionRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
@@ -75,7 +75,7 @@ public class SubmissionService {
         return submissionRepository.findAll();
     }
 
-    public List<Submission> listWithEagerDisplayEntities(GetDisplayListSubmissionRequest request) {
+    public List<Submission> listWithEagerDisplayEntities(DisplayListSubmissionRequest request) {
         final Long filteredTeamId = request.getTeamId();
         final Long filteredObjectiveId = request.getObjectiveId();
 

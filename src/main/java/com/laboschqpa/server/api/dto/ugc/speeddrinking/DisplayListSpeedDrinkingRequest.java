@@ -6,27 +6,16 @@ import com.laboschqpa.server.enums.ugc.SpeedDrinkingCategory;
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EditSpeedDrinkingRequest extends SelfValidator {
-    @NotNull
-    @Min(1)
-    private Long id;
-    @NotNull
-    @Min(1)
-    private Long drinkerUserId;
-    @NotNull
-    @DecimalMin(value = "0", inclusive = false)
-    private Double time;
+public class DisplayListSpeedDrinkingRequest extends SelfValidator {
     @NotNull
     @JsonDeserialize(converter = SpeedDrinkingCategoryFromValueJacksonConverter.class)
     private SpeedDrinkingCategory category;
-    @Length(max = 500)
-    private String note;
+    @Min(1)
+    private Long teamId;
 }

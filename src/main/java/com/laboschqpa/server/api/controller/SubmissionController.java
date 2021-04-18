@@ -2,8 +2,8 @@ package com.laboschqpa.server.api.controller;
 
 import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.DisplayListSubmissionRequest;
 import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
-import com.laboschqpa.server.api.dto.ugc.submission.GetDisplayListSubmissionRequest;
 import com.laboschqpa.server.api.dto.ugc.submission.GetSubmissionResponse;
 import com.laboschqpa.server.api.service.SubmissionService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
@@ -47,7 +47,7 @@ public class SubmissionController {
     }
 
     @PostMapping("/display/list")
-    public List<GetSubmissionResponse> getDisplayList(@RequestBody GetDisplayListSubmissionRequest request) {
+    public List<GetSubmissionResponse> getDisplayList(@RequestBody DisplayListSubmissionRequest request) {
         request.validateSelf();
         return submissionService.listWithEagerDisplayEntities(request).stream()
                 .map(s -> new GetSubmissionResponse(s, true, true))
