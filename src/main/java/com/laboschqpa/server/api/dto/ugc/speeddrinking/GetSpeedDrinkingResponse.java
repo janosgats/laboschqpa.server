@@ -40,11 +40,17 @@ public class GetSpeedDrinkingResponse extends GetUserGeneratedContentResponse {
         this.note = speedDrinking.getNote();
 
         if (withDrinkerUserAndTeam) {
-            this.drinkerFirstName = speedDrinking.getDrinkerUserAcc().getFirstName();
-            this.drinkerLastName = speedDrinking.getDrinkerUserAcc().getLastName();
-            this.drinkerNickName = speedDrinking.getDrinkerUserAcc().getNickName();
-            this.drinkerTeamId = speedDrinking.getDrinkerUserAcc().getTeam().getId();
-            this.drinkerTeamName = speedDrinking.getDrinkerUserAcc().getTeam().getName();
+            if (speedDrinking.getDrinkerUserAcc() != null) {
+                this.drinkerFirstName = speedDrinking.getDrinkerUserAcc().getFirstName();
+                this.drinkerLastName = speedDrinking.getDrinkerUserAcc().getLastName();
+                this.drinkerNickName = speedDrinking.getDrinkerUserAcc().getNickName();
+
+                if (speedDrinking.getDrinkerUserAcc().getTeam() != null
+                        && speedDrinking.getDrinkerUserAcc().getTeamRole().isMemberOrLeader()) {
+                    this.drinkerTeamId = speedDrinking.getDrinkerUserAcc().getTeam().getId();
+                    this.drinkerTeamName = speedDrinking.getDrinkerUserAcc().getTeam().getName();
+                }
+            }
         }
     }
 }
