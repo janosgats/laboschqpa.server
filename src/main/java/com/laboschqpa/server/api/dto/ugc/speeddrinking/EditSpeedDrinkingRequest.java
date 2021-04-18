@@ -19,9 +19,6 @@ public class EditSpeedDrinkingRequest extends SelfValidator {
     @Min(1)
     private Long id;
     @NotNull
-    @Min(1)
-    private Long drinkerUserId;
-    @NotNull
     @DecimalMin(value = "0", inclusive = false)
     private Double time;
     @NotNull

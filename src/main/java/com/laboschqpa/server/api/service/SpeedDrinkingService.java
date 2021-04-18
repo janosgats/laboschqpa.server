@@ -55,12 +55,9 @@ public class SpeedDrinkingService {
         if (speedDrinkingOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find SpeedDrinking with Id: " + speedDrinkingId);
 
-        final UserAcc drinkerUserAcc = getExistingUserAcc(editSpeedDrinkingRequest.getDrinkerUserId());
-
         SpeedDrinking speedDrinking = speedDrinkingOptional.get();
         speedDrinking.setUGCAsEditedByUser(editorUserAcc);
 
-        speedDrinking.setDrinkerUserAcc(drinkerUserAcc);
         speedDrinking.setTime(editSpeedDrinkingRequest.getTime());
         speedDrinking.setCategory(editSpeedDrinkingRequest.getCategory());
         speedDrinking.setNote(editSpeedDrinkingRequest.getNote());

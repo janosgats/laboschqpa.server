@@ -25,15 +25,16 @@ public class UserInfoResponse {
     private Long teamId;
     @JsonSerialize(converter = TeamRoleToValueJacksonConverter.class)
     private TeamRole teamRole;
+    private String teamName;
 
     private Boolean enabled;
     private Set<Authority> authorities;
 
     public UserInfoResponse(UserAcc userAcc) {
-        this(userAcc, false);
+        this(userAcc, false, false);
     }
 
-    public UserInfoResponse(UserAcc userAcc, boolean withAuthorities) {
+    public UserInfoResponse(UserAcc userAcc, boolean withAuthorities, boolean withTeamName) {
         this.userId = userAcc.getId();
 
         this.firstName = userAcc.getFirstName();
@@ -44,6 +45,9 @@ public class UserInfoResponse {
 
         if (userAcc.getTeam() != null) {
             this.teamId = userAcc.getTeam().getId();
+            if (withTeamName) {
+                this.teamName = userAcc.getTeam().getName();
+            }
         }
         this.teamRole = userAcc.getTeamRole();
 

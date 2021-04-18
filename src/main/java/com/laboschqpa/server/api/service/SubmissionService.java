@@ -2,6 +2,7 @@ package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.GetDisplayListSubmissionRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
@@ -27,8 +28,8 @@ public class SubmissionService {
     private final StateMachineFactory stateMachineFactory;
     private final AttachmentHelper attachmentHelper;
 
-    public Submission getSubmission(Long submissionId) {
-        Optional<Submission> submissionOptional = submissionRepository.findByIdWithEagerAttachments(submissionId);
+    public Submission getSubmissionWithEagerDisplayEntities(Long submissionId) {
+        Optional<Submission> submissionOptional = submissionRepository.findByIdWithEagerDisplayEntities(submissionId);
 
         if (submissionOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find Submission with Id: " + submissionId);
@@ -72,5 +73,24 @@ public class SubmissionService {
 
     public List<Submission> listAll() {
         return submissionRepository.findAll();
+    }
+
+    public List<Submission> listWithEagerDisplayEntities(GetDisplayListSubmissionRequest request) {
+        final Long filteredTeamId = request.getTeamId();
+        final Long filteredObjectiveId = request.getObjectiveId();
+
+        if (filteredTeamId != null && filteredObjectiveId != null) {
+            return submissionRepository.findByObjectiveIdAndTeamId_withEagerDisplayEntities_orderByCreationTimeDesc(filteredObjectiveId, filteredTeamId);
+        }
+
+        if (filteredObjectiveId != null) {
+            return submissionRepository.findByObjectiveId_withEagerDisplayEntities_orderByCreationTimeDesc(filteredObjectiveId);
+        }
+
+        if (filteredTeamId != null) {
+            return submissionRepository.findByTeamId_withEagerDisplayEntities_orderByCreationTimeDesc(filteredTeamId);
+        }
+
+        return submissionRepository.findAll_withEagerDisplayEntities_orderByCreationTimeDesc();
     }
 }

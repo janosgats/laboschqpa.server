@@ -25,7 +25,7 @@ public class UserController {
 
     @GetMapping("/infoWithAuthorities")
     public UserInfoResponse getInfoWithAuthorities(@RequestParam("id") Long id) {
-        return new UserInfoResponse(userService.getByIdWithAuthorities(id), true);
+        return new UserInfoResponse(userService.getByIdWithAuthorities(id), true, false);
     }
 
     @PostMapping("/setInfo")

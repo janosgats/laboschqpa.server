@@ -18,15 +18,19 @@ public class UserService {
     private final UserAccRepository userAccRepository;
 
     public UserAcc getById(long id) {
-        return getValidUser(id, false);
+        return getValidUser(id, false, false);
     }
 
     public UserAcc getByIdWithAuthorities(long id) {
-        return getValidUser(id, true);
+        return getValidUser(id, true, false);
+    }
+
+    public UserAcc getByIdWithAuthoritiesAndTeam(long id) {
+        return getValidUser(id, true, true);
     }
 
     public void setUserInfo(PostSetUserInfoRequest postSetUserInfoRequest) {
-        UserAcc userAcc = getValidUser(postSetUserInfoRequest.getUserId(), false);
+        UserAcc userAcc = getValidUser(postSetUserInfoRequest.getUserId(), false, false);
 
         userAcc.setFirstName(postSetUserInfoRequest.getFirstName());
         userAcc.setLastName(postSetUserInfoRequest.getLastName());
@@ -39,10 +43,14 @@ public class UserService {
         return userAccRepository.findAll();
     }
 
-    private UserAcc getValidUser(long id, boolean withAuthorities) {
+    private UserAcc getValidUser(long id, boolean withAuthorities, boolean withTeam) {
         final Optional<UserAcc> userAccOptional;
-        if (withAuthorities) {
+        if (withAuthorities && withTeam) {
+            userAccOptional = userAccRepository.findByIdWithAuthoritiesAndTeam(id);
+        } else if (withAuthorities) {
             userAccOptional = userAccRepository.findByIdWithAuthorities(id);
+        } else if (withTeam) {
+            userAccOptional = userAccRepository.findByIdWithTeam(id);
         } else {
             userAccOptional = userAccRepository.findById(id);
         }
