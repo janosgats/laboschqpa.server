@@ -1,10 +1,7 @@
 package com.laboschqpa.server.config;
 
 import com.laboschqpa.server.config.authprovider.OAuth2ProviderRegistrationFactory;
-import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationFailureHandler;
-import com.laboschqpa.server.config.filterchain.extension.CustomAuthenticationSuccessHandler;
-import com.laboschqpa.server.config.filterchain.extension.CustomLogoutSuccessHandler;
-import com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHttpSessionSecurityContextRepository;
+import com.laboschqpa.server.config.filterchain.extension.*;
 import com.laboschqpa.server.config.filterchain.filter.AddLoginMethodFilter;
 import com.laboschqpa.server.config.filterchain.filter.ApiInternalAuthInterServiceFilter;
 import com.laboschqpa.server.config.filterchain.filter.ApiRedirectionOAuth2AuthorizationRequestRedirectFilter;
@@ -14,8 +11,8 @@ import com.laboschqpa.server.config.userservice.CustomOidcUserService;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
 import com.laboschqpa.server.repo.UserAccRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -44,13 +41,13 @@ import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+@Log4j2
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
-
     @Resource
     UserAccRepository userAccRepository;
 
@@ -60,8 +57,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${management.endpoints.web.base-path}")
     private String springBootActuatorBaseUrl;
 
+    @Value("#{T(com.laboschqpa.server.config.WebSecurityConfig).processAllowedOriginsProperty('${oauth2.allowedOverriddenRedirectionOrigins:}')}")
+    private List<String> oauth2AllowedOverriddenRedirectionOrigins;
+
+    public static List<String> processAllowedOriginsProperty(String allowedOriginsProperty) {
+        if (StringUtils.isBlank(allowedOriginsProperty)) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(StringUtils.split(allowedOriginsProperty, ','));
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        log.info("Allowed OAuth2 redirection origin overrides ({}pcs): {}",
+                oauth2AllowedOverriddenRedirectionOrigins.size(), String.join(",", oauth2AllowedOverriddenRedirectionOrigins));
+
         http.authorizeRequests()
                 .antMatchers(AppConstants.prometheusMetricsExposeUrl, AppConstants.apiInternalUrlAntPattern)
                 .permitAll()
@@ -121,8 +131,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.addFilterBefore(applicationContext.getBean(AddLoginMethodFilter.class), OAuth2AuthorizationRequestRedirectFilter.class);
 
+        ClientRegistrationRepository clientRegistrationRepository = applicationContext.getBean(ClientRegistrationRepository.class);
         http.addFilterBefore(new ApiRedirectionOAuth2AuthorizationRequestRedirectFilter(
-                applicationContext.getBean(ClientRegistrationRepository.class),
+                clientRegistrationRepository,
+                new OriginOverridingOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository,
+                        AppConstants.oAuth2AuthorizationRequestBaseUri,
+                        oauth2AllowedOverriddenRedirectionOrigins
+                ),
                 AppConstants.oAuth2AuthorizationRequestBaseUri
         ), OAuth2AuthorizationRequestRedirectFilter.class);
         // TODO: The original filter is also called during the FilterChain execution, so this isn't the best solution.

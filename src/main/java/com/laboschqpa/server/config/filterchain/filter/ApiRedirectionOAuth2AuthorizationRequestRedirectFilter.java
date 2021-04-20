@@ -3,7 +3,10 @@ package com.laboschqpa.server.config.filterchain.filter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.*;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -39,13 +42,13 @@ public class ApiRedirectionOAuth2AuthorizationRequestRedirectFilter extends OAut
     private RequestCache requestCache = new HttpSessionRequestCache();
 
     public ApiRedirectionOAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository,
+                                                                  OAuth2AuthorizationRequestResolver authorizationRequestResolver,
                                                                   String authorizationRequestBaseUri) {
         super(clientRegistrationRepository, authorizationRequestBaseUri);
 
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
         Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
-        this.authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
-                clientRegistrationRepository, authorizationRequestBaseUri);
+        this.authorizationRequestResolver = authorizationRequestResolver;
     }
 
     @Override
