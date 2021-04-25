@@ -38,7 +38,7 @@ public class SubmissionService {
     }
 
     public Submission createNewSubmission(CreateNewSubmissionDto createNewSubmissionDto, UserAcc initiatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewSubmissionDto.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewSubmissionDto.getAttachments(), initiatorUserAcc.getId());
 
         return transactionTemplate.execute(new TransactionCallback<Submission>() {
             @Override
@@ -50,7 +50,7 @@ public class SubmissionService {
     }
 
     public void editSubmission(EditSubmissionDto editSubmissionDto, UserAcc initiatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editSubmissionDto.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editSubmissionDto.getAttachments(), initiatorUserAcc.getId());
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override

@@ -34,7 +34,7 @@ public class NewsPostService {
     }
 
     public NewsPost create(CreateNewNewsPostRequest createNewNewsPostRequest, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewNewsPostRequest.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewNewsPostRequest.getAttachments(), creatorUserAcc.getId());
 
         NewsPost newsPost = new NewsPost();
         newsPost.setUGCAsCreatedByUser(creatorUserAcc);
@@ -53,7 +53,7 @@ public class NewsPostService {
         if (newsPostOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find NewsPost with Id: " + newsPostId);
 
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editNewsPostRequest.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editNewsPostRequest.getAttachments(), editorUserAcc.getId());
 
         NewsPost newsPost = newsPostOptional.get();
         newsPost.setUGCAsEditedByUser(editorUserAcc);

@@ -32,7 +32,7 @@ public class RiddleEditorService {
     }
 
     public Riddle createNewRiddle(CreateNewRiddleRequest createNewRiddleRequest, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewRiddleRequest.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewRiddleRequest.getAttachments(), creatorUserAcc.getId());
 
         Riddle riddle = new Riddle();
         riddle.setUGCAsCreatedByUser(creatorUserAcc);
@@ -52,7 +52,7 @@ public class RiddleEditorService {
         if (riddleOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find Riddle with Id: " + editRiddleRequest.getId());
 
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editRiddleRequest.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editRiddleRequest.getAttachments(), editorUserAcc.getId());
 
         Riddle riddle = riddleOptional.get();
         riddle.setUGCAsEditedByUser(editorUserAcc);

@@ -34,7 +34,7 @@ public class ObjectiveService {
     }
 
     public Objective createNewObjective(CreateNewObjectiveRequest createNewObjectiveRequest, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(createNewObjectiveRequest.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewObjectiveRequest.getAttachments(), creatorUserAcc.getId());
 
         Objective objective = new Objective();
         objective.setUGCAsCreatedByUser(creatorUserAcc);
@@ -56,7 +56,7 @@ public class ObjectiveService {
         if (objectiveOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find Objective with Id: " + editObjectiveRequest.getId());
 
-        attachmentHelper.assertAllFilesExistAndAvailableOnFileHost(editObjectiveRequest.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editObjectiveRequest.getAttachments(), editorUserAcc.getId());
 
         Objective objective = objectiveOptional.get();
         objective.setUGCAsEditedByUser(editorUserAcc);
