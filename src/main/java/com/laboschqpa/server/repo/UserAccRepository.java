@@ -37,22 +37,22 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
 
     @Query("select userAcc " +
             "from UserAcc userAcc " +
-            " join fetch userAcc.authorities a " +
+            " left join fetch userAcc.authorities a " +
             "where " +
             "    userAcc.id = :id ")
     Optional<UserAcc> findByIdWithAuthorities(long id);
 
     @Query("select userAcc " +
             "from UserAcc userAcc " +
-            " join fetch userAcc.authorities a " +
-            " join fetch userAcc.team t " +
+            " left join fetch userAcc.authorities a " +
+            " left join fetch userAcc.team t " +
             "where " +
             "    userAcc.id = :id ")
     Optional<UserAcc> findByIdWithAuthoritiesAndTeam(long id);
 
     @Query("select userAcc " +
             "from UserAcc userAcc " +
-            " join fetch userAcc.team t " +
+            " left join fetch userAcc.team t " +
             "where " +
             "    userAcc.id = :id ")
     Optional<UserAcc> findByIdWithTeam(long id);
