@@ -44,6 +44,7 @@ public class ObjectiveService {
         objective.setDescription(createNewObjectiveRequest.getDescription());
         objective.setSubmittable(createNewObjectiveRequest.getSubmittable());
         objective.setDeadline(createNewObjectiveRequest.getDeadline());
+        objective.setHideSubmissionsBefore(createNewObjectiveRequest.getHideSubmissionsBefore());
         objective.setObjectiveType(createNewObjectiveRequest.getObjectiveType());
 
         objectiveRepository.save(objective);
@@ -66,6 +67,7 @@ public class ObjectiveService {
         objective.setDescription(editObjectiveRequest.getDescription());
         objective.setSubmittable(editObjectiveRequest.getSubmittable());
         objective.setDeadline(editObjectiveRequest.getDeadline());
+        objective.setHideSubmissionsBefore(editObjectiveRequest.getHideSubmissionsBefore());
         objective.setObjectiveType(editObjectiveRequest.getObjectiveType());
 
         objectiveRepository.save(objective);

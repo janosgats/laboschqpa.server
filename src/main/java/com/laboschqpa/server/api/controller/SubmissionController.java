@@ -7,11 +7,15 @@ import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.GetSubmissionResponse;
 import com.laboschqpa.server.api.service.SubmissionService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
+import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
+import com.laboschqpa.server.enums.apierrordescriptor.SubmissionApiError;
+import com.laboschqpa.server.exceptions.apierrordescriptor.SubmissionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -21,8 +25,19 @@ public class SubmissionController {
     private final SubmissionService submissionService;
 
     @GetMapping("/submission")
-    public GetSubmissionResponse getSubmission(@RequestParam(name = "id") Long submissionId) {
-        return new GetSubmissionResponse(submissionService.getSubmissionWithEagerDisplayEntities(submissionId), true, true);
+    public GetSubmissionResponse getSubmission(@RequestParam(name = "id") Long submissionId,
+                                               @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        Submission submission = submissionService.getSubmissionWithEagerDisplayEntities(submissionId);
+
+        Optional<Submission> filteredSubmission
+                = submissionService.filterSubmissionsThatUserCanSee(List.of(submission), authenticationPrincipal)
+                .stream().findFirst();
+
+        if (filteredSubmission.isEmpty()) {
+            throw new SubmissionException(SubmissionApiError.SUBMISSION_IS_NOT_PUBLIC_YET);
+        }
+
+        return new GetSubmissionResponse(filteredSubmission.get(), true, true);
     }
 
     @PostMapping("/createNew")
@@ -47,9 +62,13 @@ public class SubmissionController {
     }
 
     @PostMapping("/display/list")
-    public List<GetSubmissionResponse> getDisplayList(@RequestBody DisplayListSubmissionRequest request) {
+    public List<GetSubmissionResponse> getDisplayList(@RequestBody DisplayListSubmissionRequest request,
+                                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         request.validateSelf();
-        return submissionService.listWithEagerDisplayEntities(request).stream()
+
+        final List<Submission> submissions = submissionService.listWithEagerDisplayEntities(request);
+
+        return submissionService.filterSubmissionsThatUserCanSee(submissions, authenticationPrincipal).stream()
                 .map(s -> new GetSubmissionResponse(s, true, true))
                 .collect(Collectors.toList());
     }

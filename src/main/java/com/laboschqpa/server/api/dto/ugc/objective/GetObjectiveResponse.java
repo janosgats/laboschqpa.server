@@ -17,6 +17,7 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
     private String description;
     private Boolean submittable;
     private Instant deadline;
+    private Instant hideSubmissionsBefore;
     @JsonSerialize(converter = ObjectiveTypeToValueJacksonConverter.class)
     private ObjectiveType objectiveType;
 
@@ -38,6 +39,7 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
         this.description = objective.getDescription();
         this.submittable = objective.getSubmittable();
         this.deadline = objective.getDeadline();
+        this.hideSubmissionsBefore = objective.getHideSubmissionsBefore();
         this.objectiveType = objective.getObjectiveType();
     }
 }

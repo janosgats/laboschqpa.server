@@ -20,5 +20,5 @@ public class GetIndexedFileInfoResultDto {
     private Long ownerTeamId;
     private Instant creationTime;
     private String mimeType;
-    private String originalFileName;
+    private String name;
 }

@@ -30,6 +30,12 @@ public class Objective extends UserGeneratedContent {
     @Column(name = "deadline", nullable = false)
     private Instant deadline;
 
+    /**
+     * Submissions are only visible to everyone after this time. If {@code null}, they are always visible.
+     */
+    @Column(name = "hide_submissions_before")
+    private Instant hideSubmissionsBefore;
+
     @Convert(converter = ObjectiveTypeAttributeConverter.class)
     @Column(name = "objective_type", columnDefinition = "tinyint not null", nullable = false)
     private ObjectiveType objectiveType;

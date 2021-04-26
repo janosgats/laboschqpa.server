@@ -27,6 +27,7 @@ public class CreateNewObjectiveRequest extends SelfValidator {
     private Boolean submittable;
     @NotNull
     private Instant deadline;
+    private Instant hideSubmissionsBefore;
     @NotNull
     @JsonDeserialize(converter = ObjectiveTypeFromValueJacksonConverter.class)
     private ObjectiveType objectiveType;

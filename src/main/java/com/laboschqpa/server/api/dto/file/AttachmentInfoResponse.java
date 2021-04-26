@@ -12,6 +12,6 @@ public class AttachmentInfoResponse {
 
     public AttachmentInfoResponse(GetIndexedFileInfoResultDto dto) {
         this.fileId = dto.getIndexedFileId();
-        this.fileName = dto.getOriginalFileName();
+        this.fileName = dto.getName();
     }
 }
