@@ -1,6 +1,7 @@
 package com.laboschqpa.server.util;
 
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
+import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.exceptions.UnAuthorizedException;
 import lombok.Getter;
@@ -13,8 +14,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Getter
 public class PrincipalAuthorizationHelper {
+    private final UserAcc userAccEntity;
 
-    private final CustomOauth2User authenticationPrincipal;
+    public PrincipalAuthorizationHelper(CustomOauth2User authenticationPrincipal) {
+        userAccEntity = authenticationPrincipal.getUserAccEntity();
+    }
 
     public boolean isTrueOrIsAdmin(BooleanSupplier condition) {
         return hasAdminAuthority() || condition.getAsBoolean();
@@ -37,7 +41,7 @@ public class PrincipalAuthorizationHelper {
     }
 
     public boolean hasAnySufficientAuthority(Authority... sufficientAuthorities) {
-        return authenticationPrincipal.getUserAccEntity()
+        return userAccEntity
                 .getAuthorities().stream()
                 .anyMatch(
                         ownedAuthority -> Arrays.asList(sufficientAuthorities).contains(ownedAuthority)

@@ -46,7 +46,7 @@ public class TeamScoreController {
     public CreatedEntityResponse postCreateNewTeamScore(@RequestBody CreateNewTeamScoreDto createNewTeamScoreDto,
                                                         @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewTeamScoreDto.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScoreEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer, Authority.Admin);
         long newId = teamScoreService.createNewTeamScore(createNewTeamScoreDto, authenticationPrincipal.getUserAccEntity()).getId();
         return new CreatedEntityResponse(newId);
     }
@@ -55,14 +55,14 @@ public class TeamScoreController {
     public void postEditTeamScore(@RequestBody EditTeamScoreDto editTeamScoreDto,
                                   @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         editTeamScoreDto.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScoreEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer, Authority.Admin);
         teamScoreService.editTeamScore(editTeamScoreDto, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
     public void deleteTeamScore(@RequestParam(name = "id") Long teamScoreId,
                                 @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScoreEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer, Authority.Admin);
         teamScoreService.deleteTeamScore(teamScoreId, authenticationPrincipal.getUserAccEntity());
     }
 }

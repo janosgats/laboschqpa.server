@@ -3,7 +3,6 @@ package com.laboschqpa.server.api.service;
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.DisplayListSubmissionRequest;
 import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
-import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
 import com.laboschqpa.server.enums.auth.Authority;
@@ -101,14 +100,13 @@ public class SubmissionService {
     }
 
     public List<Submission> filterSubmissionsThatUserCanSee(List<Submission> submissionsToCheck,
-                                                            CustomOauth2User authenticationPrincipal) {
-        if (new PrincipalAuthorizationHelper(authenticationPrincipal).hasAnySufficientAuthority(Authority.TeamScoreEditor)) {
+                                                            UserAcc userAcc) {
+        if (new PrincipalAuthorizationHelper(userAcc).hasAnySufficientAuthority(Authority.TeamScorer)) {
             return submissionsToCheck;
         }
 
         final Instant now = Instant.now();
-        final UserAcc userAcc = authenticationPrincipal.getUserAccEntity();
-        final Long userId = authenticationPrincipal.getUserAccEntity().getId();
+        final Long userId = userAcc.getId();
 
         Long teamIdWithMembership = null;
         if (userAcc.getTeamRole().isMemberOrLeader() && userAcc.getTeam() != null) {

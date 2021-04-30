@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.controller.internal;
 
-import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceRequestDto;
-import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceResponseDto;
+import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceRequest;
+import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceResponse;
 import com.laboschqpa.server.api.service.internal.SessionResolverService;
 import com.laboschqpa.server.config.helper.AppConstants;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,8 @@ public class SessionResolverController {
     private final SessionResolverService sessionResolverService;
 
     @GetMapping("/isUserAuthorizedToResource")
-    public IsUserAuthorizedToResourceResponseDto getIsUserAuthorizedToResource(@RequestBody IsUserAuthorizedToResourceRequestDto isUserAuthorizedToResourceRequestDto) {
-        return sessionResolverService.getIsUserAuthorizedToResource(isUserAuthorizedToResourceRequestDto);
+    public IsUserAuthorizedToResourceResponse getIsUserAuthorizedToResource(@RequestBody IsUserAuthorizedToResourceRequest request) {
+        request.validateSelf();
+        return sessionResolverService.getIsUserAuthorizedToResource(request);
     }
 }

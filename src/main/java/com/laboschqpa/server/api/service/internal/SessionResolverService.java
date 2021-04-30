@@ -1,17 +1,13 @@
 package com.laboschqpa.server.api.service.internal;
 
-import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceRequestDto;
-import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceResponseDto;
+import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceRequest;
+import com.laboschqpa.server.api.dto.internal.IsUserAuthorizedToResourceResponse;
 import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
-import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.filehost.FileAccessType;
-import com.laboschqpa.server.enums.ugc.UserGeneratedContentType;
 import com.laboschqpa.server.repo.UserAccRepository;
-import com.laboschqpa.server.repo.usergeneratedcontent.RiddleRepository;
-import com.laboschqpa.server.repo.usergeneratedcontent.UserGeneratedContentRepository;
-import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
+import com.laboschqpa.server.service.fileaccess.FileAccessAuthorizer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,37 +19,33 @@ import org.springframework.session.Session;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Log4j2
 @RequiredArgsConstructor
 @Service
 public class SessionResolverService {
     private final JdbcIndexedSessionRepository sessionRepository;
-    private final UserGeneratedContentRepository userGeneratedContentRepository;
-    private final RiddleRepository riddleRepository;
     private final UserAccRepository userAccRepository;
+    private final FileAccessAuthorizer fileAccessAuthorizer;
 
-    public IsUserAuthorizedToResourceResponseDto getIsUserAuthorizedToResource(IsUserAuthorizedToResourceRequestDto requestDto) {
-        requestDto.validateSelf();
-        log.trace("Authorizing with IsUserAuthorizedToResourceRequestDto.");
+    public IsUserAuthorizedToResourceResponse getIsUserAuthorizedToResource(IsUserAuthorizedToResourceRequest request) {
+        log.trace("Authorizing with IsUserAuthorizedToResourceRequest.");
 
-        final LoadUserReturn loadUserReturn = loadUser(requestDto);
+        final LoadUserReturn loadUserReturn = loadUser(request);
 
         if (loadUserReturn.isUltimateReturnValue()) {
             return loadUserReturn.getUltimateResponseDto();
         }
 
-        return authorizeUser(requestDto, loadUserReturn);
+        return authorizeUser(request, loadUserReturn);
     }
 
-    IsUserAuthorizedToResourceResponseDto authorizeUser(IsUserAuthorizedToResourceRequestDto requestDto,
-                                                        LoadUserReturn loadUserReturn) {
+    IsUserAuthorizedToResourceResponse authorizeUser(IsUserAuthorizedToResourceRequest request,
+                                                     LoadUserReturn loadUserReturn) {
         final Session session = loadUserReturn.getSession();
         final CustomOauth2User authenticationPrincipal = loadUserReturn.getAuthenticationPrincipal();
         final UserAcc userAcc = authenticationPrincipal.getUserAccEntity();
 
-        final IsUserAuthorizedToResourceResponseDto responseDto = new IsUserAuthorizedToResourceResponseDto();
+        final IsUserAuthorizedToResourceResponse responseDto = new IsUserAuthorizedToResourceResponse();
         responseDto.setAuthorized(false);//Initially false
         responseDto.setAuthenticated(true);
         responseDto.setLoggedInUserId(userAcc.getId());
@@ -66,11 +58,15 @@ public class SessionResolverService {
             userIsInATeam = false;
         }
 
-        if (isCsrfTokenValiditySufficient(requestDto, session)) {
+        if (isCsrfTokenValiditySufficient(request, session)) {
             responseDto.setCsrfValid(true);
-            switch (requestDto.getFileAccessType()) {
+            switch (request.getFileAccessType()) {
                 case READ:
-                    responseDto.setAuthorized(isReadRequestAuthorized(requestDto, userIsInATeam, userAcc, authenticationPrincipal));
+                    FileAccessAuthorizer.File file = new FileAccessAuthorizer.File();
+                    file.setId(request.getIndexedFileId());
+                    file.setOwnerUserId(request.getIndexedFileOwnerUserId());
+                    file.setOwnerTeamId(request.getIndexedFileOwnerTeamId());
+                    responseDto.setAuthorized(fileAccessAuthorizer.canUserReadFile(userAcc, file));
                     break;
                 case CREATE_NEW:
                     responseDto.setAuthorized(userIsInATeam);//Everyone who is in a team can upload.
@@ -86,8 +82,8 @@ public class SessionResolverService {
         return responseDto;
     }
 
-    LoadUserReturn loadUser(IsUserAuthorizedToResourceRequestDto requestDto) {
-        final Session session = sessionRepository.findById(requestDto.getSessionId());
+    LoadUserReturn loadUser(IsUserAuthorizedToResourceRequest request) {
+        final Session session = sessionRepository.findById(request.getSessionId());
 
         if (session == null || session.isExpired()) {
             return new LoadUserReturn(true, unauthenticatedResponseDto(), null, null);
@@ -127,42 +123,17 @@ public class SessionResolverService {
     @AllArgsConstructor
     static class LoadUserReturn {
         boolean ultimateReturnValue;
-        IsUserAuthorizedToResourceResponseDto ultimateResponseDto;
+        IsUserAuthorizedToResourceResponse ultimateResponseDto;
         Session session;
         CustomOauth2User authenticationPrincipal;
     }
 
-    /**
-     * BEHAVIOR: If the requested file is attached to riddles, it can only be accessed
-     * if at least one of these riddles is accessible for the user's team.
-     */
-    boolean isReadRequestAuthorized(final IsUserAuthorizedToResourceRequestDto requestDto, final boolean userIsInATeam,
-                                    final UserAcc userAcc, final CustomOauth2User authenticationPrincipal) {
-        if (new PrincipalAuthorizationHelper(authenticationPrincipal)
-                .hasAnySufficientAuthority(Authority.RiddleEditor, Authority.Admin)) {
+    boolean isCsrfTokenValiditySufficient(IsUserAuthorizedToResourceRequest request, Session session) {
+        if (request.getFileAccessType() == FileAccessType.READ) {
             return true;
         }
 
-        final Long requestedFileId = requestDto.getIndexedFileId();
-        final List<Long> attachedToRiddleIds = userGeneratedContentRepository.getIdsForSpecificUgcTypeWithAttachedFile(UserGeneratedContentType.RIDDLE, requestedFileId);
-        if (attachedToRiddleIds.size() == 0) {
-            return true;//The file is not a riddle attachment
-        }
-
-        if (userIsInATeam) {
-            final List<Long> accessibleRiddleIds = riddleRepository.findAccessibleRiddleIds(userAcc.getTeam().getId());
-            return attachedToRiddleIds.stream().anyMatch(accessibleRiddleIds::contains);//The attached riddles is accessible for the user
-        }
-
-        return false;
-    }
-
-    boolean isCsrfTokenValiditySufficient(IsUserAuthorizedToResourceRequestDto requestDto, Session session) {
-        if (requestDto.getFileAccessType() == FileAccessType.READ) {
-            return true;
-        }
-
-        final String csrfTokenToValidate = requestDto.getCsrfToken();
+        final String csrfTokenToValidate = request.getCsrfToken();
 
         final Object readRealCsrfToken = session.getAttribute(AppConstants.sessionAttributeNameCsrfToken);
         if (!(readRealCsrfToken instanceof CsrfToken)) {
@@ -173,8 +144,8 @@ public class SessionResolverService {
         return csrfTokenToValidate != null && csrfTokenToValidate.equals(realCsrfToken.getToken());
     }
 
-    IsUserAuthorizedToResourceResponseDto unauthenticatedResponseDto() {
-        return IsUserAuthorizedToResourceResponseDto.builder()
+    IsUserAuthorizedToResourceResponse unauthenticatedResponseDto() {
+        return IsUserAuthorizedToResourceResponse.builder()
                 .authenticated(false)
                 .authorized(false)
                 .csrfValid(false)

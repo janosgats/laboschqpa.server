@@ -10,7 +10,7 @@ public enum Authority {
     NewsPostEditor("NewsPostEditor"),
     ObjectiveEditor("ObjectiveEditor"),
     RiddleEditor("RiddleEditor"),
-    TeamScoreEditor("TeamScoreEditor"),
+    TeamScorer("TeamScorer"),
     SpeedDrinkingEditor("SpeedDrinkingEditor"),
     Admin("Admin");
 

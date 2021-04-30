@@ -113,4 +113,8 @@ public class UserAcc implements Serializable {
                 .collect(Collectors.toSet())
         );
     }
+
+    public boolean isMemberOrLeaderOfAnyTeam() {
+        return team != null && teamRole.isMemberOrLeader();
+    }
 }

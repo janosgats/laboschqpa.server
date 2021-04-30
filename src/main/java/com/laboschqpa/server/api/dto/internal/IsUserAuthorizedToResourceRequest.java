@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class IsUserAuthorizedToResourceRequestDto extends SelfValidator {
+public class IsUserAuthorizedToResourceRequest extends SelfValidator {
     /**
      * Unencoded (NOT Base64 encoded) session ID
      */

@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IsUserAuthorizedToResourceResponseDto{
+public class IsUserAuthorizedToResourceResponse {
     @Builder.Default
     private boolean authorized = false;
     private boolean authenticated;

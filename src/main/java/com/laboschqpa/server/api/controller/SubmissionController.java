@@ -30,7 +30,7 @@ public class SubmissionController {
         Submission submission = submissionService.getSubmissionWithEagerDisplayEntities(submissionId);
 
         Optional<Submission> filteredSubmission
-                = submissionService.filterSubmissionsThatUserCanSee(List.of(submission), authenticationPrincipal)
+                = submissionService.filterSubmissionsThatUserCanSee(List.of(submission), authenticationPrincipal.getUserAccEntity())
                 .stream().findFirst();
 
         if (filteredSubmission.isEmpty()) {
@@ -68,7 +68,8 @@ public class SubmissionController {
 
         final List<Submission> submissions = submissionService.listWithEagerDisplayEntities(request);
 
-        return submissionService.filterSubmissionsThatUserCanSee(submissions, authenticationPrincipal).stream()
+        return submissionService.filterSubmissionsThatUserCanSee(submissions, authenticationPrincipal.getUserAccEntity())
+                .stream()
                 .map(s -> new GetSubmissionResponse(s, true, true))
                 .collect(Collectors.toList());
     }
