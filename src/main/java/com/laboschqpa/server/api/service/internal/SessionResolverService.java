@@ -51,7 +51,7 @@ public class SessionResolverService {
         responseDto.setLoggedInUserId(userAcc.getId());
 
         final boolean userIsInATeam;
-        if (userAcc.getTeamRole().isMemberOrLeader() && userAcc.getTeam() != null) {
+        if (userAcc.isMemberOrLeaderOfAnyTeam()) {
             responseDto.setLoggedInUserTeamId(userAcc.getTeam().getId());
             userIsInATeam = true;
         } else {
