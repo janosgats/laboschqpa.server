@@ -4,7 +4,7 @@ import com.laboschqpa.server.enums.apierrordescriptor.InvalidAttachmentApiError;
 import com.laboschqpa.server.enums.filehost.IndexedFileStatus;
 import com.laboschqpa.server.exceptions.apierrordescriptor.InvalidAttachmentException;
 import com.laboschqpa.server.service.apiclient.filehost.FileHostApiClient;
-import com.laboschqpa.server.service.apiclient.filehost.GetIndexedFileInfoResultDto;
+import com.laboschqpa.server.service.apiclient.filehost.dto.GetIndexedFileInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -39,10 +39,10 @@ public class AttachmentHelper {
         if (indexedFileIds == null || indexedFileIds.size() == 0)
             return FileCheckResult.OK;
 
-        GetIndexedFileInfoResultDto[] indexedFileInfoArray = fileHostApiClient.getIndexedFileInfo(indexedFileIds);
+        GetIndexedFileInfoResponse[] indexedFileInfoArray = fileHostApiClient.getIndexedFileInfo(indexedFileIds);
         Set<Long> remainingIdsToCheck = new HashSet<>(indexedFileIds);
 
-        for (GetIndexedFileInfoResultDto fileInfo : indexedFileInfoArray) {
+        for (GetIndexedFileInfoResponse fileInfo : indexedFileInfoArray) {
             if (fileInfo.isExisting() || fileInfo.getIndexedFileStatus() == IndexedFileStatus.AVAILABLE) {
                 remainingIdsToCheck.remove(fileInfo.getIndexedFileId());
             }

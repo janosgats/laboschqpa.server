@@ -2,6 +2,7 @@ package com.laboschqpa.server.service.apiclient.filehost;
 
 import com.laboschqpa.server.service.apiclient.AbstractApiClient;
 import com.laboschqpa.server.service.apiclient.ApiCallerFactory;
+import com.laboschqpa.server.service.apiclient.filehost.dto.GetIndexedFileInfoResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class FileHostApiClient extends AbstractApiClient {
         super(apiCallerFactory, true);
     }
 
-    public GetIndexedFileInfoResultDto[] getIndexedFileInfo(Set<Long> indexedFileIds) {
-        return getApiCaller().doCallAndThrowExceptionIfStatuscodeIsNot2xx(GetIndexedFileInfoResultDto[].class,
+    public GetIndexedFileInfoResponse[] getIndexedFileInfo(Set<Long> indexedFileIds) {
+        return getApiCaller().doCallAndThrowExceptionIfStatuscodeIsNot2xx(GetIndexedFileInfoResponse[].class,
                 indexedFileInfoUrl,
                 HttpMethod.GET,
                 BodyInserters.fromValue(indexedFileIds));
