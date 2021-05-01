@@ -3,6 +3,7 @@ package com.laboschqpa.server.service.fileaccess;
 import com.laboschqpa.server.api.service.SubmissionService;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
+import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.ugc.UserGeneratedContentType;
 import com.laboschqpa.server.repo.dto.UserGeneratedContentParentJpaDto;
@@ -26,6 +27,18 @@ public class FileAccessAuthorizerService implements FileAccessAuthorizer {
     private final SubmissionRepository submissionRepository;
     private final SubmissionService submissionService;
     private final RiddleRepository riddleRepository;
+
+    @Override
+    public boolean canUserDeleteFile(UserAcc userAcc, File file) {
+        if (Objects.equals(userAcc.getId(), file.getOwnerUserId())) {
+            return true;
+        }
+        if (userAcc.getTeamRole() == TeamRole.LEADER
+                && Objects.equals(userAcc.getTeam().getId(), file.getOwnerTeamId())) {
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public boolean canUserReadFile(UserAcc userAcc, File file) {

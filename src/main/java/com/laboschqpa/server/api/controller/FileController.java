@@ -8,6 +8,7 @@ import com.laboschqpa.server.api.service.UserService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
+import com.laboschqpa.server.exceptions.UnAuthorizedException;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.service.apiclient.filehost.FileHostApiClient;
 import com.laboschqpa.server.service.apiclient.filehost.dto.GetIndexedFileInfoResponse;
@@ -52,13 +53,23 @@ public class FileController {
         final UserAcc ownerUser = userService.getById(basicFileInfo.getOwnerUserId());
         final Team ownerTeam = teamService.getById(basicFileInfo.getOwnerTeamId());
 
-        final FileAccessAuthorizer.File file = new FileAccessAuthorizer.File();
-        file.setId(basicFileInfo.getIndexedFileId());
-        file.setOwnerUserId(basicFileInfo.getOwnerUserId());
-        file.setOwnerTeamId(basicFileInfo.getOwnerTeamId());
+        final FileAccessAuthorizer.File file = new FileAccessAuthorizer.File(basicFileInfo);
 
         final boolean isVisibleForUser = fileAccessAuthorizer.canUserReadFile(authenticationPrincipal.getUserAccEntity(), file);
 
         return new FileInfoResponse(basicFileInfo, isVisibleForUser, ownerUser, ownerTeam);
+    }
+
+    @DeleteMapping("/delete")
+    public void deleteDelete(@Param("id") Long id,
+                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        final GetIndexedFileInfoResponse fileInfo = fileHostApiClient.getIndexedFileInfo(Set.of(id))[0];
+        FileAccessAuthorizer.File file = new FileAccessAuthorizer.File(fileInfo);
+
+        if (!fileAccessAuthorizer.canUserDeleteFile(authenticationPrincipal.getUserAccEntity(), file)) {
+            throw new UnAuthorizedException("You are not authorized to delete this file");
+        }
+
+        fileHostApiClient.deleteFile(id);
     }
 }

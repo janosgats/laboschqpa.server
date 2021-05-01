@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -16,6 +17,9 @@ public class FileHostApiClient extends AbstractApiClient {
     private String apiBaseUrl;
     @Value("${apiClient.fileHost.indexedFileInfo.url}")
     private String indexedFileInfoUrl;
+
+    @Value("${apiClient.fileHost.deleteFile.url}")
+    private String deleteFileUrl;
 
     public FileHostApiClient(ApiCallerFactory apiCallerFactory) {
         super(apiCallerFactory, true);
@@ -26,6 +30,13 @@ public class FileHostApiClient extends AbstractApiClient {
                 indexedFileInfoUrl,
                 HttpMethod.GET,
                 BodyInserters.fromValue(indexedFileIds));
+    }
+
+    public void deleteFile(long indexedFileId) {
+        getApiCaller().doCallAndThrowExceptionIfStatuscodeIsNot2xx(String.class,
+                deleteFileUrl,
+                HttpMethod.DELETE,
+                Map.of("id", String.valueOf(indexedFileId)));
     }
 
     @Override
