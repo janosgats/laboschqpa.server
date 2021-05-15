@@ -162,14 +162,14 @@ public class ApiCaller {
         return response
                 .bodyToMono(responseBodyClass)
                 .doOnSuccess((T responseBody) ->
-                        log.debug("Rest call succeeded. Url: {{} {}}, HTTP status code: {{}}, Parsed responseBody.toString length: {{}}",
+                        log.trace("Rest call succeeded. Url: {{} {}}, HTTP status code: {{}}, Parsed responseBody.toString length: {{}}",
                                 () -> httpMethod,
                                 () -> hideSecretForLogsInString(fullUriString),
                                 response::statusCode,
                                 () -> responseBody != null ? responseBody.toString().length() : "<No response body was present>"
                         ))
                 .doOnError(throwable ->
-                        log.debug("Exception while getting response body. Expected body class type: {}, Url: {{} {}}, HTTP status code: {{}}",
+                        log.error("Exception while getting response body. Expected body class type: {}, Url: {{} {}}, HTTP status code: {{}}",
                                 responseBodyClass.getSimpleName(),
                                 httpMethod,
                                 hideSecretForLogsInString(fullUriString),
