@@ -26,10 +26,10 @@ public abstract class UserGeneratedContent {
     @JoinColumn(name = "editor_user_id", nullable = false)
     private UserAcc editorUser;
 
-    @Column(name = "creation_time")
+    @Column(name = "creation_time", columnDefinition = "datetime")
     private Instant creationTime;
 
-    @Column(name = "edit_time")
+    @Column(name = "edit_time", columnDefinition = "datetime")
     private Instant editTime;
 
     @ElementCollection(fetch = FetchType.LAZY)

@@ -40,6 +40,6 @@ public class RiddleResolution {
     @Column(name = "hint_used", nullable = false)
     private Boolean hintUsed;
 
-    @Column(name = "solving_timestamp")
+    @Column(name = "solving_timestamp", columnDefinition = "datetime")
     private Instant solvingTimestamp;
 }

@@ -27,13 +27,13 @@ public class Objective extends UserGeneratedContent {
     @Column(name = "submittable", nullable = false)
     private Boolean submittable;
 
-    @Column(name = "deadline", nullable = false)
+    @Column(name = "deadline", columnDefinition = "datetime", nullable = false)
     private Instant deadline;
 
     /**
      * Submissions are only visible to everyone after this time. If {@code null}, they are always visible.
      */
-    @Column(name = "hide_submissions_before")
+    @Column(name = "hide_submissions_before", columnDefinition = "datetime")
     private Instant hideSubmissionsBefore;
 
     @Convert(converter = ObjectiveTypeAttributeConverter.class)
