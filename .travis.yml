@@ -59,7 +59,7 @@ jobs:
     - stage: DeployToKSZK
 #      if: branch = master
 #      if: env(FORCE_DEPLOY_TO_KSZK) = "true"
-      if: env(SKIP_DEPLOY_TO_KSZK) != "true" AND (branch = master OR env(FORCE_DEPLOY_TO_KSZK) = "true")
+      if: env(SKIP_DEPLOY_TO_KSZK) != "true" AND ((branch = master AND NOT type = pull_request) OR env(FORCE_DEPLOY_TO_KSZK) = "true")
       language: java
       script: skip
       before_install:
