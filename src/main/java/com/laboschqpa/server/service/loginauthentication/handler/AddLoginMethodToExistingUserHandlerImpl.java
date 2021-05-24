@@ -7,6 +7,7 @@ import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccoun
 import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
 import com.laboschqpa.server.exceptions.authentication.CorruptedContextAuthenticationException;
 import com.laboschqpa.server.exceptions.authentication.EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException;
+import com.laboschqpa.server.exceptions.authentication.ExternalAccountGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
 import com.laboschqpa.server.service.loginauthentication.ExplodedOAuth2UserRequestDto;
 import com.laboschqpa.server.service.loginauthentication.LoginAuthenticationHelper;
@@ -127,7 +128,7 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
         if (!existingUserAcc.getId().equals(userAccLoadedByExternalAccountDetail.getId())) {
             log.info("During addLoginMethod to existing user: User is found by EAD, but it's NOT the same as the initiator user.");
             //If the user is found by EAD, then the two users HAVE TO BE THE SAME!
-            throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
+            throw new ExternalAccountGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
                     "EAD got from OAuth2 response is saved in the system as a different User's EAD. "
                             + "Provider: " + providerRegistration
                             + ". Please contact support!");

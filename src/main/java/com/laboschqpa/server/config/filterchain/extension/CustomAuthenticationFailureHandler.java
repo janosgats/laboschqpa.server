@@ -27,6 +27,8 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
             responseKey = AuthApiError.AUTH_DEFECTIVE_AUTH_PROVIDER_RESPONSE;
         } else if (exception instanceof EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException) {
             responseKey = AuthApiError.AUTH_EMAIL_GOT_FROM_OAUTH2_RESPONSE_BELONGS_TO_ANOTHER_ACCOUNT;
+        } else if (exception instanceof ExternalAccountGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException) {
+            responseKey = AuthApiError.AUTH_EXTERNAL_ACCOUNT_GOT_FROM_OAUTH2_RESPONSE_BELONGS_TO_ANOTHER_ACCOUNT;
         } else if (exception instanceof InvalidLoginMethodAuthenticationException) {
             responseKey = AuthApiError.AUTH_INVALID_LOGIN_METHOD;
             log.warn("Authentication failure", exception);
