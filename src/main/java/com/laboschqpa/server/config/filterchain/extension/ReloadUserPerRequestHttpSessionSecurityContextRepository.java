@@ -28,7 +28,7 @@ public class ReloadUserPerRequestHttpSessionSecurityContextRepository extends Ht
      * TODO: Get rid of this reloading per request and replace it by these two steps below:
      *  <ol>
      *      <li>Store the GrantedAuthorities in the AuthenticationPrincipal (the {@link CustomOauth2User}) and serialize them into the session</li>
-     *      <li>Implement a service to force reload the granted authorities into user sessions/expire sessions</li>
+     *      <li>Implement a service to force reload the granted authorities into user sessions when they change</li>
      *  </ol>
      */
     @Override

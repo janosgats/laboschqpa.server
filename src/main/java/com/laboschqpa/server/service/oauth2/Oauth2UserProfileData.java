@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExtractedOAuth2UserRequestDataDto {
+public class Oauth2UserProfileData {
     private ExternalAccountDetail externalAccountDetail;
     private String emailAddress;
 

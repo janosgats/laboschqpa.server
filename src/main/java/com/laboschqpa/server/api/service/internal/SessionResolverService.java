@@ -14,10 +14,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.session.Session;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.stereotype.Service;
+
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -89,8 +90,7 @@ public class SessionResolverService {
             return new LoadUserReturn(true, unauthenticatedResponseDto(), null, null);
         }
 
-        final SecurityContext securityContext
-                = session.getAttribute(WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
+        final SecurityContext securityContext = session.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
         if (securityContext == null || securityContext.getAuthentication() == null) {
             return new LoadUserReturn(true, unauthenticatedResponseDto(), null, null);
         }

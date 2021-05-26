@@ -1,9 +1,11 @@
 package com.laboschqpa.server.entity.account.externalaccountdetail;
 
 import com.laboschqpa.server.entity.account.UserAcc;
+import lombok.Data;
 
 import javax.persistence.*;
 
+@Data
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(indexes = {@Index(columnList = "user_id")})
@@ -17,15 +19,7 @@ public abstract class ExternalAccountDetail {
     @JoinColumn(name = "user_id", nullable = false)
     private UserAcc userAcc;
 
-    public Long getId() {
-        return id;
-    }
+    public abstract String getDetailString();
 
-    public UserAcc getUserAcc() {
-        return userAcc;
-    }
-
-    public void setUserAcc(UserAcc userAcc) {
-        this.userAcc = userAcc;
-    }
+    public abstract void fillFromDetailString(String detailsString);
 }

@@ -17,12 +17,12 @@ import java.util.Optional;
 @Log4j2
 @RequiredArgsConstructor
 @Service
-public class GoogleOAuth2ProviderService extends AbstractOAuth2ProviderService {
+public class GoogleOAuth2Provider implements OAuth2Provider {
     private final GoogleExternalAccountDetailRepository googleExternalAccountDetailRepository;
 
 
     @Override
-    public ExtractedOAuth2UserRequestDataDto extractDataFromOauth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {
+    public Oauth2UserProfileData extractDataFromOauth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {
         Map<String, Object> claims = ((OidcUserRequest) oAuth2UserRequest).getIdToken().getClaims();
         final Object googleSubObject = claims.get("sub");
         final String firstName = (String) claims.get("given_name");
@@ -35,7 +35,7 @@ public class GoogleOAuth2ProviderService extends AbstractOAuth2ProviderService {
         googleExternalAccountDetail.setSub((String) googleSubObject);
 
         String emailAddress = tryToGetEmailFromClaims(claims);
-        return new ExtractedOAuth2UserRequestDataDto(googleExternalAccountDetail, emailAddress, firstName, lastName, null);
+        return new Oauth2UserProfileData(googleExternalAccountDetail, emailAddress, firstName, lastName, null);
     }
 
     private String tryToGetEmailFromClaims(Map<String, Object> claims) {
@@ -60,7 +60,13 @@ public class GoogleOAuth2ProviderService extends AbstractOAuth2ProviderService {
     }
 
     @Override
-    protected void saveExternalAccountDetail(ExternalAccountDetail externalAccountDetail) {
+    public void saveExternalAccountDetailForUserAcc(ExternalAccountDetail externalAccountDetail, UserAcc userAcc) {
+        externalAccountDetail.setUserAcc(userAcc);
         googleExternalAccountDetailRepository.save((GoogleExternalAccountDetail) externalAccountDetail);
+    }
+
+    @Override
+    public ExternalAccountDetail instantiateExternalAccountDetail() {
+        return new GoogleExternalAccountDetail();
     }
 }

@@ -4,15 +4,15 @@ import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.account.UserEmailAddress;
 import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccountDetail;
-import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
+import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistration;
 import com.laboschqpa.server.exceptions.authentication.CorruptedContextAuthenticationException;
-import com.laboschqpa.server.exceptions.authentication.EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException;
+import com.laboschqpa.server.exceptions.authentication.EmailBelongsToAnOtherAccountAuthenticationException;
 import com.laboschqpa.server.exceptions.authentication.ExternalAccountGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
 import com.laboschqpa.server.service.loginauthentication.ExplodedOAuth2UserRequestDto;
 import com.laboschqpa.server.service.loginauthentication.LoginAuthenticationHelper;
-import com.laboschqpa.server.service.oauth2.AbstractOAuth2ProviderService;
-import com.laboschqpa.server.service.oauth2.ExtractedOAuth2UserRequestDataDto;
+import com.laboschqpa.server.service.oauth2.OAuth2Provider;
+import com.laboschqpa.server.service.oauth2.Oauth2UserProfileData;
 import com.laboschqpa.server.util.SessionHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -47,34 +47,34 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
     }
 
     private CustomOauth2User addLoginMethodToExistingUserAccount(UserAcc existingUserAcc, ExplodedOAuth2UserRequestDto explodedRequest) {
-        final OAuth2ProviderRegistrations providerRegistration = explodedRequest.getProviderRegistration();
-        final AbstractOAuth2ProviderService oAuth2ProviderService = explodedRequest.getOAuth2ProviderService();
-        final ExtractedOAuth2UserRequestDataDto extractedOAuth2UserRequestDataDto = explodedRequest.getExtractedOAuth2UserRequestDataDto();
+        final OAuth2ProviderRegistration providerRegistration = explodedRequest.getProviderRegistration();
+        final OAuth2Provider oAuth2ProviderService = explodedRequest.getOAuth2Provider();
+        final Oauth2UserProfileData oauth2UserProfileData = explodedRequest.getOauth2UserProfileData();
 
         //Email
-        final boolean emailAddressWasPresentInOauth2Response = extractedOAuth2UserRequestDataDto.getEmailAddress() != null;
+        final boolean emailAddressWasPresentInOauth2Response = oauth2UserProfileData.getEmailAddress() != null;
         final Boolean doesEmailAddressAlreadyExist = assertAndDetermineIfEmailAddressAlreadyExists(
                 existingUserAcc,
                 emailAddressWasPresentInOauth2Response,
-                extractedOAuth2UserRequestDataDto.getEmailAddress());
+                oauth2UserProfileData.getEmailAddress());
 
         //ExternalAccountDetail
         final boolean doesExternalAccountDetailAlreadyExist = assertAndDetermineIfExternalAccountDetailAlreadyExists(
                 existingUserAcc,
                 providerRegistration,
                 oAuth2ProviderService,
-                extractedOAuth2UserRequestDataDto.getExternalAccountDetail());
+                oauth2UserProfileData.getExternalAccountDetail());
 
         log.info("Adding login method to existing user ({}). Digest: providerRegistration: {}, emailAddressWasPresentInOauth2Response: {}," +
                         " doesEmailAddressAlreadyExist: {}, doesExternalAccountDetailAlreadyExist: {}", existingUserAcc.getId(),
                 providerRegistration, emailAddressWasPresentInOauth2Response, doesEmailAddressAlreadyExist, doesExternalAccountDetailAlreadyExist);
 
         if (!doesExternalAccountDetailAlreadyExist) {
-            oAuth2ProviderService.saveExternalAccountDetailForUserAcc(extractedOAuth2UserRequestDataDto.getExternalAccountDetail(), existingUserAcc);
+            oAuth2ProviderService.saveExternalAccountDetailForUserAcc(oauth2UserProfileData.getExternalAccountDetail(), existingUserAcc);
         }
 
         if (emailAddressWasPresentInOauth2Response && !doesEmailAddressAlreadyExist) {
-            loginAuthenticationHelper.saveNewEmailAddressForUserIfEmailIsNotNull(extractedOAuth2UserRequestDataDto.getEmailAddress(), existingUserAcc);
+            loginAuthenticationHelper.saveNewEmailAddressForUserIfNotBlank(oauth2UserProfileData.getEmailAddress(), existingUserAcc);
         }
 
         return new CustomOauth2User(loginAuthenticationHelper.reloadUserAccFromDB(existingUserAcc));
@@ -97,8 +97,8 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
     }
 
     private Boolean assertAndDetermineIfExternalAccountDetailAlreadyExists(UserAcc existingUserAcc,
-                                                                           OAuth2ProviderRegistrations providerRegistration,
-                                                                           AbstractOAuth2ProviderService oAuth2ProviderService,
+                                                                           OAuth2ProviderRegistration providerRegistration,
+                                                                           OAuth2Provider oAuth2ProviderService,
                                                                            ExternalAccountDetail externalAccountDetail) {
         final UserAcc userAccLoadedByExternalAccountDetail
                 = oAuth2ProviderService.loadUserAccFromDbByExternalAccountDetail(externalAccountDetail);
@@ -115,7 +115,7 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
         if (!existingUserAcc.getId().equals(userEmailAddress.getUserAcc().getId())) {
             log.info("During addLoginMethod to existing user: User is found by E-mail, but it's NOT the same as the initiator user.");
             //If the user is found by EAD or by Email, then the two users HAVE TO BE THE SAME!
-            throw new EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException(
+            throw new EmailBelongsToAnOtherAccountAuthenticationException(
                     "E-mail got from OAuth2 response is saved in the system as a different User's e-mail address: "
                             + userEmailAddress.getEmail()
                             + ". Please contact support!");
@@ -124,7 +124,7 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
 
     private void assertExistingUserAccIsTheSameAsTheOneThatIsStoredForTheExternalAccountDetail(UserAcc existingUserAcc,
                                                                                                UserAcc userAccLoadedByExternalAccountDetail,
-                                                                                               OAuth2ProviderRegistrations providerRegistration) {
+                                                                                               OAuth2ProviderRegistration providerRegistration) {
         if (!existingUserAcc.getId().equals(userAccLoadedByExternalAccountDetail.getId())) {
             log.info("During addLoginMethod to existing user: User is found by EAD, but it's NOT the same as the initiator user.");
             //If the user is found by EAD, then the two users HAVE TO BE THE SAME!

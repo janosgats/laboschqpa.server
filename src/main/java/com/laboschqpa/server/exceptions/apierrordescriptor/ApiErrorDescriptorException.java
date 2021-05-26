@@ -10,7 +10,11 @@ public class ApiErrorDescriptorException extends RuntimeException {
     private Object payload;
 
     public ApiErrorDescriptorException(ApiErrorDescriptor apiErrorDescriptor) {
-        this(apiErrorDescriptor, null);
+        this(apiErrorDescriptor, (String) null);
+    }
+
+    public ApiErrorDescriptorException(ApiErrorDescriptor apiErrorDescriptor, Throwable cause) {
+        this(apiErrorDescriptor, null, null);
     }
 
     public ApiErrorDescriptorException(ApiErrorDescriptor apiErrorDescriptor, String message) {
@@ -18,7 +22,11 @@ public class ApiErrorDescriptorException extends RuntimeException {
     }
 
     public ApiErrorDescriptorException(ApiErrorDescriptor apiErrorDescriptor, String message, Object payload) {
-        super(message);
+        this(apiErrorDescriptor, message, payload, null);
+    }
+
+    public ApiErrorDescriptorException(ApiErrorDescriptor apiErrorDescriptor, String message, Object payload, Throwable cause) {
+        super(message, cause);
         this.apiErrorDescriptor = apiErrorDescriptor;
         this.payload = payload;
     }

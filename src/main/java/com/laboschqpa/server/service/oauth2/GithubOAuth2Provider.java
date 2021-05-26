@@ -15,12 +15,12 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class GithubOAuth2ProviderService extends AbstractOAuth2ProviderService {
+public class GithubOAuth2Provider implements OAuth2Provider {
     private final GitHubApiClient gitHubApiClient;
     private final GithubExternalAccountDetailRepository githubExternalAccountDetailRepository;
 
     @Override
-    public ExtractedOAuth2UserRequestDataDto extractDataFromOauth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {
+    public Oauth2UserProfileData extractDataFromOauth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {
         final GithubUserInfoDto githubUserInfoDto;
         try {
             githubUserInfoDto = gitHubApiClient.getOAuth2UserInfo(oAuth2UserRequest.getAccessToken());
@@ -44,7 +44,7 @@ public class GithubOAuth2ProviderService extends AbstractOAuth2ProviderService {
         GithubExternalAccountDetail githubExternalAccountDetail = new GithubExternalAccountDetail();
         githubExternalAccountDetail.setGithubId(githubUserInfoDto.getId());
 
-        return new ExtractedOAuth2UserRequestDataDto(githubExternalAccountDetail, githubUserInfoDto.getEmail(), firstName, lastName, null);
+        return new Oauth2UserProfileData(githubExternalAccountDetail, githubUserInfoDto.getEmail(), firstName, lastName, null);
     }
 
     @Override
@@ -59,7 +59,13 @@ public class GithubOAuth2ProviderService extends AbstractOAuth2ProviderService {
     }
 
     @Override
-    protected void saveExternalAccountDetail(ExternalAccountDetail externalAccountDetail) {
+    public void saveExternalAccountDetailForUserAcc(ExternalAccountDetail externalAccountDetail, UserAcc userAcc) {
+        externalAccountDetail.setUserAcc(userAcc);
         githubExternalAccountDetailRepository.save((GithubExternalAccountDetail) externalAccountDetail);
+    }
+
+    @Override
+    public ExternalAccountDetail instantiateExternalAccountDetail() {
+        return new GithubExternalAccountDetail();
     }
 }

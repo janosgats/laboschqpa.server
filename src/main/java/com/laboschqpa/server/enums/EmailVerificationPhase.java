@@ -5,13 +5,12 @@ import com.laboschqpa.server.exceptions.NotImplementedException;
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum RegistrationRequestPhase {
+public enum EmailVerificationPhase {
     EMAIL_SUBMITTED(1),
-    EMAIL_VERIFIED(2),
-    REGISTERED(3);
+    EMAIL_VERIFIED(2);
     private Integer value;
 
-    RegistrationRequestPhase(Integer value) {
+    EmailVerificationPhase(Integer value) {
         this.value = value;
     }
 
@@ -19,8 +18,8 @@ public enum RegistrationRequestPhase {
         return value;
     }
 
-    public static RegistrationRequestPhase fromValue(Integer value) {
-        Optional<RegistrationRequestPhase> optional = Arrays.stream(RegistrationRequestPhase.values())
+    public static EmailVerificationPhase fromValue(Integer value) {
+        Optional<EmailVerificationPhase> optional = Arrays.stream(EmailVerificationPhase.values())
                 .filter(en -> en.getValue().equals(value))
                 .findFirst();
 

@@ -7,6 +7,7 @@ import com.laboschqpa.server.exceptions.authentication.UserAccountIsDisabledAuth
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -23,8 +24,8 @@ public class LoginAuthenticationHelper {
         }
     }
 
-    public void saveNewEmailAddressForUserIfEmailIsNotNull(String emailAddress, UserAcc userAccEntity) {
-        if (emailAddress != null) {
+    public void saveNewEmailAddressForUserIfNotBlank(String emailAddress, UserAcc userAccEntity) {
+        if (StringUtils.isNotBlank(emailAddress)) {
             UserEmailAddress newUserEmailAddress = new UserEmailAddress();
             newUserEmailAddress.setEmail(emailAddress);
             newUserEmailAddress.setUserAcc(userAccEntity);

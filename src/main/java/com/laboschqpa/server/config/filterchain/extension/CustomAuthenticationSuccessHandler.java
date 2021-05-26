@@ -37,7 +37,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         LoginSuccessResultDto loginSuccessResultDto = LoginSuccessResultDto.builder()
                 .sessionId(encodeToBase64(getCurrentSessionId()))
                 .csrfToken(getCurrentCsrfToken(request, response).getToken())
-                .newlyRegistered(customOauth2User.isNewlyRegistered())
                 .authorities(customOauth2User.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toSet()))

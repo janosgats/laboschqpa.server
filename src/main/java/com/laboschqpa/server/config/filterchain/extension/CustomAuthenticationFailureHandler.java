@@ -18,22 +18,20 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) {
         AuthApiError responseKey;
         String errorMessage = exception.getMessage();
-        if (exception instanceof CannotFindExistingAccountAndNoRegistrationSessionDataIsSetAuthenticationException) {
-            responseKey = AuthApiError.AUTH_CANNOT_FIND_EXISTING_ACCOUNT_AND_NO_REGISTRATION_SESSION_DATA_IS_SET;
-        } else if (exception instanceof CorruptedContextAuthenticationException) {
+        if (exception instanceof CorruptedContextAuthenticationException) {
             responseKey = AuthApiError.AUTH_CORRUPTED_CONTEXT;
             log.warn("Authentication failure", exception);
         } else if (exception instanceof DefectiveAuthProviderResponseAuthenticationException) {
             responseKey = AuthApiError.AUTH_DEFECTIVE_AUTH_PROVIDER_RESPONSE;
-        } else if (exception instanceof EmailGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException) {
+        } else if (exception instanceof EmailBelongsToAnOtherAccountAuthenticationException) {
             responseKey = AuthApiError.AUTH_EMAIL_GOT_FROM_OAUTH2_RESPONSE_BELONGS_TO_ANOTHER_ACCOUNT;
         } else if (exception instanceof ExternalAccountGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException) {
             responseKey = AuthApiError.AUTH_EXTERNAL_ACCOUNT_GOT_FROM_OAUTH2_RESPONSE_BELONGS_TO_ANOTHER_ACCOUNT;
         } else if (exception instanceof InvalidLoginMethodAuthenticationException) {
             responseKey = AuthApiError.AUTH_INVALID_LOGIN_METHOD;
             log.warn("Authentication failure", exception);
-        } else if (exception instanceof RegistrationRequestReferredBySessionDataIsInvalidAuthenticationException) {
-            responseKey = AuthApiError.AUTH_REGISTRATION_REQUEST_REFERRED_BY_SESSION_DATA_IS_INVALID;
+        } else if (exception instanceof CannotFindExistingAccountToLogInAuthenticationException) {
+            responseKey = AuthApiError.CANNOT_FIND_EXISTING_ACCOUNT_TO_LOG_IN;
         } else if (exception instanceof UserAccountIsDisabledAuthenticationException) {
             responseKey = AuthApiError.AUTH_USER_ACCOUNT_IS_DISABLED;
         } else {

@@ -56,12 +56,12 @@ public class EmailMessageFactory {
             return helper;
         }
 
-        public MimeMessageHelper createRegistrationRequestMessage(String emailVerificationUrl) {
+        public MimeMessageHelper createEmailVerificationRequestMessage(String emailVerificationUrl) {
             final Context ctx = new Context();
             ctx.setVariable("emailVerificationUrl", emailVerificationUrl);
 
             final MimeMessageHelper helper = createCommonMimeMessageWithHelper();
-            setBodyAndSubjectFromThymeleafTemplate(helper, "mail/predefined/registrationRequest", ctx);
+            setBodyAndSubjectFromThymeleafTemplate(helper, "mail/predefined/emailVerificationRequest", ctx);
             return helper;
         }
 

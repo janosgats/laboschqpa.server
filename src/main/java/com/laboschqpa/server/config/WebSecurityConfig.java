@@ -9,7 +9,7 @@ import com.laboschqpa.server.config.helper.AppConstants;
 import com.laboschqpa.server.config.userservice.CustomOAuth2UserService;
 import com.laboschqpa.server.config.userservice.CustomOidcUserService;
 import com.laboschqpa.server.enums.auth.Authority;
-import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistrations;
+import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistration;
 import com.laboschqpa.server.repo.UserAccRepository;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -156,8 +156,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(OAuth2ProviderRegistrationFactory oAuth2ProviderRegistrationFactory) {
         List<ClientRegistration> registrations = new ArrayList<>();
-        registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistrations.Google));
-        registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistrations.GitHub));
+        registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistration.Google));
+        registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistration.GitHub));
 
         return new InMemoryClientRegistrationRepository(registrations);
     }
