@@ -17,6 +17,7 @@ class CreateNewTeamRequestTest {
         assertThrows(FieldValidationFailedException.class, createNewTeamRequest::validateSelf);
 
         createNewTeamRequest = new CreateNewTeamRequest();
+        createNewTeamRequest.setName(null);
         assertThrows(FieldValidationFailedException.class, createNewTeamRequest::validateSelf);
 
         createNewTeamRequest = new CreateNewTeamRequest();

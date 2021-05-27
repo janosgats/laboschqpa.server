@@ -27,6 +27,8 @@ public class AppConstants {
 
     //language=RegExp
     public static final String generalNameValidatorPattern = "^[a-zA-Z0-9!_'áéíóöőúüűÁÉÍÓÖŐÚÜŰ -]*$";
+    //language=RegExp
+    public static final String nickNameValidatorPattern = "^[a-zA-Z0-9!_(),':%áéíóöőúüűÁÉÍÓÖŐÚÜŰ -]*$";
 
     public static final String sessionAttributeNameCsrfToken = "CSRF_TOKEN";
 
