@@ -35,10 +35,13 @@ public class EmailAddressService {
         emailVerificationRequest.setVerificationKey(generateVerificationKey());
         emailVerificationRequest.setPhase(EmailVerificationPhase.EMAIL_SUBMITTED);
 
-        qpaEmailDispatcher.sendSyncEmailVerificationRequestMail(emailToRegister,
-                emailVerificationRequest.getId(), emailVerificationRequest.getVerificationKey());
-
-        emailVerificationRequestRepository.save(emailVerificationRequest);
+        transactionTemplate.executeWithoutResult(transactionStatus -> {
+            emailVerificationRequestRepository.save(emailVerificationRequest);
+            emailVerificationRequestRepository.flush();
+            
+            qpaEmailDispatcher.sendSyncEmailVerificationRequestMail(emailToRegister,
+                    emailVerificationRequest.getId(), emailVerificationRequest.getVerificationKey());
+        });
     }
 
     private String generateVerificationKey() {
