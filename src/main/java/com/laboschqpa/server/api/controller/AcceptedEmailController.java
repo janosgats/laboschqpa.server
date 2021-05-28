@@ -96,7 +96,7 @@ public class AcceptedEmailController {
     }
 
     @DeleteMapping("/delete")
-    public void deleteDelete(@Param("id") Long id,
+    public void deleteDelete(@NotNull @Param("id") Long id,
                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.AcceptedEmailEditor);
 

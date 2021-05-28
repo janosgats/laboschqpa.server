@@ -18,14 +18,14 @@ public class AuthorityAdminController {
     private final AuthorityAdminService authorityAdminService;
 
     @GetMapping("user/get")
-    public Set<String> getUserAuthorities(@RequestParam("userAccId") Long userAccId,
+    public Set<String> getUserAuthorities(@RequestParam("userId") Long userAccId,
                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
         return authorityAdminService.getUserAuthorities(userAccId).stream().map(Authority::getStringValue).collect(Collectors.toSet());
     }
 
     @PostMapping("user/add")
-    public void postAddUserAuthority(@RequestParam("userAccId") Long userAccId,
+    public void postAddUserAuthority(@RequestParam("userId") Long userAccId,
                                      @RequestParam("authority") String authorityStringValue,
                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
@@ -33,7 +33,7 @@ public class AuthorityAdminController {
     }
 
     @DeleteMapping("user/delete")
-    public void deleteUserAuthority(@RequestParam("userAccId") Long userAccId,
+    public void deleteUserAuthority(@RequestParam("userId") Long userAccId,
                                     @RequestParam("authority") String authorityStringValue,
                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
