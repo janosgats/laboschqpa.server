@@ -9,6 +9,7 @@ import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistration;
 import com.laboschqpa.server.exceptions.apierrordescriptor.RegistrationException;
 import com.laboschqpa.server.model.sessiondto.RegistrationSessionDto;
+import com.laboschqpa.server.repo.AcceptedEmailRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.service.loginauthentication.LoginAuthenticationHelper;
 import com.laboschqpa.server.service.loginauthentication.UserAccResolutionSource;
@@ -38,6 +39,7 @@ public class RegistrationService {
     private final LoginAuthenticationHelper loginAuthenticationHelper;
     private final UserAccRepository userAccRepository;
     private final UserAccResolverService userAccResolverService;
+    private final AcceptedEmailRepository acceptedEmailRepository;
 
     @AllArgsConstructor
     private static class ExplodedRegistration {
@@ -112,7 +114,9 @@ public class RegistrationService {
                     .saveExternalAccountDetailForUserAcc(exploded.externalAccountDetail, registeredUserAccEntity);
 
             loginAuthenticationHelper.saveNewEmailAddressForUserIfNotBlank(
-                    exploded.registrationSessionDto.getEmailAddress(), registeredUserAccEntity);
+                    exploded.registrationSessionDto.getEmailAddress(), registeredUserAccEntity, true);
+
+            acceptedEmailRepository.recalculateByUserId(registeredUserAccEntity.getId());
 
             exploded.registrationSessionDto.removeFromCurrentSession();
             return registeredUserAccEntity;
@@ -124,6 +128,7 @@ public class RegistrationService {
 
         newUserAcc.setEnabled(true);
         newUserAcc.setAuthorities_FromEnumBasedAuthority(Set.of(new EnumBasedAuthority(Authority.User)));
+        newUserAcc.setIsAcceptedByEmail(false);
 
         newUserAcc.setFirstName(registrationSessionDto.getFirstName());
         newUserAcc.setLastName(registrationSessionDto.getLastName());

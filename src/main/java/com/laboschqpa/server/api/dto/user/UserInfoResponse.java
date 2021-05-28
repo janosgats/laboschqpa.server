@@ -28,6 +28,7 @@ public class UserInfoResponse {
     private String teamName;
 
     private Boolean enabled;
+    private Boolean isAcceptedByEmail;
     private Set<Authority> authorities;
 
     public UserInfoResponse(UserAcc userAcc) {
@@ -52,6 +53,7 @@ public class UserInfoResponse {
         this.teamRole = userAcc.getTeamRole();
 
         this.enabled = userAcc.getEnabled();
+        this.isAcceptedByEmail = userAcc.getIsAcceptedByEmail();
         if (withAuthorities) {
             this.authorities = userAcc.getAuthorities();
         }

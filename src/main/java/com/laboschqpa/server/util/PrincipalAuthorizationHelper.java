@@ -32,6 +32,11 @@ public class PrincipalAuthorizationHelper {
         return hasAnySufficientAuthority(Authority.Admin);
     }
 
+
+    public void assertHasAuthority(Authority authority) {
+        assertHasAnySufficientAuthority(authority);
+    }
+
     public void assertHasAnySufficientAuthority(Authority... sufficientAuthorities) {
         if (!hasAnySufficientAuthority(sufficientAuthorities))
             throw new UnAuthorizedException("You have none of the following authorities: " +

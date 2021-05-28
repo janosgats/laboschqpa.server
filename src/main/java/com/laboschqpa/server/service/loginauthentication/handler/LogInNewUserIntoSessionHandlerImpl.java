@@ -5,6 +5,7 @@ import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistration;
 import com.laboschqpa.server.exceptions.authentication.CannotFindExistingAccountToLogInAuthenticationException;
 import com.laboschqpa.server.model.sessiondto.RegistrationSessionDto;
+import com.laboschqpa.server.repo.AcceptedEmailRepository;
 import com.laboschqpa.server.service.loginauthentication.ExplodedOAuth2UserRequestDto;
 import com.laboschqpa.server.service.loginauthentication.LoginAuthenticationHelper;
 import com.laboschqpa.server.service.loginauthentication.UserAccResolutionSource;
@@ -24,6 +25,7 @@ import java.util.Objects;
 public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessionHandler {
     private final UserAccResolverService userAccResolverService;
     private final LoginAuthenticationHelper loginAuthenticationHelper;
+    private final AcceptedEmailRepository acceptedEmailRepository;
 
     @Override
     public CustomOauth2User resolveUserAccountAndLogInIntoSession(ExplodedOAuth2UserRequestDto explodedRequest) {
@@ -56,7 +58,8 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
             case OnlyByExternalAccountDetail:
                 //User is found by EAD but not by E-mail, so adding new E-mail.
                 log.trace("User is found by EAD but not by E-mail, so adding new E-mail to the user if it presents.");
-                loginAuthenticationHelper.saveNewEmailAddressForUserIfNotBlank(oauth2UserProfileData.getEmailAddress(), userAccEntity);
+                loginAuthenticationHelper.saveNewEmailAddressForUserIfNotBlank(oauth2UserProfileData.getEmailAddress(), userAccEntity, true);
+                acceptedEmailRepository.recalculateByUserId(userAccEntity.getId());
                 break;
             case OnlyByEmail:
                 //User is found by E-mail but not by EAD, so adding new EAD.

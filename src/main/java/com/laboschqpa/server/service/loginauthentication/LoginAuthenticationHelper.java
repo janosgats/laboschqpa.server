@@ -25,11 +25,18 @@ public class LoginAuthenticationHelper {
     }
 
     public void saveNewEmailAddressForUserIfNotBlank(String emailAddress, UserAcc userAccEntity) {
+        saveNewEmailAddressForUserIfNotBlank(emailAddress, userAccEntity, false);
+    }
+
+    public void saveNewEmailAddressForUserIfNotBlank(String emailAddress, UserAcc userAccEntity, boolean doFlush) {
         if (StringUtils.isNotBlank(emailAddress)) {
             UserEmailAddress newUserEmailAddress = new UserEmailAddress();
-            newUserEmailAddress.setEmail(emailAddress);
+            newUserEmailAddress.setEmail(emailAddress.trim());
             newUserEmailAddress.setUserAcc(userAccEntity);
             userEmailAddressRepository.save(newUserEmailAddress);
+            if (doFlush) {
+                userEmailAddressRepository.flush();
+            }
         }
     }
 

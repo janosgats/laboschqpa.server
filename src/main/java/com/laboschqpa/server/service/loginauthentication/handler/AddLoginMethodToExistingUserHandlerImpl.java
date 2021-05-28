@@ -8,6 +8,7 @@ import com.laboschqpa.server.enums.auth.OAuth2ProviderRegistration;
 import com.laboschqpa.server.exceptions.authentication.CorruptedContextAuthenticationException;
 import com.laboschqpa.server.exceptions.authentication.EmailBelongsToAnOtherAccountAuthenticationException;
 import com.laboschqpa.server.exceptions.authentication.ExternalAccountGotFromOAuth2ResponseBelongsToAnOtherAccountAuthenticationException;
+import com.laboschqpa.server.repo.AcceptedEmailRepository;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
 import com.laboschqpa.server.service.loginauthentication.ExplodedOAuth2UserRequestDto;
 import com.laboschqpa.server.service.loginauthentication.LoginAuthenticationHelper;
@@ -27,6 +28,7 @@ import java.util.Optional;
 public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodToExistingUserHandler {
     private final UserEmailAddressRepository userEmailAddressRepository;
     private final LoginAuthenticationHelper loginAuthenticationHelper;
+    private final AcceptedEmailRepository acceptedEmailRepository;
 
     @Override
     public CustomOauth2User handleOAuth2UserRequestWhenUserIsAlreadyLoggedIn(ExplodedOAuth2UserRequestDto explodedRequest) {
@@ -74,7 +76,8 @@ public class AddLoginMethodToExistingUserHandlerImpl implements AddLoginMethodTo
         }
 
         if (emailAddressWasPresentInOauth2Response && !doesEmailAddressAlreadyExist) {
-            loginAuthenticationHelper.saveNewEmailAddressForUserIfNotBlank(oauth2UserProfileData.getEmailAddress(), existingUserAcc);
+            loginAuthenticationHelper.saveNewEmailAddressForUserIfNotBlank(oauth2UserProfileData.getEmailAddress(), existingUserAcc, true);
+            acceptedEmailRepository.recalculateByUserId(existingUserAcc.getId());
         }
 
         return new CustomOauth2User(loginAuthenticationHelper.reloadUserAccFromDB(existingUserAcc));

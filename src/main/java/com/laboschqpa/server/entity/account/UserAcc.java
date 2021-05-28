@@ -46,6 +46,13 @@ public class UserAcc implements Serializable {
     @Column(name = "enabled", nullable = false)
     private Boolean enabled;
 
+    /**
+     * Users are not allowed to see submissions if they are not accepted by e-mail.
+     * This flag should be calculated based on the set of accepted e-mails.
+     */
+    @Column(name = "is_accepted_by_email", nullable = false)
+    private Boolean isAcceptedByEmail;
+
     @Builder.Default
     @Convert(converter = TeamRoleAttributeConverter.class)
     @Column(name = "team_role", nullable = false)

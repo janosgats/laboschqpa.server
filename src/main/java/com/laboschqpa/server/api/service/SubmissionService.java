@@ -99,10 +99,10 @@ public class SubmissionService {
         return submissionRepository.findAll_withEagerDisplayEntities_orderByCreationTimeDesc();
     }
 
-    public List<Submission> filterSubmissionsThatUserCanSee(List<Submission> submissionsToCheck,
+    public List<Submission> filterSubmissionsThatUserCanSee(List<Submission> submissionsToFilter,
                                                             UserAcc userAcc) {
         if (new PrincipalAuthorizationHelper(userAcc).hasAnySufficientAuthority(Authority.TeamScorer)) {
-            return submissionsToCheck;
+            return submissionsToFilter;
         }
 
         final Instant now = Instant.now();
@@ -113,28 +113,35 @@ public class SubmissionService {
             teamIdWithMembership = userAcc.getTeam().getId();
         }
 
-        final List<Submission> filteredSubmissions = new ArrayList<>();
-        for (Submission submission : submissionsToCheck) {
+        final List<Submission> visibleSubmissions = new ArrayList<>();
+        for (Submission submission : submissionsToFilter) {
             if (Objects.equals(userId, submission.getCreatorUser().getId())) {
-                filteredSubmissions.add(submission);
+                //Anyone can see their own submissions
+                visibleSubmissions.add(submission);
+                continue;
+            }
+            if (!userAcc.getIsAcceptedByEmail()) {
+                //Not accepted user -> can't see anything but their own submissions
                 continue;
             }
             if (Objects.equals(teamIdWithMembership, submission.getTeam().getId())) {
-                filteredSubmissions.add(submission);
+                //Submission by current team
+                visibleSubmissions.add(submission);
                 continue;
             }
-
             if (submission.getObjective().getHideSubmissionsBefore() == null) {
-                filteredSubmissions.add(submission);
+                //Always public submission
+                visibleSubmissions.add(submission);
                 continue;
             }
-
             if (now.isAfter(submission.getObjective().getHideSubmissionsBefore())) {
-                filteredSubmissions.add(submission);
+                //The submission is now public
+                visibleSubmissions.add(submission);
                 continue;
             }
+            //Not visible by default
         }
 
-        return filteredSubmissions;
+        return visibleSubmissions;
     }
 }
