@@ -9,33 +9,29 @@
             <AppenderRef ref="LocaldevConsoleAppender"/>
         </Async>
 
-<!--        <AwsCloudWatchConsoleAppender name="AwsCloudWatchConsoleAppender">-->
-<!--        </AwsCloudWatchConsoleAppender>-->
-<!--        <Async name="AsyncAwsCloudWatchConsoleAppender" bufferSize="16384">-->
-<!--            <AppenderRef ref="AwsCloudWatchConsoleAppender"/>-->
-<!--        </Async>-->
-
-<!--        <SplunkFileAppender name="SplunkFileAppender">-->
-<!--        </SplunkFileAppender>-->
-<!--        <Async name="AsyncSplunkFileAppender" bufferSize="16384">-->
-<!--            <AppenderRef ref="SplunkFileAppender"/>-->
-<!--        </Async>-->
+        <CloudJsonConsoleAppender name="CloudJsonConsoleAppender">
+        </CloudJsonConsoleAppender>
+        <Async name="AsyncCloudJsonConsoleAppender" bufferSize="16384">
+            <AppenderRef ref="CloudJsonConsoleAppender"/>
+        </Async>
 
     </Appenders>
     <Loggers>
         <Logger name="com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHttpSessionSecurityContextRepository" level="info" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
+            <AppenderRef ref="AsyncCloudJsonConsoleAppender"/>
         </Logger>
         <Logger name="com.laboschqpa.server" level="all" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
+            <AppenderRef ref="AsyncCloudJsonConsoleAppender"/>
         </Logger>
         <Logger name="org.hibernate.SQL" level="debug" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
+            <AppenderRef ref="AsyncCloudJsonConsoleAppender"/>
         </Logger>
         <Root level="info">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
-<!--            <AppenderRef ref="AsyncAwsCloudWatchConsoleAppender"/>-->
-<!--            <AppenderRef ref="AsyncSplunkFileAppender"/>-->
+            <AppenderRef ref="AsyncCloudJsonConsoleAppender"/>
         </Root>
     </Loggers>
 </Configuration>
