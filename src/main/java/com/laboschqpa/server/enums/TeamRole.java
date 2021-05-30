@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum TeamRole {
-    NOTHING(0),
-    APPLIED(1),
-    MEMBER(2),
-    LEADER(3);
+    NOTHING(1),
+    APPLICANT(2),
+    MEMBER(3),
+    LEADER(4);
 
     private Integer value;
 

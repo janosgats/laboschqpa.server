@@ -101,7 +101,7 @@ class TeamLifecycleStateMachineTest {
         CreateNewTeamRequest createNewTeamRequest = new CreateNewTeamRequest("test name");
         Team team = new Team(10L, createNewTeamRequest.getName(), false);
 
-        assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OF_A_TEAM, () ->
+        assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
                         UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build(),
                         UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build()
@@ -123,7 +123,7 @@ class TeamLifecycleStateMachineTest {
     void applyToTeam() {
         Team team = new Team(10L, "test", false);
 
-        assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OF_A_TEAM, () ->
+        assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
                         UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build(),
                         UserAcc.builder().id(1L).team(team).teamRole(TeamRole.MEMBER).build()
@@ -138,7 +138,7 @@ class TeamLifecycleStateMachineTest {
         teamLifecycleStateMachine.applyToTeam(team);
 
         assertEquals(team.getId(), teamLifecycleStateMachine.getAlteredUserAcc().getTeam().getId());
-        assertEquals(TeamRole.APPLIED, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
+        assertEquals(TeamRole.APPLICANT, teamLifecycleStateMachine.getAlteredUserAcc().getTeamRole());
         verify(teamLifecycleStateMachine, times(1)).assertInitiatorIsSameAsAltered();
     }
 
@@ -155,8 +155,8 @@ class TeamLifecycleStateMachineTest {
 
 
         TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamLifecycleStateMachine(
-                UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
-                UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build()
+                UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLICANT).build(),
+                UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLICANT).build()
         ));
         teamLifecycleStateMachine.cancelApplicationToTeam();
 
@@ -178,7 +178,7 @@ class TeamLifecycleStateMachineTest {
 
 
         TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamLifecycleStateMachine(
-                UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
+                UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLICANT).build(),
                 UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
         ));
         teamLifecycleStateMachine.declineApplicationToTeam();
@@ -201,7 +201,7 @@ class TeamLifecycleStateMachineTest {
 
 
         TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamLifecycleStateMachine(
-                UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
+                UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLICANT).build(),
                 UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
         ));
         teamLifecycleStateMachine.approveApplication();
@@ -217,8 +217,8 @@ class TeamLifecycleStateMachineTest {
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
-                        UserAcc.builder().id(1L).teamRole(TeamRole.APPLIED).build(),
-                        UserAcc.builder().id(1L).teamRole(TeamRole.APPLIED).build()
+                        UserAcc.builder().id(1L).teamRole(TeamRole.APPLICANT).build(),
+                        UserAcc.builder().id(1L).teamRole(TeamRole.APPLICANT).build()
                 ).leaveTeam()
         );
 
@@ -279,7 +279,7 @@ class TeamLifecycleStateMachineTest {
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
-                        UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
+                        UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLICANT).build(),
                         UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
                 ).kickFromTeam()
         );
@@ -324,7 +324,7 @@ class TeamLifecycleStateMachineTest {
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
-                        UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
+                        UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLICANT).build(),
                         UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
                 ).giveLeaderRights()
         );
@@ -346,7 +346,7 @@ class TeamLifecycleStateMachineTest {
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
-                        UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLIED).build(),
+                        UserAcc.builder().id(1L).team(team).teamRole(TeamRole.APPLICANT).build(),
                         UserAcc.builder().id(2L).team(team).teamRole(TeamRole.LEADER).build()
                 ).takeAwayLeaderRights()
         );

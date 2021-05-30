@@ -162,7 +162,7 @@ class SubmissionStateMachineTest {
         });
 
         assertThrowsSubmissionExceptionWithSpecificError(SubmissionApiError.INITIATOR_IS_NOT_MEMBER_OR_LEADER_OF_THE_TEAM, () -> {
-            UserAcc userAcc = UserAcc.builder().team(new Team()).teamRole(TeamRole.APPLIED).build();
+            UserAcc userAcc = UserAcc.builder().team(new Team()).teamRole(TeamRole.APPLICANT).build();
 
             SubmissionStateMachine submissionStateMachine = stateMachineFactory.buildSubmissionStateMachine(userAcc);
             submissionStateMachine.assertInitiatorUserIsMemberOrLeaderOfItsTeam();
@@ -250,7 +250,7 @@ class SubmissionStateMachineTest {
         });
 
         assertThrowsSubmissionExceptionWithSpecificError(SubmissionApiError.YOU_CANNOT_MODIFY_A_SUBMISSION_IF_YOU_ARE_NOT_IN_THE_SUBMITTER_TEAM, () -> {
-            UserAcc userAcc = UserAcc.builder().id(1L).team(team1).teamRole(TeamRole.APPLIED).build();
+            UserAcc userAcc = UserAcc.builder().id(1L).team(team1).teamRole(TeamRole.APPLICANT).build();
             Submission submission = new Submission();
             submission.setCreatorUser(userAcc);
             submission.setTeam(team1);

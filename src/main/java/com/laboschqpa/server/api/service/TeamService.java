@@ -39,6 +39,11 @@ public class TeamService {
         return teamRepository.findAllMembers(id);
     }
 
+    public List<TeamMemberJpaDto> listApplicants(long id) {
+        getValidTeam(id);
+        return teamRepository.findAllApplicants(id);
+    }
+
     public List<Team> listAll() {
         return teamRepository.findAll();
     }

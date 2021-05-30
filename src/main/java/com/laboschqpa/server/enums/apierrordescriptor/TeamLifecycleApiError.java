@@ -11,7 +11,7 @@ public enum TeamLifecycleApiError implements ApiErrorDescriptor {
     YOU_HAVE_TO_BE_A_LEADER_TO_DO_THIS_OPERATION(4),
     THERE_IS_NO_OTHER_LEADER(5),
     OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED(6),
-    YOU_ARE_ALREADY_MEMBER_OF_A_TEAM(7);
+    YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM(7);
 
     private Integer apiErrorCode;
 

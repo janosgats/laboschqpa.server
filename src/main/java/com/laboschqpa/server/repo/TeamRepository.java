@@ -31,4 +31,11 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
             "   and u.teamRole in (com.laboschqpa.server.enums.TeamRole.MEMBER, com.laboschqpa.server.enums.TeamRole.LEADER) " +
             " order by u.teamRole desc")
     List<TeamMemberJpaDto> findAllMembers(@Param("teamId") long teamId);
+
+    @Query("select u.id as userId, u.firstName as firstName, u.lastName as lastName, u.nickName as nickName, u.teamRole as teamRole " +
+            " from UserAcc u " +
+            " where u.team.id = :teamId " +
+            "   and u.teamRole = com.laboschqpa.server.enums.TeamRole.APPLICANT " +
+            " order by u.teamRole desc")
+    List<TeamMemberJpaDto> findAllApplicants(@Param("teamId") long teamId);
 }

@@ -68,9 +68,9 @@ public class TeamLifecycleService {
         });
     }
 
-    public void declineApplicationToTeam(Long userAccIdToDecline, Long initiatorUserAccId) {
+    public void declineApplicationToTeam(Long userIdToDecline, Long initiatorUserAccId) {
         transactionTemplate.executeWithoutResult(transactionStatus -> {
-            UserAcc userAccToDecline = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToDecline);
+            UserAcc userAccToDecline = readEnabledUserAccFromDbWithPessimisticLock(userIdToDecline);
             UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
             TeamLifecycleStateMachine stateMachine = stateMachineFactory.buildTeamLifecycleStateMachine(userAccToDecline, initiatorUserAcc);
@@ -80,9 +80,9 @@ public class TeamLifecycleService {
         });
     }
 
-    public void approveApplicationToTeam(Long userAccIdToApprove, Long initiatorUserAccId) {
+    public void approveApplicationToTeam(Long userIdToApprove, Long initiatorUserAccId) {
         transactionTemplate.executeWithoutResult(transactionStatus -> {
-            UserAcc userAccToApprove = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToApprove);
+            UserAcc userAccToApprove = readEnabledUserAccFromDbWithPessimisticLock(userIdToApprove);
             UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
             TeamLifecycleStateMachine stateMachine = stateMachineFactory.buildTeamLifecycleStateMachine(userAccToApprove, initiatorUserAcc);
@@ -104,9 +104,9 @@ public class TeamLifecycleService {
     }
 
 
-    public void kickFromTeam(Long userAccIdToKick, Long initiatorUserAccId) {
+    public void kickFromTeam(Long userIdToKick, Long initiatorUserAccId) {
         transactionTemplate.executeWithoutResult(transactionStatus -> {
-            UserAcc userAccToKick = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToKick);
+            UserAcc userAccToKick = readEnabledUserAccFromDbWithPessimisticLock(userIdToKick);
             UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
             TeamLifecycleStateMachine stateMachine = stateMachineFactory.buildTeamLifecycleStateMachine(userAccToKick, initiatorUserAcc);
@@ -130,9 +130,9 @@ public class TeamLifecycleService {
         });
     }
 
-    public void giveLeaderRights(Long userAccIdToGiveLeaderRights, Long initiatorUserAccId) {
+    public void giveLeaderRights(Long userIdToGiveLeaderRights, Long initiatorUserAccId) {
         transactionTemplate.executeWithoutResult(transactionStatus -> {
-            UserAcc userAccToGiveLeaderRights = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToGiveLeaderRights);
+            UserAcc userAccToGiveLeaderRights = readEnabledUserAccFromDbWithPessimisticLock(userIdToGiveLeaderRights);
             UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
             TeamLifecycleStateMachine stateMachine = stateMachineFactory.buildTeamLifecycleStateMachine(userAccToGiveLeaderRights, initiatorUserAcc);
@@ -142,9 +142,9 @@ public class TeamLifecycleService {
         });
     }
 
-    public void takeAwayLeaderRights(Long userAccIdToTakeAwayLeaderRights, Long initiatorUserAccId) {
+    public void takeAwayLeaderRights(Long userIdToTakeAwayLeaderRights, Long initiatorUserAccId) {
         transactionTemplate.executeWithoutResult(transactionStatus -> {
-            UserAcc userAccToTakeAwayLeaderRights = readEnabledUserAccFromDbWithPessimisticLock(userAccIdToTakeAwayLeaderRights);
+            UserAcc userAccToTakeAwayLeaderRights = readEnabledUserAccFromDbWithPessimisticLock(userIdToTakeAwayLeaderRights);
             UserAcc initiatorUserAcc = readEnabledUserAccFromDbWithPessimisticLock(initiatorUserAccId);
 
             TeamLifecycleStateMachine stateMachine = stateMachineFactory.buildTeamLifecycleStateMachine(userAccToTakeAwayLeaderRights, initiatorUserAcc);

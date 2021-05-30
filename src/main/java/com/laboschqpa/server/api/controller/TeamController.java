@@ -53,15 +53,15 @@ public class TeamController {
     }
 
     @PostMapping("/declineApplicationToTeam")
-    public void postDeclineApplicationToTeam(@RequestParam("userAccIdToDecline") Long userAccIdToDecline,
+    public void postDeclineApplicationToTeam(@RequestParam("userId") Long userId,
                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamLifecycleService.declineApplicationToTeam(userAccIdToDecline, authenticationPrincipal.getUserId());
+        teamLifecycleService.declineApplicationToTeam(userId, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/approveApplicationToTeam")
-    public void postApproveApplicationToTeam(@RequestParam("userAccIdToApprove") Long userAccIdToApprove,
+    public void postApproveApplicationToTeam(@RequestParam("userId") Long userId,
                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamLifecycleService.approveApplicationToTeam(userAccIdToApprove, authenticationPrincipal.getUserId());
+        teamLifecycleService.approveApplicationToTeam(userId, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/leaveTeam")
@@ -70,9 +70,9 @@ public class TeamController {
     }
 
     @PostMapping("/kickFromTeam")
-    public void postKickFromTeam(@RequestParam("userAccIdToKick") Long userAccIdToKick,
+    public void postKickFromTeam(@RequestParam("userId") Long userId,
                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamLifecycleService.kickFromTeam(userAccIdToKick, authenticationPrincipal.getUserId());
+        teamLifecycleService.kickFromTeam(userId, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/archiveAndLeaveTeam")
@@ -81,15 +81,15 @@ public class TeamController {
     }
 
     @PostMapping("/giveLeaderRights")
-    public void postGiveLeaderRights(@RequestParam("userAccIdToGiveLeaderRights") Long userAccIdToGiveLeaderRights,
+    public void postGiveLeaderRights(@RequestParam("userId") Long userId,
                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamLifecycleService.giveLeaderRights(userAccIdToGiveLeaderRights, authenticationPrincipal.getUserId());
+        teamLifecycleService.giveLeaderRights(userId, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/takeAwayLeaderRights")
-    public void postTakeAwayLeaderRights(@RequestParam("userAccIdToTakeAwayLeaderRights") Long userAccIdToTakeAwayLeaderRights,
+    public void postTakeAwayLeaderRights(@RequestParam("userId") Long userId,
                                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        teamLifecycleService.takeAwayLeaderRights(userAccIdToTakeAwayLeaderRights, authenticationPrincipal.getUserId());
+        teamLifecycleService.takeAwayLeaderRights(userId, authenticationPrincipal.getUserId());
     }
 
     @PostMapping("/resignFromLeadership")
@@ -117,8 +117,15 @@ public class TeamController {
     }
 
     @GetMapping("/listMembers")
-    public List<GetTeamMemberResponse> listMembers(@RequestParam("id") Long id) {
+    public List<GetTeamMemberResponse> getListMembers(@RequestParam("id") Long id) {
         return teamService.listMembers(id).stream()
+                .map(GetTeamMemberResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/listApplicants")
+    public List<GetTeamMemberResponse> getListApplicants(@RequestParam("id") Long id) {
+        return teamService.listApplicants(id).stream()
                 .map(GetTeamMemberResponse::new)
                 .collect(Collectors.toList());
     }
