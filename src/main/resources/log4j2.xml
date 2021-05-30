@@ -9,25 +9,25 @@
             <AppenderRef ref="LocaldevConsoleAppender"/>
         </Async>
 
-        <CloudJsonConsoleAppender name="CloudJsonConsoleAppender">
-        </CloudJsonConsoleAppender>
-        <Async name="AsyncCloudJsonConsoleAppender" bufferSize="16384">
-            <AppenderRef ref="CloudJsonConsoleAppender"/>
+        <GoogleCloudConsoleAppender name="GoogleCloudConsoleAppender">
+        </GoogleCloudConsoleAppender>
+        <Async name="AsyncGoogleCloudConsoleAppender" bufferSize="16384">
+            <AppenderRef ref="GoogleCloudConsoleAppender"/>
         </Async>
 
     </Appenders>
     <Loggers>
         <Logger name="com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHttpSessionSecurityContextRepository" level="info" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
-            <AppenderRef ref="AsyncCloudJsonConsoleAppender"/>
+            <AppenderRef ref="AsyncGoogleCloudConsoleAppender"/>
         </Logger>
         <Logger name="com.laboschqpa.server" level="all" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
-            <AppenderRef ref="AsyncCloudJsonConsoleAppender"/>
+            <AppenderRef ref="AsyncGoogleCloudConsoleAppender"/>
         </Logger>
         <Root level="info">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
-            <AppenderRef ref="AsyncCloudJsonConsoleAppender"/>
+            <AppenderRef ref="AsyncGoogleCloudConsoleAppender"/>
         </Root>
     </Loggers>
 </Configuration>
