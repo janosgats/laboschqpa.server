@@ -67,7 +67,7 @@ public class GoogleCloudConsoleAppender extends FlexibleAppender {
 
         @Override
         public String buildLogLine(LogEvent logEvent) {
-            ObjectNode logNode = new ObjectNode(JsonNodeFactory.instance);
+            final ObjectNode logNode = new ObjectNode(JsonNodeFactory.instance);
 
             logNode.put("timestamp", getFormattedDateTimeStringFromLogEvent(logEvent));
 
@@ -86,6 +86,15 @@ public class GoogleCloudConsoleAppender extends FlexibleAppender {
             if (logEvent.getThrown() != null)
                 logNode.put("thrown", LoggingHelper.getStackTraceAsString(logEvent.getThrown()));
 
+            final ObjectNode contextNode = new ObjectNode(JsonNodeFactory.instance);
+            logEvent.getContextData().forEach((key, val) -> {
+                try {
+                    contextNode.put(key, val.toString());
+                } catch (Exception e) {
+                    contextNode.put(key, "Exception while serializing this field: " + e.getClass().getName() + " - " + e.getMessage());
+                }
+            });
+            logNode.set("context", contextNode);
 
             return logNode.toString();
         }
