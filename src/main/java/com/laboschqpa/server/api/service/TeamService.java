@@ -1,5 +1,6 @@
 package com.laboschqpa.server.api.service;
 
+import com.laboschqpa.server.api.dto.team.EditTeamRequest;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.TeamRepository;
@@ -16,6 +17,14 @@ import java.util.List;
 @Service
 public class TeamService {
     private final TeamRepository teamRepository;
+
+    public void editTeam(EditTeamRequest request) {
+        Team teamToEdit = getValidTeam(request.getId());
+
+        teamToEdit.setName(request.getName().trim());
+
+        teamRepository.save(teamToEdit);
+    }
 
     public List<TeamWithScoreJpaDto> listActiveTeamsWithScores() {
         return teamRepository.findAllWithScoreByArchivedIsFalseOrderByScoreDesc();

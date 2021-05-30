@@ -124,4 +124,8 @@ public class UserAcc implements Serializable {
     public boolean isMemberOrLeaderOfAnyTeam() {
         return team != null && teamRole.isMemberOrLeader();
     }
+
+    public boolean isLeaderOfTeam(long teamId) {
+        return team != null && team.getId().equals(teamId) && teamRole == TeamRole.LEADER;
+    }
 }

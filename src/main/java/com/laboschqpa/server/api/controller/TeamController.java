@@ -1,11 +1,10 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.team.CreateNewTeamRequest;
-import com.laboschqpa.server.api.dto.team.GetTeamMemberResponse;
-import com.laboschqpa.server.api.dto.team.GetTeamResponse;
-import com.laboschqpa.server.api.dto.team.GetTeamWithScoreResponse;
+import com.laboschqpa.server.api.dto.team.*;
 import com.laboschqpa.server.api.service.TeamService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
+import com.laboschqpa.server.entity.account.UserAcc;
+import com.laboschqpa.server.exceptions.UnAuthorizedException;
 import com.laboschqpa.server.service.TeamLifecycleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,11 +21,24 @@ public class TeamController {
     private final TeamService teamService;
 
     @PostMapping("/createNewTeam")
-    public GetTeamResponse postCreateNewTeam(@RequestBody CreateNewTeamRequest createNewTeamRequest,
+    public GetTeamResponse postCreateNewTeam(@RequestBody CreateNewTeamRequest request,
                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        request.validateSelf();
         return new GetTeamResponse(
-                teamLifecycleService.createNewTeam(createNewTeamRequest, authenticationPrincipal.getUserId())
+                teamLifecycleService.createNewTeam(request, authenticationPrincipal.getUserId())
         );
+    }
+
+    @PostMapping("/editTeam")
+    public void postEditTeam(@RequestBody EditTeamRequest request,
+                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        request.validateSelf();
+
+        final UserAcc userAcc = authenticationPrincipal.getUserAccEntity();
+        if (!userAcc.isLeaderOfTeam(request.getId())) {
+            throw new UnAuthorizedException("You cannot edit a team if you are not its Leader");
+        }
+        teamService.editTeam(request);
     }
 
     @PostMapping("/applyToTeam")
