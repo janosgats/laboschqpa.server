@@ -4,19 +4,15 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Build docker image') {
             steps {
-                echo 'Building..'
+                echo 'Building docker image...'
+                sh "docker build -f docker/Dockerfile-k8s_dev-travis_build ."
             }
         }
-        stage('Test') {
+        stage('Deploy to GKE') {
             steps {
-                echo 'Testing..'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
+                echo 'Deploying to GKE...'
             }
         }
     }
