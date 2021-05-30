@@ -1,17 +1,23 @@
 #!groovy
-@Library('pipeline@3.x') _
 
 pipeline {
+    agent any
+
     stages {
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-                script {
-                    echo "Listing all currently set environment variables..."
-                    sh 'env'
-
-                }
+                echo 'Building..'
             }
-        } // stage('Build Docker Image')
-
-    } // stages
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
 }
