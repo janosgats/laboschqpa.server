@@ -2,17 +2,9 @@
 
 String PROJECT_IMAGE_NAME = 'laboschqpa-server'
 
-String BRANCH_NAME = env.BRANCH_NAME.replace('/', '-')
-String SHORT_COMMIT_HASH = env.GIT_COMMIT.substring(0, 7)
-
-String IMAGE_NAME_COMMIT
-String IMAGE_NAME_BRANCH
-String IMAGE_NAME_LATEST
-
+String DOCKER_HUB_USERNAME
 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', usernameVariable: 'DOCKER_HUB_USER')]) {
-    IMAGE_NAME_BRANCH = env.DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':' + BRANCH_NAME
-    IMAGE_NAME_COMMIT = env.DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':' + SHORT_COMMIT_HASH
-    IMAGE_NAME_LATEST = env.DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':latest'
+    DOCKER_HUB_USERNAME = env.DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':' + BRANCH_NAME
 }
 
 def shouldDeployByDefault() {
@@ -37,6 +29,14 @@ pipeline {
                 description: 'Force deployment to GKE',
                 name: 'FORCE_DEPLOY_TO_GKE'
         )
+    }
+
+    environment {
+        SHORT_COMMIT_HASH = env.GIT_COMMIT.substring(0, 10)
+
+        IMAGE_NAME_BRANCH = DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':' + env.BRANCH_NAME.replace('/', '-')
+        IMAGE_NAME_COMMIT = DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':' + SHORT_COMMIT_HASH
+        IMAGE_NAME_LATEST = DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':latest'
     }
 
     stages {
