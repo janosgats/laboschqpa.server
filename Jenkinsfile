@@ -42,7 +42,9 @@ pipeline {
     stages {
         stage('Build and publish docker image') {
             when {
-                !params.SKIP_DOCKER_BUILD
+                expression {
+                    return !params.SKIP_DOCKER_BUILD
+                }
             }
             steps {
                 echo 'Building docker image...'
@@ -60,7 +62,9 @@ pipeline {
 
         stage('Deploy to GKE') {
             when {
-                shouldDeployByDefault() || params.FORCE_DEPLOY_TO_GKE
+                expression {
+                    return shouldDeployByDefault() || params.FORCE_DEPLOY_TO_GKE
+                }
             }
             steps {
                 echo 'Deploying to GKE...'
