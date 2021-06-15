@@ -58,16 +58,18 @@ pipeline {
                     if (shouldPublishAsLatest()) {
                         extraTag = ' -t ${IMAGE_NAME_LATEST} '
                     }
+
+                    echo 'Building docker image...'
+                    sh 'docker build -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} ' + extraTag ' -f docker/Dockerfile-k8s_dev-travis_build .'
                 }
 
-                echo 'Building docker image...'
-                sh 'docker build -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} ' + extraTag ' -f docker/Dockerfile-k8s_dev-travis_build .'
-
-                echo 'Publishing docker image...'
-                sh 'docker push ${IMAGE_NAME_BRANCH}'
-                sh 'docker push ${IMAGE_NAME_COMMIT}'
-                if (shouldPublishAsLatest()) {
-                    sh 'docker push ${IMAGE_NAME_LATEST}'
+                script {
+                    echo 'Publishing docker image...'
+                    sh 'docker push ${IMAGE_NAME_BRANCH}'
+                    sh 'docker push ${IMAGE_NAME_COMMIT}'
+                    if (shouldPublishAsLatest()) {
+                        sh 'docker push ${IMAGE_NAME_LATEST}'
+                    }
                 }
             }
         }
