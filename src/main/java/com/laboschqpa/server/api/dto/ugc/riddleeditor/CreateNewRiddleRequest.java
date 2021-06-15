@@ -17,7 +17,6 @@ public class CreateNewRiddleRequest extends SelfValidator {
     @Length(max = 300)
     private String title;
     @NotNull
-    @NotEmpty
     @Length(max = 1000)
     private String hint;
     @NotNull

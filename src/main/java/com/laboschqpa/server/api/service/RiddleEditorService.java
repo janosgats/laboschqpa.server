@@ -4,7 +4,9 @@ import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleRequest;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
+import com.laboschqpa.server.enums.apierrordescriptor.RiddleApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.RiddleException;
 import com.laboschqpa.server.repo.usergeneratedcontent.RiddleRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,10 @@ public class RiddleEditorService {
     public Riddle createNewRiddle(CreateNewRiddleRequest createNewRiddleRequest, UserAcc creatorUserAcc) {
         attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewRiddleRequest.getAttachments(), creatorUserAcc.getId());
 
+        if (createNewRiddleRequest.getAttachments().size() != 1) {
+            throw new RiddleException(RiddleApiError.A_RIDDLE_HAS_TO_HAVE_EXACTLY_ONE_ATTACHMENT);
+        }
+
         Riddle riddle = new Riddle();
         riddle.setUGCAsCreatedByUser(creatorUserAcc);
         riddle.setAttachments(createNewRiddleRequest.getAttachments());
@@ -53,6 +59,9 @@ public class RiddleEditorService {
             throw new ContentNotFoundException("Cannot find Riddle with Id: " + editRiddleRequest.getId());
 
         attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editRiddleRequest.getAttachments(), editorUserAcc.getId());
+        if (editRiddleRequest.getAttachments().size() != 1) {
+            throw new RiddleException(RiddleApiError.A_RIDDLE_HAS_TO_HAVE_EXACTLY_ONE_ATTACHMENT);
+        }
 
         Riddle riddle = riddleOptional.get();
         riddle.setUGCAsEditedByUser(editorUserAcc);
