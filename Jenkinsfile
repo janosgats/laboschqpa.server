@@ -49,7 +49,7 @@ pipeline {
             steps {
                 echo 'Logging in to docker'
                 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
-                    sh 'echo "DOCKER_HUB_PASSWORD" | docker login -u "DOCKER_HUB_USER" --password-stdin'
+                    sh 'echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin'
                 }
 
                 script {
