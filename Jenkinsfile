@@ -32,11 +32,11 @@ pipeline {
     }
 
     environment {
-        SHORT_COMMIT_HASH = env.GIT_COMMIT.substring(0, 10)
+        SHORT_COMMIT_HASH = "${env.GIT_COMMIT.substring(0, 10)}"
 
-        IMAGE_NAME_BRANCH = DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':' + env.BRANCH_NAME.replace('/', '-')
-        IMAGE_NAME_COMMIT = DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':' + SHORT_COMMIT_HASH
-        IMAGE_NAME_LATEST = DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':latest'
+        IMAGE_NAME_BRANCH = "${DOCKER_HUB_USERNAME}/${PROJECT_IMAGE_NAME}:${env.BRANCH_NAME.replace('/', '-')}"
+        IMAGE_NAME_BRANCH = "${DOCKER_HUB_USERNAME}/${PROJECT_IMAGE_NAME}:${env.SHORT_COMMIT_HASH}"
+        IMAGE_NAME_BRANCH = "${DOCKER_HUB_USERNAME}/${PROJECT_IMAGE_NAME}:latest"
     }
 
     stages {
