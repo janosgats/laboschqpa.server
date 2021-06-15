@@ -4,7 +4,7 @@ String PROJECT_IMAGE_NAME = 'laboschqpa-server'
 
 String DOCKER_HUB_USERNAME
 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', usernameVariable: 'DOCKER_HUB_USER')]) {
-    DOCKER_HUB_USERNAME = env.DOCKER_HUB_USERNAME + '/' + PROJECT_IMAGE_NAME + ':' + BRANCH_NAME
+    DOCKER_HUB_USERNAME = env.DOCKER_HUB_USERNAME
 }
 
 def shouldDeployByDefault() {
