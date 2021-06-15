@@ -52,10 +52,12 @@ pipeline {
                     sh 'echo "DOCKER_HUB_PASSWORD" | docker login -u "DOCKER_HUB_USER" --password-stdin'
                 }
 
-                String extraTag = "";
+                script {
+                    String extraTag = "";
 
-                if (shouldPublishAsLatest()) {
-                    extraTag = ' -t ${IMAGE_NAME_LATEST} '
+                    if (shouldPublishAsLatest()) {
+                        extraTag = ' -t ${IMAGE_NAME_LATEST} '
+                    }
                 }
 
                 echo 'Building docker image...'
