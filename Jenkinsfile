@@ -93,6 +93,7 @@ pipeline {
                 echo 'Deploying to GKE...'
                 sh """#!/bin/bash
                     source /root/google-cloud-sdk/path.bash.inc && \
+                    gcloud components install kubectl && \
                     gcloud auth activate-service-account --key-file gke-service-account.json && \
                     gcloud config set project ${GKE_PROJECT_NAME} && \
                     gcloud config set compute/zone ${GKE_COMPUTE_ZONE} && \
