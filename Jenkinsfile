@@ -4,10 +4,6 @@ String PROJECT_IMAGE_NAME = 'laboschqpa-server'
 
 String DOCKER_HUB_USERNAME
 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
-//    echo env.DOCKER_HUB_USER
-//    echo DOCKER_HUB_USER
-//    echo "${env.DOCKER_HUB_USER}"
-    echo "$DOCKER_HUB_USER"
     DOCKER_HUB_USERNAME = "$DOCKER_HUB_USER"
 }
 
@@ -51,16 +47,26 @@ pipeline {
                 }
             }
             steps {
-                echo 'Building docker image...'
-                echo IMAGE_NAME_BRANCH
-                echo IMAGE_NAME_COMMIT
-                echo IMAGE_NAME_LATEST
-
+                echo 'Logging in to docker'
                 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
-                    // some block
+                    sh 'echo "DOCKER_HUB_PASSWORD" | docker login -u "DOCKER_HUB_USER" --password-stdin'
                 }
 
-                sh "docker build -f docker/Dockerfile-k8s_dev-travis_build ."
+                String extraTag = "";
+
+                if (shouldPublishAsLatest()) {
+                    extraTag = ' -t ${IMAGE_NAME_LATEST} '
+                }
+
+                echo 'Building docker image...'
+                sh 'docker build -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} ' + extraTag ' -f docker/Dockerfile-k8s_dev-travis_build .'
+
+                echo 'Publishing docker image...'
+                sh 'docker push ${IMAGE_NAME_BRANCH}'
+                sh 'docker push ${IMAGE_NAME_COMMIT}'
+                if (shouldPublishAsLatest()) {
+                    sh 'docker push ${IMAGE_NAME_LATEST}'
+                }
             }
         }
 
