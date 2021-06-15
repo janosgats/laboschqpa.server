@@ -17,10 +17,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class AttachmentHelper {
+    private static final String MIME_TYPE_IMAGE = "image";
     private final FileHostApiClient fileHostApiClient;
 
     public void assertAllFilesAvailableAndHaveOwnerUserOf(Set<Long> indexedFileIds, long loggedInUserId) {
-        FileCheckResult fileCheckResult = areAllFilesAvailableAndHaveOwnerUserOf(indexedFileIds, loggedInUserId);
+        assertAllFilesAvailableAndHaveOwnerUserOf(indexedFileIds, loggedInUserId, false);
+    }
+
+    public void assertAllFilesAvailableAndHaveOwnerUserOf(Set<Long> indexedFileIds, long loggedInUserId, boolean enforceImageMimeType) {
+        FileCheckResult fileCheckResult = areAllFilesAvailableAndHaveOwnerUserOf(indexedFileIds, loggedInUserId, enforceImageMimeType);
         switch (fileCheckResult) {
             case OK:
                 return;
@@ -30,12 +35,15 @@ public class AttachmentHelper {
             case FILES_ARE_NOT_OWNER_BY_SPECIFIED_USER:
                 throw new InvalidAttachmentException(InvalidAttachmentApiError.SOME_FILES_ARE_NOT_OWNED_BY_YOU,
                         "You can only attach files owned by you!");
+            case FILE_MIME_TYPES_ARE_NOT_IMAGE:
+                throw new InvalidAttachmentException(InvalidAttachmentApiError.FILE_MIME_TYPES_ARE_NOT_IMAGE,
+                        "You can only attach images here!");
             default:
                 throw new IllegalStateException("Unexpected value: " + fileCheckResult);
         }
     }
 
-    public FileCheckResult areAllFilesAvailableAndHaveOwnerUserOf(Set<Long> indexedFileIds, long ownerUserId) {
+    public FileCheckResult areAllFilesAvailableAndHaveOwnerUserOf(Set<Long> indexedFileIds, long ownerUserId, boolean enforceImageMimeType) {
         if (indexedFileIds == null || indexedFileIds.size() == 0)
             return FileCheckResult.OK;
 
@@ -49,6 +57,11 @@ public class AttachmentHelper {
             if (ownerUserId != fileInfo.getOwnerUserId()) {
                 return FileCheckResult.FILES_ARE_NOT_OWNER_BY_SPECIFIED_USER;
             }
+            if (enforceImageMimeType) {
+                if (fileInfo.getMimeType() == null || !fileInfo.getMimeType().startsWith(MIME_TYPE_IMAGE + "/")) {
+                    return FileCheckResult.FILE_MIME_TYPES_ARE_NOT_IMAGE;
+                }
+            }
         }
         log.trace("remainingIdsToCheck: {}", () -> remainingIdsToCheck.stream().map(String::valueOf).collect(Collectors.joining(",")));
         if (remainingIdsToCheck.size() == 0) {
@@ -60,6 +73,7 @@ public class AttachmentHelper {
     private enum FileCheckResult {
         OK,
         FILES_ARE_NOT_AVAILABLE,
-        FILES_ARE_NOT_OWNER_BY_SPECIFIED_USER
+        FILES_ARE_NOT_OWNER_BY_SPECIFIED_USER,
+        FILE_MIME_TYPES_ARE_NOT_IMAGE
     }
 }
