@@ -1,10 +1,10 @@
 #!groovy
 
-String PROJECT_IMAGE_NAME = 'laboschqpa-server'
-
 String GKE_PROJECT_NAME = 'ringed-bebop-312422'
 String GKE_CLUSTER_NAME = 'laboschqpa-2'
 String GKE_COMPUTE_ZONE = 'europe-central2-a'
+
+String IMAGE_NAME = 'laboschqpa-server'
 
 String K8S_DEPLOYMENT_NAME = 'server'
 String K8S_CONTAINER_NAME = 'server'
@@ -14,6 +14,7 @@ String DOCKER_HUB_USERNAME
 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
     DOCKER_HUB_USERNAME = "$DOCKER_HUB_USER"
 }
+
 
 def shouldDeployByDefault() {
     return env.BRANCH_NAME == 'master'
@@ -42,9 +43,9 @@ pipeline {
     environment {
         SHORT_COMMIT_HASH = "${env.GIT_COMMIT.substring(0, 10)}"
 
-        IMAGE_NAME_BRANCH = "${DOCKER_HUB_USERNAME}/${PROJECT_IMAGE_NAME}:${env.BRANCH_NAME.replace('/', '-')}"
-        IMAGE_NAME_COMMIT = "${DOCKER_HUB_USERNAME}/${PROJECT_IMAGE_NAME}:${env.SHORT_COMMIT_HASH}"
-        IMAGE_NAME_LATEST = "${DOCKER_HUB_USERNAME}/${PROJECT_IMAGE_NAME}:latest"
+        IMAGE_NAME_BRANCH = "${DOCKER_HUB_USERNAME}/${IMAGE_NAME}:${env.BRANCH_NAME.replace('/', '-')}"
+        IMAGE_NAME_COMMIT = "${DOCKER_HUB_USERNAME}/${IMAGE_NAME}:${env.SHORT_COMMIT_HASH}"
+        IMAGE_NAME_LATEST = "${DOCKER_HUB_USERNAME}/${IMAGE_NAME}:latest"
     }
 
     stages {
