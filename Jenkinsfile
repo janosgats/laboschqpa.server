@@ -3,7 +3,7 @@
 String PROJECT_IMAGE_NAME = 'laboschqpa-server'
 
 String DOCKER_HUB_USERNAME
-withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', usernameVariable: 'DOCKER_HUB_USER')]) {
+withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
     DOCKER_HUB_USERNAME = env.DOCKER_HUB_USERNAME
 }
 
