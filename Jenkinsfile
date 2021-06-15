@@ -61,14 +61,14 @@ pipeline {
                 }
 
                 script {
-                    String extraLatestTag = "";
+                    String optionalLatestTag = "";
 
                     if (shouldPublishAsLatest()) {
-                        extraLatestTag = ' -t ${IMAGE_NAME_LATEST} '
+                        optionalLatestTag = ' -t ${IMAGE_NAME_LATEST} '
                     }
 
                     echo 'Building docker image...'
-                    sh 'docker build -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} ' + extraLatestTag + ' -f docker/Dockerfile-k8s_dev-travis_build .'
+                    sh 'docker build -t ${IMAGE_NAME_COMMIT} -t ${IMAGE_NAME_BRANCH} ' + optionalLatestTag + ' -f docker/Dockerfile-k8s_dev-travis_build .'
                 }
 
                 script {
