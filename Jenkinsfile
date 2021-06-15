@@ -85,24 +85,20 @@ pipeline {
                 }
             }
             steps {
-                echo 'Setting up gcloud SDK...'
-
                 withCredentials([file(credentialsId: 'GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON', variable: 'GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON')]) {
                     sh 'cp ${GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON} ./gke-service-account.json'
                 }
                 sh 'ls -lah'
-                sh '''#!/bin/bash
-                    source /root/google-cloud-sdk/path.bash.inc
-                '''
-                sh 'gcloud auth activate-service-account --key-file gke-service-account.json'
-                sh "gcloud config set project ${GKE_PROJECT_NAME}"
-                sh "gcloud config set compute/zone ${GKE_COMPUTE_ZONE}"
-                sh "gcloud container clusters get-credentials ${GKE_CLUSTER_NAME}"
-
 
                 echo 'Deploying to GKE...'
-
-                sh "kubectl -n=qpa set image deployments/server server=${IMAGE_NAME_COMMIT}"
+                sh """#!/bin/bash
+                    source /root/google-cloud-sdk/path.bash.inc && \
+                    gcloud auth activate-service-account --key-file gke-service-account.json && \
+                    gcloud config set project ${GKE_PROJECT_NAME} && \
+                    gcloud config set compute/zone ${GKE_COMPUTE_ZONE} && \
+                    gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} && \
+                    kubectl -n=qpa set image deployments/server server=${IMAGE_NAME_COMMIT}
+                """
             }
         }
     }
