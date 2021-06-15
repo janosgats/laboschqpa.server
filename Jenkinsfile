@@ -90,7 +90,7 @@ pipeline {
                 sh '. /root/google-cloud-sdk/path.bash.inc'
 
                 withCredentials([file(credentialsId: 'GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON', variable: 'GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON')]) {
-                    sh 'cp ${GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON} .'
+                    sh 'cp ${GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON} ./gke-service-account.json'
                 }
                 sh 'ls -lah'
                 sh 'gcloud auth activate-service-account --key-file gke-service-account.json'
