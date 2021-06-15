@@ -2,6 +2,10 @@
 
 String PROJECT_IMAGE_NAME = 'laboschqpa-server'
 
+String GKE_PROJECT_NAME = 'ringed-bebop-312422'
+String GKE_CLUSTER_NAME = 'laboschqpa-2'
+String GKE_COMPUTE_ZONE = 'europe-central2-a'
+
 String DOCKER_HUB_USERNAME
 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
     DOCKER_HUB_USERNAME = "$DOCKER_HUB_USER"
@@ -47,7 +51,7 @@ pipeline {
                 }
             }
             steps {
-                echo 'Logging in to docker'
+                echo 'Logging in to docker...'
                 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
                     sh 'echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin'
                 }
@@ -81,7 +85,23 @@ pipeline {
                 }
             }
             steps {
+                echo 'Setting up gcloud SDK...'
+
+                sh '. /root/google-cloud-sdk/path.bash.inc'
+
+                withCredentials([file(credentialsId: 'GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON', variable: 'GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON')]) {
+                    sh 'cp ${GKE_LABOSCHQPA_SERVICE_ACCOUNT_JSON} .'
+                }
+                sh 'ls -lah'
+                sh 'gcloud auth activate-service-account --key-file gke-service-account.json'
+                sh "gcloud config set project ${GKE_PROJECT_NAME}"
+                sh "gcloud config set compute/zone ${GKE_COMPUTE_ZONE}"
+                sh "gcloud container clusters get-credentials ${GKE_CLUSTER_NAME}"
+
+
                 echo 'Deploying to GKE...'
+
+                sh "kubectl -n=qpa set image deployments/server server=${IMAGE_NAME_COMMIT}"
             }
         }
     }
