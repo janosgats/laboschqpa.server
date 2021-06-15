@@ -7,8 +7,8 @@ withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', usernameVar
 //    echo env.DOCKER_HUB_USER
 //    echo DOCKER_HUB_USER
 //    echo "${env.DOCKER_HUB_USER}"
-    echo "${DOCKER_HUB_USER}"
-    DOCKER_HUB_USERNAME = "${DOCKER_HUB_USER}"
+    echo "$DOCKER_HUB_USER"
+    DOCKER_HUB_USERNAME = "$DOCKER_HUB_USER"
 }
 
 def shouldDeployByDefault() {
