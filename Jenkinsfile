@@ -6,6 +6,10 @@ String GKE_PROJECT_NAME = 'ringed-bebop-312422'
 String GKE_CLUSTER_NAME = 'laboschqpa-2'
 String GKE_COMPUTE_ZONE = 'europe-central2-a'
 
+String K8S_DEPLOYMENT_NAME = 'server'
+String K8S_CONTAINER_NAME = 'server'
+String K8S_NAMESPACE = 'qpa'
+
 String DOCKER_HUB_USERNAME
 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDS', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
     DOCKER_HUB_USERNAME = "$DOCKER_HUB_USER"
@@ -98,7 +102,7 @@ pipeline {
                     gcloud config set project ${GKE_PROJECT_NAME} && \
                     gcloud config set compute/zone ${GKE_COMPUTE_ZONE} && \
                     gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} && \
-                    kubectl -n=qpa set image deployments/server server=${IMAGE_NAME_COMMIT}
+                    kubectl -n=${K8S_NAMESPACE} set image deployments/${K8S_DEPLOYMENT_NAME} ${K8S_CONTAINER_NAME}=${IMAGE_NAME_COMMIT}
                 """
             }
         }
