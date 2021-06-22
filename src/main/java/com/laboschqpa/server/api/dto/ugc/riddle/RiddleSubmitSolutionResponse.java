@@ -5,7 +5,8 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class RiddleSubmitSolutionResponseDto {
+public class RiddleSubmitSolutionResponse {
     private Boolean isGivenSolutionCorrect;
     private Boolean isCurrentlySolved;
+    private Boolean wasAlreadySolved;
 }

@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.Set;
 
 @Data
-public class GetAccessibleRiddleDto {
+public class GetAccessibleRiddleResponse {
     private Long id;
 
     private Long creatorUserId;
@@ -29,7 +29,7 @@ public class GetAccessibleRiddleDto {
     private String firstSolvingTeamName;
     private Instant firstSolvingTimestamp;
 
-    public GetAccessibleRiddleDto(GetAccessibleRiddleJpaDto getAccessibleRiddleJpaDto, boolean includeHint, boolean includeSolution) {
+    public GetAccessibleRiddleResponse(GetAccessibleRiddleJpaDto getAccessibleRiddleJpaDto, boolean includeHint, boolean includeSolution) {
         this.id = getAccessibleRiddleJpaDto.getId();
         this.creatorUserId = getAccessibleRiddleJpaDto.getCreatorUserId();
         this.editorUserId = getAccessibleRiddleJpaDto.getEditorUserId();
@@ -48,7 +48,7 @@ public class GetAccessibleRiddleDto {
         }
     }
 
-    public GetAccessibleRiddleDto(Riddle riddle, boolean includeHint, boolean includeSolution, boolean includeAttachments) {
+    public GetAccessibleRiddleResponse(Riddle riddle, boolean includeHint, boolean includeSolution, boolean includeAttachments) {
         this.id = riddle.getId();
         this.creatorUserId = riddle.getCreatorUser().getId();
         this.editorUserId = riddle.getEditorUser().getId();

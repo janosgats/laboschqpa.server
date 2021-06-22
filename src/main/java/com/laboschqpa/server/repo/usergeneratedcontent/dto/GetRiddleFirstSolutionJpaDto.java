@@ -1,5 +1,6 @@
 package com.laboschqpa.server.repo.usergeneratedcontent.dto;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 
 public interface GetRiddleFirstSolutionJpaDto {
@@ -7,5 +8,12 @@ public interface GetRiddleFirstSolutionJpaDto {
 
     String getTeamName();
 
-    Instant getSolvingTimestamp();
+    Timestamp getSolvingTimestamp();
+
+    default Instant getSolvingTimestampAsInstant() {
+        if (getSolvingTimestamp() == null) {
+            return null;
+        }
+        return getSolvingTimestamp().toInstant();
+    }
 }

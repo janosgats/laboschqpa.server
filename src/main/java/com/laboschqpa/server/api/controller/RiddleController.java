@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.controller;
 
-import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleDto;
-import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponseDto;
+import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleResponse;
+import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponse;
 import com.laboschqpa.server.api.service.RiddleService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
@@ -21,17 +21,17 @@ public class RiddleController {
     private final RiddleService riddleService;
 
     @GetMapping("/listAccessibleRiddles")
-    public List<GetAccessibleRiddleDto> listAccessibleRiddles(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public List<GetAccessibleRiddleResponse> listAccessibleRiddles(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         Long teamId = assertAndGetTeamId(authenticationPrincipal);
         return riddleService.listAccessibleRiddleJpaDtos(teamId).stream()
                 .map((visibleRiddleJpaDto
-                        -> new GetAccessibleRiddleDto(visibleRiddleJpaDto, visibleRiddleJpaDto.getWasHintUsed(), visibleRiddleJpaDto.getIsAlreadySolved())
+                        -> new GetAccessibleRiddleResponse(visibleRiddleJpaDto, visibleRiddleJpaDto.getWasHintUsed(), visibleRiddleJpaDto.getIsAlreadySolved())
                 )).collect(Collectors.toList());
     }
 
     @GetMapping("/riddle")
-    public GetAccessibleRiddleDto getOneRiddleToShow(@RequestParam("id") Long riddleIdToShow,
-                                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public GetAccessibleRiddleResponse getOneRiddleToShow(@RequestParam("id") Long riddleIdToShow,
+                                                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         Long teamId = assertAndGetTeamId(authenticationPrincipal);
         return riddleService.getOneRiddleToShow(teamId, riddleIdToShow);
     }
@@ -44,9 +44,9 @@ public class RiddleController {
     }
 
     @PostMapping("/submitSolution")
-    public RiddleSubmitSolutionResponseDto postSubmitSolution(@RequestParam("id") Long riddleIdToSubmitSolutionTo,
-                                                              @RequestParam("solution") String givenSolution,
-                                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public RiddleSubmitSolutionResponse postSubmitSolution(@RequestParam("id") Long riddleIdToSubmitSolutionTo,
+                                                           @RequestParam("solution") String givenSolution,
+                                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         Long teamId = assertAndGetTeamId(authenticationPrincipal);
         return riddleService.submitSolution(teamId, riddleIdToSubmitSolutionTo, givenSolution);
     }

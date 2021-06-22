@@ -1,7 +1,7 @@
 package com.laboschqpa.server.api.service;
 
-import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleDto;
-import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponseDto;
+import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleResponse;
+import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponse;
 import com.laboschqpa.server.entity.RiddleResolution;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
@@ -31,7 +31,7 @@ public class RiddleService {
         return riddleRepository.findAccessibleRiddles(teamId);
     }
 
-    public GetAccessibleRiddleDto getOneRiddleToShow(Long teamId, Long riddleIdToShow) {
+    public GetAccessibleRiddleResponse getOneRiddleToShow(Long teamId, Long riddleIdToShow) {
         final Riddle riddle = getExistingAccessibleRiddle(teamId, riddleIdToShow, true);
 
         //Find if the current team already solved the riddle
@@ -43,19 +43,19 @@ public class RiddleService {
             isAlreadySolved = resolutionOptional.get().getStatus() == RiddleResolutionStatus.SOLVED;
         }
 
-        final GetAccessibleRiddleDto getAccessibleRiddleDto = new GetAccessibleRiddleDto(riddle, wasHintUsed, isAlreadySolved, true);
-        getAccessibleRiddleDto.setWasHintUsed(wasHintUsed);
-        getAccessibleRiddleDto.setIsAlreadySolved(isAlreadySolved);
+        final GetAccessibleRiddleResponse getAccessibleRiddleResponse = new GetAccessibleRiddleResponse(riddle, wasHintUsed, isAlreadySolved, true);
+        getAccessibleRiddleResponse.setWasHintUsed(wasHintUsed);
+        getAccessibleRiddleResponse.setIsAlreadySolved(isAlreadySolved);
 
         //Find the first solving team of this riddle if there is one
         final Optional<GetRiddleFirstSolutionJpaDto> riddleFirstSolutionOptional = riddleResolutionRepository.findFirstSolutionOfRiddle(riddle.getId());
         if (riddleFirstSolutionOptional.isPresent()) {
-            getAccessibleRiddleDto.setFirstSolvingTeamId(riddleFirstSolutionOptional.get().getTeamId());
-            getAccessibleRiddleDto.setFirstSolvingTeamName(riddleFirstSolutionOptional.get().getTeamName());
-            getAccessibleRiddleDto.setFirstSolvingTimestamp(riddleFirstSolutionOptional.get().getSolvingTimestamp());
+            getAccessibleRiddleResponse.setFirstSolvingTeamId(riddleFirstSolutionOptional.get().getTeamId());
+            getAccessibleRiddleResponse.setFirstSolvingTeamName(riddleFirstSolutionOptional.get().getTeamName());
+            getAccessibleRiddleResponse.setFirstSolvingTimestamp(riddleFirstSolutionOptional.get().getSolvingTimestampAsInstant());
         }
 
-        return getAccessibleRiddleDto;
+        return getAccessibleRiddleResponse;
     }
 
     public String useHint(Long teamId, Long riddleIdToUseHintOf) {
@@ -74,27 +74,26 @@ public class RiddleService {
             return riddle.getHint();
         } else {
             final RiddleResolution existingResolution = existingResolutionOptional.get();
-            if (existingResolution.getStatus() == RiddleResolutionStatus.SOLVED) {
-                throw new RiddleException(RiddleApiError.YOUR_TEAM_ALREADY_SOLVED_THE_RIDDLE);
-            } else {
-                if (!existingResolution.getHintUsed()) {
-                    existingResolution.setHintUsed(true);
-                    riddleResolutionRepository.save(existingResolution);
-                }
-                return riddle.getHint();
+            if (!existingResolution.getHintUsed()) {
+                existingResolution.setHintUsed(true);
+                riddleResolutionRepository.save(existingResolution);
             }
+            return riddle.getHint();
         }
     }
 
-    public RiddleSubmitSolutionResponseDto submitSolution(Long teamId, Long riddleIdToSubmitSolutionTo, String givenSolution) {
+    public RiddleSubmitSolutionResponse submitSolution(Long teamId, Long riddleIdToSubmitSolutionTo, String givenSolution) {
         final Riddle riddle = getExistingAccessibleRiddle(teamId, riddleIdToSubmitSolutionTo, false);
         final boolean isGivenSolutionCorrect = riddle.getSolution().equalsIgnoreCase(givenSolution);
 
         final Optional<RiddleResolution> existingResolutionOptional = riddleResolutionRepository.findByRiddleIdAndTeamId(riddle.getId(), teamId);
 
+        final boolean wasAlreadySolved;
         if (isGivenSolutionCorrect) {
             if (existingResolutionOptional.isPresent()) {
-                if (existingResolutionOptional.get().getStatus() != RiddleResolutionStatus.SOLVED) {
+                wasAlreadySolved = existingResolutionOptional.get().getStatus() == RiddleResolutionStatus.SOLVED;
+
+                if (!wasAlreadySolved) {
                     //Updating the existing resolution
                     existingResolutionOptional.get().setStatus(RiddleResolutionStatus.SOLVED);
                     existingResolutionOptional.get().setSolvingTimestamp(Instant.now());
@@ -102,6 +101,8 @@ public class RiddleService {
                 }
             } else {
                 //Creating new RiddleResolution because the new solution is correct
+                wasAlreadySolved = false;
+
                 final RiddleResolution riddleResolution = new RiddleResolution();
                 riddleResolution.setRiddle(riddle);
                 riddleResolution.setTeam(new Team(teamId));
@@ -111,14 +112,15 @@ public class RiddleService {
 
                 riddleResolutionRepository.save(riddleResolution);
             }
-            return new RiddleSubmitSolutionResponseDto(true, true);
+            return new RiddleSubmitSolutionResponse(true, true, wasAlreadySolved);
         } else {
             //The submitted solution is wrong, but we check if the riddle was already solved by the team to put it int the response DTO
-            final boolean isAlreadySolved = existingResolutionOptional
+            wasAlreadySolved = existingResolutionOptional
                     .filter(riddleResolution ->
                             riddleResolution.getStatus() == RiddleResolutionStatus.SOLVED
                     ).isPresent();
-            return new RiddleSubmitSolutionResponseDto(false, isAlreadySolved);
+
+            return new RiddleSubmitSolutionResponse(false, wasAlreadySolved, wasAlreadySolved);
         }
     }
 
