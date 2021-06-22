@@ -1,5 +1,6 @@
 package com.laboschqpa.server.repo.usergeneratedcontent.dto;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 
 public interface GetUserGeneratedContentJpaDto {
@@ -9,7 +10,21 @@ public interface GetUserGeneratedContentJpaDto {
 
     Long getEditorUserId();
 
-    Instant getCreationTime();
+    Timestamp getCreationTime();
 
-    Instant getEditTime();
+    Timestamp getEditTime();
+
+    default Instant getCreationTimeAsInstant() {
+        if (getCreationTime() == null) {
+            return null;
+        }
+        return getCreationTime().toInstant();
+    }
+
+    default Instant getEditTimeAsInstant() {
+        if (getEditTime() == null) {
+            return null;
+        }
+        return getEditTime().toInstant();
+    }
 }

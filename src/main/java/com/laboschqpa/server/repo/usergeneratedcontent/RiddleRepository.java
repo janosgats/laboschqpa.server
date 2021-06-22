@@ -68,7 +68,7 @@ public interface RiddleRepository extends JpaRepository<Riddle, Long> {
                     "       riddle.title        as title,\n" +
                     "       riddle.hint         as hint,\n" +
                     "       riddle.solution     as solution,\n" +
-                    "       is_already_solved   as alreadySolved,\n" +
+                    "       is_already_solved   as isAlreadySolved,\n" +
                     "       hint_used           as wasHintUsed\n" +
                     "from riddle\n" +
                     "         join user_generated_content ugc on riddle.id = ugc.id\n" +

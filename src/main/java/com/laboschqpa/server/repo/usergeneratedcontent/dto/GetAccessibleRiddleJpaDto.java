@@ -19,5 +19,5 @@ public interface GetAccessibleRiddleJpaDto extends GetUserGeneratedContentJpaDto
      *
      * @return {@code True} if the current team already solved the riddle, {@code false} otherwise.
      */
-    Boolean getAlreadySolved();
+    Boolean getIsAlreadySolved();
 }

@@ -29,20 +29,16 @@ public class GetAccessibleRiddleDto {
     private String firstSolvingTeamName;
     private Instant firstSolvingTimestamp;
 
-    public GetAccessibleRiddleDto() {
-        super();
-    }
-
     public GetAccessibleRiddleDto(GetAccessibleRiddleJpaDto getAccessibleRiddleJpaDto, boolean includeHint, boolean includeSolution) {
         this.id = getAccessibleRiddleJpaDto.getId();
         this.creatorUserId = getAccessibleRiddleJpaDto.getCreatorUserId();
         this.editorUserId = getAccessibleRiddleJpaDto.getEditorUserId();
-        this.creationTime = getAccessibleRiddleJpaDto.getCreationTime();
-        this.editTime = getAccessibleRiddleJpaDto.getEditTime();
+        this.creationTime = getAccessibleRiddleJpaDto.getCreationTimeAsInstant();
+        this.editTime = getAccessibleRiddleJpaDto.getEditTimeAsInstant();
 
         this.title = getAccessibleRiddleJpaDto.getTitle();
         this.wasHintUsed = getAccessibleRiddleJpaDto.getWasHintUsed();
-        this.isAlreadySolved = getAccessibleRiddleJpaDto.getAlreadySolved();
+        this.isAlreadySolved = getAccessibleRiddleJpaDto.getIsAlreadySolved();
 
         if (includeHint) {
             this.hint = getAccessibleRiddleJpaDto.getHint();

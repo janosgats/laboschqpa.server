@@ -25,7 +25,7 @@ public class RiddleController {
         Long teamId = assertAndGetTeamId(authenticationPrincipal);
         return riddleService.listAccessibleRiddleJpaDtos(teamId).stream()
                 .map((visibleRiddleJpaDto
-                        -> new GetAccessibleRiddleDto(visibleRiddleJpaDto, visibleRiddleJpaDto.getWasHintUsed(), visibleRiddleJpaDto.getAlreadySolved())
+                        -> new GetAccessibleRiddleDto(visibleRiddleJpaDto, visibleRiddleJpaDto.getWasHintUsed(), visibleRiddleJpaDto.getIsAlreadySolved())
                 )).collect(Collectors.toList());
     }
 
