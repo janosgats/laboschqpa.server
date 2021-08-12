@@ -77,7 +77,7 @@ class TeamLifecycleServiceTest {
 
     @Test
     void applyToTeam() {
-        Team team = new Team(1L, "test", false);
+        Team team = new Team(1L, "test", false, false, true);
         Long userAccId = 12L;
         UserAcc userAcc = UserAcc.builder().id(userAccId).enabled(true).team(team).build();
 
@@ -94,7 +94,7 @@ class TeamLifecycleServiceTest {
 
     @Test
     void applyToTeam_TeamNotFound_ContentNotFoundApiException() {
-        Team team = new Team(1L, "test", false);
+        Team team = new Team(1L, "test", false, false, true);
         Long userAccId = 12L;
         UserAcc userAcc = UserAcc.builder().id(userAccId).enabled(true).team(team).build();
 
@@ -107,7 +107,7 @@ class TeamLifecycleServiceTest {
 
     @Test
     void applyToTeam_UserNotFound_ContentNotFoundApiException() {
-        Team team = new Team(1L, "test", false);
+        Team team = new Team(1L, "test", false, false, true);
         Long userAccId = 12L;
 
         when(userAccRepository.findByIdAndEnabledIsTrue_WithPessimisticWriteLock(userAccId)).thenReturn(Optional.empty());

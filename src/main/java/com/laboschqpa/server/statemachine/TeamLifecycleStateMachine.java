@@ -43,6 +43,11 @@ public class TeamLifecycleStateMachine {
         alteredUserAcc.setTeamRole(TeamRole.APPLICANT);
 
         log.debug("UserAcc {} applied to Team {}.", alteredUserAcc.getId(), team.getId());
+
+        if (team.getAutoApproveApplications()) {
+            alteredUserAcc.setTeamRole(TeamRole.MEMBER);
+            log.debug("Application of UserAcc {} to Team {} was automatically approved.", alteredUserAcc.getId(), team.getId());
+        }
     }
 
     public void cancelApplicationToTeam() {
@@ -86,8 +91,10 @@ public class TeamLifecycleStateMachine {
         assertInitiatorIsSameAsAltered();
 
         if (alteredUserAcc.getTeamRole() == TeamRole.MEMBER) {
+            assertIfExitingIsAllowedFromTeam();
             leaveTeamAsMember();
         } else if (alteredUserAcc.getTeamRole() == TeamRole.LEADER) {
+            assertIfExitingIsAllowedFromTeam();
             leaveTeamAsLeader();
         } else {
             throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "The user isn't member or leader!");
@@ -108,6 +115,12 @@ public class TeamLifecycleStateMachine {
             alteredUserAcc.setTeam(null);
         } else {
             throw new TeamUserRelationException(TeamLifecycleApiError.THERE_IS_NO_OTHER_LEADER, "There is no other leader in the team. If you want to leave, make someone else leader or archive the team!");
+        }
+    }
+
+    void assertIfExitingIsAllowedFromTeam() {
+        if (!alteredUserAcc.getTeam().getAllowMembersToExit()) {
+            throw new TeamUserRelationException(TeamLifecycleApiError.EXITING_FROM_TEAM_IS_NOT_ALLOWED, "Exiting from this team is not allowed!");
         }
     }
 

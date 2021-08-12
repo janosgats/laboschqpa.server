@@ -64,8 +64,8 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Team team = new Team(10L, "testTeam", false);
-        Team team2 = new Team(12L, "testTeam2", false);
+        Team team = new Team(10L, "testTeam", false, false, true);
+        Team team2 = new Team(12L, "testTeam2", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.INITIATOR_IS_SAME_AS_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -99,7 +99,7 @@ class TeamLifecycleStateMachineTest {
     @Test
     void createNewTeam() {
         CreateNewTeamRequest createNewTeamRequest = new CreateNewTeamRequest("test name");
-        Team team = new Team(10L, createNewTeamRequest.getName(), false);
+        Team team = new Team(10L, createNewTeamRequest.getName(), false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -121,7 +121,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void applyToTeam() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -144,7 +144,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void cancelApplicationToTeam() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -167,7 +167,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void declineApplicationToTeam() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -190,7 +190,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void approveApplication() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -213,7 +213,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void leaveTeam_asMember() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -236,7 +236,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void leaveTeam_asLeader_fails() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -258,7 +258,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void leaveTeam_asLeader_success() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamLifecycleStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),
@@ -275,7 +275,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void kickFromTeam() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -298,7 +298,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void archiveAndLeaveTeam() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.YOU_HAVE_TO_BE_A_LEADER_TO_DO_THIS_OPERATION, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -320,7 +320,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void giveLeaderRights() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -342,7 +342,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void takeAwayLeaderRights() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -363,7 +363,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void resignFromLeadership_fails() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, () ->
                 stateMachineFactory.buildTeamLifecycleStateMachine(
@@ -383,7 +383,7 @@ class TeamLifecycleStateMachineTest {
 
     @Test
     void resignFromLeadership_success() {
-        Team team = new Team(10L, "test", false);
+        Team team = new Team(10L, "test", false, false, true);
 
         TeamLifecycleStateMachine teamLifecycleStateMachine = spy(stateMachineFactory.buildTeamLifecycleStateMachine(
                 UserAcc.builder().id(1L).team(team).teamRole(TeamRole.LEADER).build(),

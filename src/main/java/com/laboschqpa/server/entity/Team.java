@@ -30,4 +30,10 @@ public class Team {
 
     @Column(name = "archived", nullable = false)
     private Boolean archived = false;
+
+    @Column(name = "auto_approve_applications", nullable = false)
+    private Boolean autoApproveApplications = false;
+
+    @Column(name = "allow_members_to_exit", nullable = false)
+    private Boolean allowMembersToExit = true;
 }
