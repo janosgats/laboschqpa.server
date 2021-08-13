@@ -13,6 +13,7 @@ import com.laboschqpa.server.statemachine.SubmissionStateMachine;
 import com.laboschqpa.server.util.AttachmentHelper;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -32,6 +33,9 @@ public class SubmissionService {
     private final SubmissionRepository submissionRepository;
     private final StateMachineFactory stateMachineFactory;
     private final AttachmentHelper attachmentHelper;
+
+    @Value("${users.hideSubmissionsWithoutAcceptedEmail:true}")
+    private Boolean hideSubmissionsWithoutAcceptedEmail;
 
     public Submission getSubmissionWithEagerDisplayEntities(Long submissionId) {
         Optional<Submission> submissionOptional = submissionRepository.findByIdWithEagerDisplayEntities(submissionId);
@@ -120,7 +124,7 @@ public class SubmissionService {
                 visibleSubmissions.add(submission);
                 continue;
             }
-            if (!userAcc.getIsAcceptedByEmail()) {
+            if (hideSubmissionsWithoutAcceptedEmail && !userAcc.getIsAcceptedByEmail()) {
                 //Not accepted user -> can't see anything but their own submissions
                 continue;
             }
