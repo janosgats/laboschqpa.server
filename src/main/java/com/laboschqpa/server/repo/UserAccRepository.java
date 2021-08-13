@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
@@ -56,4 +57,10 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
             "where " +
             "    userAcc.id = :id ")
     Optional<UserAcc> findByIdWithTeam(long id);
+
+    @Query("select userAcc " +
+            "from UserAcc userAcc " +
+            " left join fetch userAcc.team t " +
+            "order by t.name ASC, userAcc.nickName ASC, userAcc.firstName ASC, userAcc.lastName ASC")
+    List<UserAcc> findAll_withTeam_orderByNamesAsc();
 }

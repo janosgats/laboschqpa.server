@@ -44,4 +44,11 @@ public class UserController {
                 .map(UserInfoResponse::new)
                 .collect(Collectors.toList());
     }
+
+    @GetMapping("/listAllWithTeamName")
+    public List<UserInfoResponse> getListAllWithTeam() {
+        return userService.listAllWithTeam().stream()
+                .map(u -> new UserInfoResponse(u, false, true))
+                .collect(Collectors.toList());
+    }
 }

@@ -43,6 +43,10 @@ public class UserService {
         return userAccRepository.findAll();
     }
 
+    public List<UserAcc> listAllWithTeam() {
+        return userAccRepository.findAll_withTeam_orderByNamesAsc();
+    }
+
     private UserAcc getValidUser(long id, boolean withAuthorities, boolean withTeam) {
         final Optional<UserAcc> userAccOptional;
         if (withAuthorities && withTeam) {

@@ -118,12 +118,6 @@ public class TeamLifecycleStateMachine {
         }
     }
 
-    void assertIfExitingIsAllowedFromTeam() {
-        if (!alteredUserAcc.getTeam().getAllowMembersToExit()) {
-            throw new TeamUserRelationException(TeamLifecycleApiError.EXITING_FROM_TEAM_IS_NOT_ALLOWED, "Exiting from this team is not allowed!");
-        }
-    }
-
     public void kickFromTeam() {
         assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
 
@@ -142,6 +136,8 @@ public class TeamLifecycleStateMachine {
 
         if (initiatorUserAcc.getTeamRole() != TeamRole.LEADER)
             throw new TeamUserRelationException(TeamLifecycleApiError.YOU_HAVE_TO_BE_A_LEADER_TO_DO_THIS_OPERATION, "You have to be a leader of the team you want to archive!");
+
+        assertIfExitingIsAllowedFromTeam();
 
         initiatorUserAcc.getTeam().setArchived(true);
         userAccRepository.kickEveryoneFromTeam(initiatorUserAcc.getTeam());
@@ -181,6 +177,12 @@ public class TeamLifecycleStateMachine {
         } else {
             throw new TeamUserRelationException(TeamLifecycleApiError.THERE_IS_NO_OTHER_LEADER,
                     "There is no other leader in the team. If you want to resign, give leader rights to someone else!");
+        }
+    }
+
+    void assertIfExitingIsAllowedFromTeam() {
+        if (!alteredUserAcc.getTeam().getAllowMembersToExit()) {
+            throw new TeamUserRelationException(TeamLifecycleApiError.EXITING_FROM_TEAM_IS_NOT_ALLOWED, "Exiting from this team is not allowed!");
         }
     }
 
