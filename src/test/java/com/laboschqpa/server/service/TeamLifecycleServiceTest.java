@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -43,6 +44,9 @@ class TeamLifecycleServiceTest {
 
     @BeforeEach
     void setUp() {
+        ReflectionTestUtils.setField(teamLifecycleService,
+                "disableNewTeamCreation", false);
+
         lenient().when(transactionTemplate.execute(any()))
                 .then(invocationOnMock -> ((TransactionCallback) (invocationOnMock.getArgument(0))).doInTransaction(new SimpleTransactionStatus()));
         lenient().doCallRealMethod()
