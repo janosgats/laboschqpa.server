@@ -3,12 +3,15 @@ package com.laboschqpa.server.service;
 import com.laboschqpa.server.api.dto.team.CreateNewTeamRequest;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
+import com.laboschqpa.server.enums.apierrordescriptor.TeamLifecycleApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.TeamUserRelationException;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
 import com.laboschqpa.server.statemachine.TeamLifecycleStateMachine;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -22,11 +25,20 @@ public class TeamLifecycleService {
     private final TransactionTemplate transactionTemplate;
     private final StateMachineFactory stateMachineFactory;
 
+    @Value("${users.disableNewTeamCreation:false}")
+    private Boolean disableNewTeamCreation;
+
     /**
      * @return The newly created {@link Team} entity.
      */
     public Team createNewTeam(CreateNewTeamRequest createNewTeamRequest, Long creatorUserId) {
         createNewTeamRequest.validateSelf();
+
+        if (disableNewTeamCreation) {
+            throw new TeamUserRelationException(TeamLifecycleApiError.CREATION_OF_NEW_TEAMS_IS_DISABLED,
+                    "Creation of new teams is not allowed at the moment!");
+        }
+
         return transactionTemplate.execute(transactionStatus -> {
             createNewTeamRequest.setName(createNewTeamRequest.getName().trim());
 
