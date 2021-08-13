@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ListObjectivesRequest extends SelfValidator {
+public class ListObjectivesForDisplayRequest extends SelfValidator {
     private static final ObjectiveTypeFromValueJacksonConverter OBJECTIVE_TYPE_FROM_VALUE_JACKSON_CONVERTER = new ObjectiveTypeFromValueJacksonConverter();
 
     @NotNull

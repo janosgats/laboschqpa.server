@@ -2,6 +2,7 @@ package com.laboschqpa.server.repo.usergeneratedcontent.dto;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Set;
 
 public interface GetUserGeneratedContentJpaDto {
     Long getId();
@@ -13,6 +14,8 @@ public interface GetUserGeneratedContentJpaDto {
     Timestamp getCreationTime();
 
     Timestamp getEditTime();
+
+    Set<Long> getAttachments();
 
     default Instant getCreationTimeAsInstant() {
         if (getCreationTime() == null) {

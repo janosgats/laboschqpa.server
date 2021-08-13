@@ -4,7 +4,7 @@ import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveRequest;
 import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveRequest;
 import com.laboschqpa.server.api.dto.ugc.objective.GetObjectiveResponse;
-import com.laboschqpa.server.api.dto.ugc.objective.ListObjectivesRequest;
+import com.laboschqpa.server.api.dto.ugc.objective.ListObjectivesForDisplayRequest;
 import com.laboschqpa.server.api.service.ObjectiveService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
@@ -23,8 +23,10 @@ public class ObjectiveController {
     private final ObjectiveService objectiveService;
 
     @GetMapping("/objective")
-    public GetObjectiveResponse getObjective(@RequestParam(name = "id") Long objectiveId) {
-        return new GetObjectiveResponse(objectiveService.getObjective(objectiveId), true);
+    public GetObjectiveResponse getObjective(@RequestParam(name = "id") Long objectiveId,
+                                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
+        return new GetObjectiveResponse(objectiveService.getObjective(objectiveId, observerTeamId), true);
     }
 
     @GetMapping("/listAll")
@@ -34,10 +36,13 @@ public class ObjectiveController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/listWithAttachments")
-    public List<GetObjectiveResponse> getListAllWithAttachments(@RequestBody ListObjectivesRequest request) {
+    @PostMapping("/listForDisplay")
+    public List<GetObjectiveResponse> postListForDisplay(@RequestBody ListObjectivesForDisplayRequest request,
+                                                         @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         request.validateSelf();
-        return objectiveService.listWithAttachments(request.getObjectiveTypes()).stream()
+        final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
+
+        return objectiveService.listForDisplay(request.getObjectiveTypes(), observerTeamId).stream()
                 .map(o -> new GetObjectiveResponse(o, true))
                 .collect(Collectors.toList());
     }
@@ -64,5 +69,12 @@ public class ObjectiveController {
                                 @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.ObjectiveEditor, Authority.Admin);
         objectiveService.deleteObjective(objectiveId, authenticationPrincipal.getUserAccEntity());
+    }
+
+    private Long extractObserverTeamId(CustomOauth2User authenticationPrincipal) {
+        if (authenticationPrincipal.getUserAccEntity().isMemberOrLeaderOfAnyTeam()) {
+            return authenticationPrincipal.getUserAccEntity().getTeam().getId();
+        }
+        return null;
     }
 }
