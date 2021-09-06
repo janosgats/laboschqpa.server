@@ -3,12 +3,6 @@
 <Configuration name="com.laboschqpa.server" packages="com.laboschqpa.server.logging">
     <Appenders>
 
-        <LocaldevConsoleAppender name="LocaldevConsoleAppender">
-        </LocaldevConsoleAppender>
-        <Async name="AsyncLocaldevConsoleAppender" bufferSize="16384">
-            <AppenderRef ref="LocaldevConsoleAppender"/>
-        </Async>
-
         <GoogleCloudConsoleAppender name="GoogleCloudConsoleAppender">
         </GoogleCloudConsoleAppender>
         <Async name="AsyncGoogleCloudConsoleAppender" bufferSize="16384">
@@ -18,15 +12,12 @@
     </Appenders>
     <Loggers>
         <Logger name="com.laboschqpa.server.config.filterchain.extension.ReloadUserPerRequestHttpSessionSecurityContextRepository" level="info" additivity="false">
-            <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
             <AppenderRef ref="AsyncGoogleCloudConsoleAppender"/>
         </Logger>
         <Logger name="com.laboschqpa.server" level="all" additivity="false">
-            <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
             <AppenderRef ref="AsyncGoogleCloudConsoleAppender"/>
         </Logger>
         <Root level="info">
-            <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
             <AppenderRef ref="AsyncGoogleCloudConsoleAppender"/>
         </Root>
     </Loggers>

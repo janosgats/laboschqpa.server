@@ -1,10 +1,7 @@
 package com.laboschqpa.server.logging;
 
 import com.janosgats.logging.flexibleappender.FlexibleAppender;
-import com.janosgats.logging.flexibleappender.enableable.CompositeOrEnableable;
-import com.janosgats.logging.flexibleappender.enableable.EnvironmentVariableEnableable;
-import com.janosgats.logging.flexibleappender.enableable.JUnitEnableable;
-import com.janosgats.logging.flexibleappender.enableable.SystemPropertyEnableable;
+import com.janosgats.logging.flexibleappender.enableable.*;
 import com.janosgats.logging.flexibleappender.loglinebuilder.AbstractLogLineBuilder;
 import com.janosgats.logging.flexibleappender.loglinebuilder.specific.LocaldevConsoleLogLineBuilder;
 import com.janosgats.logging.flexibleappender.loglineoutput.AbstractLogLineOutput;
@@ -39,7 +36,7 @@ public class LocaldevConsoleAppender extends FlexibleAppender {
 
         AbstractLogLineOutput logLineOutput = new StdOutLogLineOutput();
 
-        super.setUpAppender(compositeOrEnableable, logLineBuilder, logLineOutput);
+        super.setUpAppender(new AlwaysOnEnableable(), logLineBuilder, logLineOutput);
     }
 
     @PluginFactory

@@ -3,9 +3,7 @@ package com.laboschqpa.server.logging;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.janosgats.logging.flexibleappender.FlexibleAppender;
-import com.janosgats.logging.flexibleappender.enableable.CompositeOrEnableable;
-import com.janosgats.logging.flexibleappender.enableable.EnvironmentVariableEnableable;
-import com.janosgats.logging.flexibleappender.enableable.SystemPropertyEnableable;
+import com.janosgats.logging.flexibleappender.enableable.AlwaysOnEnableable;
 import com.janosgats.logging.flexibleappender.helper.LoggingHelper;
 import com.janosgats.logging.flexibleappender.loglinebuilder.AbstractLogLineBuilder;
 import com.janosgats.logging.flexibleappender.loglinebuilder.DateTimeFormatterLogLineBuilder;
@@ -33,15 +31,11 @@ public class GoogleCloudConsoleAppender extends FlexibleAppender {
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC);
 
-        CompositeOrEnableable compositeOrEnableable = new CompositeOrEnableable();
-        compositeOrEnableable.getAbstractEnableables().add(new EnvironmentVariableEnableable("LOGGING_ENABLE_GOOGLE_CLOUD_CONSOLE_APPENDER"));
-        compositeOrEnableable.getAbstractEnableables().add(new SystemPropertyEnableable("LOGGING_ENABLE_GOOGLE_CLOUD_CONSOLE_APPENDER"));
-
         AbstractLogLineBuilder logLineBuilder = new LogLineBuilder(dateTimeFormatter);
 
         AbstractLogLineOutput logLineOutput = new StdOutLogLineOutput();
 
-        super.setUpAppender(compositeOrEnableable, logLineBuilder, logLineOutput);
+        super.setUpAppender(new AlwaysOnEnableable(), logLineBuilder, logLineOutput);
     }
 
     @PluginFactory
