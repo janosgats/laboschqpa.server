@@ -23,10 +23,10 @@ import java.io.Serializable;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-@Plugin(name = "GoogleCloudConsoleAppender", category = "Core", elementType = "appender", printObject = true)
-public class GoogleCloudConsoleAppender extends FlexibleAppender {
+@Plugin(name = "CustomGoogleCloudConsoleAppender", category = "Core", elementType = "appender", printObject = true)
+public class CustomGoogleCloudConsoleAppender extends FlexibleAppender {
 
-    private GoogleCloudConsoleAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, Property[] properties) {
+    private CustomGoogleCloudConsoleAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, Property[] properties) {
         super(name, filter, layout, ignoreExceptions, properties);
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC);
@@ -39,7 +39,7 @@ public class GoogleCloudConsoleAppender extends FlexibleAppender {
     }
 
     @PluginFactory
-    public static GoogleCloudConsoleAppender createAppender(
+    public static CustomGoogleCloudConsoleAppender createAppender(
             @PluginAttribute("name") String name,
             @PluginElement("Layout") Layout<? extends Serializable> layout,
             @PluginElement("Filter") final Filter filter,
@@ -51,7 +51,7 @@ public class GoogleCloudConsoleAppender extends FlexibleAppender {
         if (layout == null) {
             layout = PatternLayout.createDefaultLayout();//A layout has to be provided to instantiate the appender
         }
-        return new GoogleCloudConsoleAppender(name, filter, layout, false, new Property[0]);
+        return new CustomGoogleCloudConsoleAppender(name, filter, layout, false, new Property[0]);
     }
 
     private static class LogLineBuilder extends DateTimeFormatterLogLineBuilder {

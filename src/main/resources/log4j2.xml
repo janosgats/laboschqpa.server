@@ -3,8 +3,8 @@
 <Configuration name="com.laboschqpa.server" packages="com.laboschqpa.server.logging">
     <Appenders>
 
-        <GoogleCloudConsoleAppender name="GoogleCloudConsoleAppender">
-        </GoogleCloudConsoleAppender>
+        <CustomGoogleCloudConsoleAppender name="GoogleCloudConsoleAppender">
+        </CustomGoogleCloudConsoleAppender>
         <Async name="AsyncGoogleCloudConsoleAppender" bufferSize="16384">
             <AppenderRef ref="GoogleCloudConsoleAppender"/>
         </Async>

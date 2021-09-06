@@ -3,8 +3,8 @@
 <Configuration name="com.laboschqpa.server" packages="com.laboschqpa.server.logging">
     <Appenders>
 
-        <LocaldevConsoleAppender name="LocaldevConsoleAppender">
-        </LocaldevConsoleAppender>
+        <CustomLocaldevConsoleAppender name="LocaldevConsoleAppender">
+        </CustomLocaldevConsoleAppender>
         <Async name="AsyncLocaldevConsoleAppender" bufferSize="16384">
             <AppenderRef ref="LocaldevConsoleAppender"/>
         </Async>
