@@ -44,7 +44,8 @@ public class GithubOAuth2Provider implements OAuth2Provider {
         GithubExternalAccountDetail githubExternalAccountDetail = new GithubExternalAccountDetail();
         githubExternalAccountDetail.setGithubId(githubUserInfoDto.getId());
 
-        return new Oauth2UserProfileData(githubExternalAccountDetail, githubUserInfoDto.getEmail(), firstName, lastName, null);
+        final String nickName = Helpers.getNickName(firstName, lastName, githubUserInfoDto.getEmail(), "GitHub");
+        return new Oauth2UserProfileData(githubExternalAccountDetail, githubUserInfoDto.getEmail(), firstName, lastName, nickName);
     }
 
     @Override
