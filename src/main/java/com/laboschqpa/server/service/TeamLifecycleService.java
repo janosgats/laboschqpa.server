@@ -1,6 +1,7 @@
 package com.laboschqpa.server.service;
 
 import com.laboschqpa.server.api.dto.team.CreateNewTeamRequest;
+import com.laboschqpa.server.api.service.event.registration.TeamEventRegistrationService;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamLifecycleApiError;
@@ -24,6 +25,7 @@ public class TeamLifecycleService {
     private final TeamRepository teamRepository;
     private final TransactionTemplate transactionTemplate;
     private final StateMachineFactory stateMachineFactory;
+    private final TeamEventRegistrationService teamEventRegistrationService;
 
     @Value("${users.disableNewTeamCreation:false}")
     private Boolean disableNewTeamCreation;
@@ -136,6 +138,8 @@ public class TeamLifecycleService {
 
             TeamLifecycleStateMachine stateMachine = stateMachineFactory.buildTeamLifecycleStateMachine(userAcc, userAcc);
             stateMachine.archiveAndLeaveTeam();
+
+            teamEventRegistrationService.deleteAllRegistrationsOfTeam(teamToArchive);
 
             teamRepository.save(teamToArchive);
             userAccRepository.save(userAcc);

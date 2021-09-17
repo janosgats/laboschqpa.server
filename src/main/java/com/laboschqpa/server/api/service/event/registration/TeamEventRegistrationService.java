@@ -47,6 +47,10 @@ public class TeamEventRegistrationService {
         deleteTeamRegistration(team, event);
     }
 
+    public void deleteAllRegistrationsOfTeam(Team team) {
+        teamEventRegistrationRepository.deleteAllRegistrationsOfTeam(team);
+    }
+
     private void createTeamRegistration(Team team, Event event) {
         TeamEventRegistration registration = new TeamEventRegistration();
         registration.setEvent(event);

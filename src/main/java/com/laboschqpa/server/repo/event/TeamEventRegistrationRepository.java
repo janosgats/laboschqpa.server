@@ -20,4 +20,9 @@ public interface TeamEventRegistrationRepository extends JpaRepository<TeamEvent
     @Modifying
     @Query("delete from TeamEventRegistration where team = :team and event = :event")
     int deleteByTeamAndEvent_andGetDeletedRowCount(Team team, Event event);
+
+    @Transactional
+    @Modifying
+    @Query("delete from TeamEventRegistration where team = :team")
+    int deleteAllRegistrationsOfTeam(Team team);
 }

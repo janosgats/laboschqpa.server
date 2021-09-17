@@ -1,6 +1,7 @@
 package com.laboschqpa.server.service;
 
 import com.laboschqpa.server.api.dto.team.CreateNewTeamRequest;
+import com.laboschqpa.server.api.service.event.registration.TeamEventRegistrationService;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
@@ -39,6 +40,8 @@ class TeamLifecycleServiceTest {
     UserAccRepository userAccRepository;
     @Mock
     TeamRepository teamRepository;
+    @Mock
+    TeamEventRegistrationService teamEventRegistrationService;
     @InjectMocks
     TeamLifecycleService teamLifecycleService;
 
@@ -215,6 +218,8 @@ class TeamLifecycleServiceTest {
 
         verify(stateMachineFactory, times(1)).buildTeamLifecycleStateMachine(userAcc, userAcc);
         verify(teamLifecycleStateMachine, times(1)).archiveAndLeaveTeam();
+
+        verify(teamEventRegistrationService, times(1)).deleteAllRegistrationsOfTeam(userAcc.getTeam());
 
         verify(teamRepository, times(1)).save(userAcc.getTeam());
         verify(userAccRepository, times(1)).save(userAcc);
