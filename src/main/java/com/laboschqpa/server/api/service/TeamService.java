@@ -48,6 +48,10 @@ public class TeamService {
         return teamRepository.findAll();
     }
 
+    public void assertTeamExists(long id) {
+        getValidTeam(id);
+    }
+
     private Team getValidTeam(long id) {
         return teamRepository.findById(id).orElseThrow(() -> new ContentNotFoundException("Team with id " + id + " is not found."));
     }
