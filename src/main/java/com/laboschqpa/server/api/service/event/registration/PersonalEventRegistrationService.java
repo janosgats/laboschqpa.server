@@ -46,7 +46,7 @@ public class PersonalEventRegistrationService {
         PersonalEventRegistration registration = new PersonalEventRegistration();
         registration.setEvent(event);
         registration.setUserAcc(userAcc);
-        registration.setTime(Instant.now());
+        registration.setCreated(Instant.now());
         personalEventRegistrationRepository.save(registration);
     }
 

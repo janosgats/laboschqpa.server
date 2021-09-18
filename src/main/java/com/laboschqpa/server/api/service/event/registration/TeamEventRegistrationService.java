@@ -55,7 +55,7 @@ public class TeamEventRegistrationService {
         TeamEventRegistration registration = new TeamEventRegistration();
         registration.setEvent(event);
         registration.setTeam(team);
-        registration.setTime(Instant.now());
+        registration.setCreated(Instant.now());
         teamEventRegistrationRepository.save(registration);
     }
 

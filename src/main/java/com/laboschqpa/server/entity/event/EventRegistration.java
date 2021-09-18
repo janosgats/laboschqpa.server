@@ -17,7 +17,7 @@ public abstract class EventRegistration {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    @Column(name = "time", columnDefinition = "datetime")
-    private Instant time;
+    @Column(name = "created", columnDefinition = "datetime")
+    private Instant created;
 }
 

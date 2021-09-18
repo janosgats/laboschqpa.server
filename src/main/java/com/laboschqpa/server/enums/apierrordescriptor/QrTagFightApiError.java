@@ -3,16 +3,15 @@ package com.laboschqpa.server.enums.apierrordescriptor;
 import com.laboschqpa.server.annotation.ApiErrorCategory;
 import com.laboschqpa.server.api.errorhandling.ApiErrorDescriptor;
 
-@ApiErrorCategory("riddle")
-public enum RiddleApiError implements ApiErrorDescriptor {
-    RIDDLE_IS_NOT_FOUND(2),
-    REQUESTED_RIDDLE_IS_NOT_YET_ACCESSIBLE_FOR_YOUR_TEAM(3),
-    YOUR_TEAM_ALREADY_SOLVED_THE_RIDDLE(4),
-    A_RIDDLE_HAS_TO_HAVE_EXACTLY_ONE_ATTACHMENT(5);
+@ApiErrorCategory("qrTagFight")
+public enum QrTagFightApiError implements ApiErrorDescriptor {
+    YOUR_TEAM_ALREADY_SUBMITTED_THIS_TAG(1),
+    TAG_DOES_NOT_EXIST(2),
+    TAG_SECRET_MISMATCH(3);
 
     private Integer apiErrorCode;
 
-    RiddleApiError(Integer apiErrorCode) {
+    QrTagFightApiError(Integer apiErrorCode) {
         this.apiErrorCode = apiErrorCode;
     }
 
