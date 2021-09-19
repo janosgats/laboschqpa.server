@@ -3,7 +3,6 @@ package com.laboschqpa.server.api.dto.ugc.program;
 import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentResponse;
 import com.laboschqpa.server.entity.usergeneratedcontent.Program;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetProgramJpaDto;
-import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetProgramWithTeamScoreJpaDto;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.ProgramDtoAdapter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,8 +17,6 @@ public class GetProgramResponse extends GetUserGeneratedContentResponse {
     private String description;
     private Instant startTime;
     private Instant endTime;
-
-    private Integer teamScore;
 
     public GetProgramResponse() {
         super();
@@ -52,9 +49,5 @@ public class GetProgramResponse extends GetUserGeneratedContentResponse {
         this.description = program.getDescription();
         this.startTime = program.getStartTimeAsInstant();
         this.endTime = program.getEndTimeAsInstant();
-
-        if (program instanceof GetProgramWithTeamScoreJpaDto) {
-            this.teamScore = ((GetProgramWithTeamScoreJpaDto) program).getTeamScore();
-        }
     }
 }

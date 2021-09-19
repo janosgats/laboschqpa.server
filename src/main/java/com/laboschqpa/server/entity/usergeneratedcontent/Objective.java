@@ -14,7 +14,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "objective",
         indexes = {
-                @Index(columnList = "program_id"),
+                @Index(columnList = "program_id", name = "program_id"),
         }
 )
 @DiscriminatorValue(value = UserGeneratedContentTypeValues.OBJECTIVE)

@@ -5,6 +5,7 @@ import com.laboschqpa.server.api.dto.TeamScoreResponse;
 import com.laboschqpa.server.api.dto.ugc.program.CreateNewProgramRequest;
 import com.laboschqpa.server.api.dto.ugc.program.EditProgramRequest;
 import com.laboschqpa.server.api.dto.ugc.program.GetProgramResponse;
+import com.laboschqpa.server.api.dto.ugc.program.GetProgramWithTeamScoreResponse;
 import com.laboschqpa.server.api.service.ProgramService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
@@ -44,7 +45,7 @@ public class ProgramController {
     @GetMapping("/listAllWithTeamScore")
     public List<GetProgramResponse> getListAllWithTeamScore(@RequestParam(name = "teamId") Long teamId) {
         return programService.listAllWithTeamScore(teamId).stream()
-                .map(GetProgramResponse::new)
+                .map((program) -> new GetProgramWithTeamScoreResponse(program, false))
                 .collect(Collectors.toList());
     }
 

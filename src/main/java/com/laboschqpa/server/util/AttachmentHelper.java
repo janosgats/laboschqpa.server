@@ -53,8 +53,9 @@ public class AttachmentHelper {
     }
 
     public FileCheckResult areAllFilesAvailableAndHaveOwnerUserOrTeamOf(Set<Long> indexedFileIds, long wantedOwnerUserId, boolean enforceImageMimeType) {
-        if (indexedFileIds == null || indexedFileIds.size() == 0)
+        if (indexedFileIds == null || indexedFileIds.isEmpty()) {
             return FileCheckResult.OK;
+        }
 
         GetIndexedFileInfoResponse[] indexedFileInfoArray = fileHostApiClient.getIndexedFileInfo(indexedFileIds);
         Set<Long> remainingIdsToCheck = new HashSet<>(indexedFileIds);
@@ -73,7 +74,7 @@ public class AttachmentHelper {
             }
         }
         log.trace("remainingIdsToCheck: {}", () -> remainingIdsToCheck.stream().map(String::valueOf).collect(Collectors.joining(",")));
-        if (remainingIdsToCheck.size() == 0) {
+        if (remainingIdsToCheck.isEmpty()) {
             return FileCheckResult.OK;
         }
         return FileCheckResult.FILES_ARE_NOT_AVAILABLE;
