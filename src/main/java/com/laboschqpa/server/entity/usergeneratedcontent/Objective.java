@@ -12,9 +12,17 @@ import java.time.Instant;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "objective")
+@Table(name = "objective",
+        indexes = {
+                @Index(columnList = "program_id"),
+        }
+)
 @DiscriminatorValue(value = UserGeneratedContentTypeValues.OBJECTIVE)
 public class Objective extends UserGeneratedContent {
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "program_id", nullable = false)
+    private Program program;
+
     @Column(name = "title", columnDefinition = "text", nullable = false)
     private String title;
 

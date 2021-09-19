@@ -1,7 +1,7 @@
 package com.laboschqpa.server.statemachine;
 
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
-import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
@@ -44,8 +44,8 @@ public class SubmissionStateMachine {
     /**
      * Objective and Team is NOT modifiable.
      */
-    public void editSubmission(EditSubmissionDto editSubmissionDto) {
-        Optional<Submission> submissionOptional = submissionRepository.findById(editSubmissionDto.getId());
+    public void editSubmission(EditSubmissionRequest editSubmissionRequest) {
+        Optional<Submission> submissionOptional = submissionRepository.findById(editSubmissionRequest.getId());
         if (submissionOptional.isEmpty()) {
             throw new SubmissionException(SubmissionApiError.SUBMISSION_IS_NOT_FOUND);
         }
@@ -54,9 +54,9 @@ public class SubmissionStateMachine {
         assertIfInitiatorCanModifySubmission(submission);
 
         submission.setUGCAsEditedByUser(initiatorUserAcc);
-        submission.setAttachments(editSubmissionDto.getAttachments());
+        submission.setAttachments(editSubmissionRequest.getAttachments());
 
-        submission.setContent(editSubmissionDto.getContent());
+        submission.setContent(editSubmissionRequest.getContent());
 
         log.debug("UserAcc {} edited submission {}.", initiatorUserAcc.getId(), submission.getId());
         submissionRepository.save(submission);

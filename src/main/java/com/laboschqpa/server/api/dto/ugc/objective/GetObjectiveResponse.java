@@ -16,6 +16,7 @@ import java.time.Instant;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
+    private Long programId;
     private String title;
     private String description;
     private Boolean submittable;
@@ -47,6 +48,7 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
      */
     public GetObjectiveResponse(GetObjectiveJpaDto objective, boolean includeAttachments) {
         super(objective, includeAttachments);
+        this.programId = objective.getProgramId();
         this.title = objective.getTitle();
         this.description = objective.getDescription();
         this.submittable = objective.getSubmittable();

@@ -2,7 +2,7 @@ package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.DisplayListSubmissionRequest;
-import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
 import com.laboschqpa.server.enums.auth.Authority;
@@ -11,6 +11,7 @@ import com.laboschqpa.server.repo.usergeneratedcontent.SubmissionRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
 import com.laboschqpa.server.statemachine.SubmissionStateMachine;
 import com.laboschqpa.server.util.AttachmentHelper;
+import com.laboschqpa.server.util.CollectionHelpers;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +22,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +45,7 @@ public class SubmissionService {
     }
 
     public Submission createNewSubmission(CreateNewSubmissionDto createNewSubmissionDto, UserAcc initiatorUserAcc) {
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewSubmissionDto.getAttachments(), initiatorUserAcc.getId());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewSubmissionDto.getAttachments(), initiatorUserAcc);
 
         return transactionTemplate.execute(new TransactionCallback<Submission>() {
             @Override
@@ -58,14 +56,18 @@ public class SubmissionService {
         });
     }
 
-    public void editSubmission(EditSubmissionDto editSubmissionDto, UserAcc initiatorUserAcc) {
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editSubmissionDto.getAttachments(), initiatorUserAcc.getId());
+    public void editSubmission(EditSubmissionRequest request, UserAcc initiatorUserAcc) {
+        Submission editedSubmission = submissionRepository.findByIdWithEagerAttachments(request.getId())
+                .orElseThrow(() -> new ContentNotFoundException("Cannot find Submission with Id: " + request.getId()));
+
+        final HashSet<Long> newlyAddedAttachments = CollectionHelpers.subtractToSet(request.getAttachments(), editedSubmission.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(newlyAddedAttachments, initiatorUserAcc);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 SubmissionStateMachine stateMachine = stateMachineFactory.buildSubmissionStateMachine(initiatorUserAcc);
-                stateMachine.editSubmission(editSubmissionDto);
+                stateMachine.editSubmission(request);
             }
         });
     }

@@ -7,12 +7,14 @@ import com.laboschqpa.server.entity.usergeneratedcontent.NewsPost;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.usergeneratedcontent.NewsPostRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
+import com.laboschqpa.server.util.CollectionHelpers;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +36,7 @@ public class NewsPostService {
     }
 
     public NewsPost create(CreateNewNewsPostRequest createNewNewsPostRequest, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewNewsPostRequest.getAttachments(), creatorUserAcc.getId());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewNewsPostRequest.getAttachments(), creatorUserAcc);
 
         NewsPost newsPost = new NewsPost();
         newsPost.setUGCAsCreatedByUser(creatorUserAcc);
@@ -47,24 +49,23 @@ public class NewsPostService {
         return newsPost;
     }
 
-    public void edit(EditNewsPostRequest editNewsPostRequest, UserAcc editorUserAcc) {
-        Long newsPostId = editNewsPostRequest.getId();
-        Optional<NewsPost> newsPostOptional = newsPostRepository.findById(newsPostId);
-        if (newsPostOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find NewsPost with Id: " + newsPostId);
+    public void edit(EditNewsPostRequest request, UserAcc editorUserAcc) {
+        Long newsPostId = request.getId();
+        NewsPost editedNewsPost = newsPostRepository.findByIdWithEagerAttachments(newsPostId)
+                .orElseThrow(() -> new ContentNotFoundException("Cannot find NewsPost with Id: " + newsPostId));
 
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editNewsPostRequest.getAttachments(), editorUserAcc.getId());
+        final HashSet<Long> newlyAddedAttachments = CollectionHelpers.subtractToSet(request.getAttachments(), editedNewsPost.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(newlyAddedAttachments, editorUserAcc);
 
-        NewsPost newsPost = newsPostOptional.get();
-        newsPost.setUGCAsEditedByUser(editorUserAcc);
-        newsPost.setAttachments(editNewsPostRequest.getAttachments());
+        editedNewsPost.setUGCAsEditedByUser(editorUserAcc);
+        editedNewsPost.setAttachments(request.getAttachments());
 
 
-        newsPost.setContent(editNewsPostRequest.getContent());
+        editedNewsPost.setContent(request.getContent());
 
-        newsPostRepository.save(newsPost);
+        newsPostRepository.save(editedNewsPost);
 
-        logger.info("NewsPost {} edited by user {}.", newsPost.getId(), editorUserAcc.getId());
+        logger.info("NewsPost {} edited by user {}.", editedNewsPost.getId(), editorUserAcc.getId());
     }
 
     @Transactional

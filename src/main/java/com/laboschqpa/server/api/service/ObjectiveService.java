@@ -5,6 +5,7 @@ import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveRequest;
 import com.laboschqpa.server.entity.TeamScore;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
+import com.laboschqpa.server.entity.usergeneratedcontent.Program;
 import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.TeamScoreRepository;
@@ -12,6 +13,7 @@ import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithTeamScoreJpaDto;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.ObjectiveWithTeamScoreDtoAdapter;
 import com.laboschqpa.server.util.AttachmentHelper;
+import com.laboschqpa.server.util.CollectionHelpers;
 import com.laboschqpa.server.util.MappingHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,6 +31,7 @@ public class ObjectiveService {
     private final ObjectiveRepository objectiveRepository;
     private final TeamScoreRepository teamScoreRepository;
     private final AttachmentHelper attachmentHelper;
+    private final ProgramService programService;
 
     public GetObjectiveWithTeamScoreJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId) {
         Optional<Objective> objectiveOptional = objectiveRepository.findByIdWithEagerAttachments(objectiveId);
@@ -51,46 +54,49 @@ public class ObjectiveService {
         return teamScoreRepository.findByObjectiveIdAndTeamId(objectiveId, observerTeamId);
     }
 
-    public Objective createNewObjective(CreateNewObjectiveRequest createNewObjectiveRequest, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewObjectiveRequest.getAttachments(), creatorUserAcc.getId());
+    public Objective createNewObjective(CreateNewObjectiveRequest request, UserAcc creatorUserAcc) {
+        final Program program = programService.getExisting(request.getProgramId());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(request.getAttachments(), creatorUserAcc);
 
         Objective objective = new Objective();
         objective.setUGCAsCreatedByUser(creatorUserAcc);
-        objective.setAttachments(createNewObjectiveRequest.getAttachments());
+        objective.setAttachments(request.getAttachments());
 
-        objective.setTitle(createNewObjectiveRequest.getTitle());
-        objective.setDescription(createNewObjectiveRequest.getDescription());
-        objective.setSubmittable(createNewObjectiveRequest.getSubmittable());
-        objective.setDeadline(createNewObjectiveRequest.getDeadline());
-        objective.setHideSubmissionsBefore(createNewObjectiveRequest.getHideSubmissionsBefore());
-        objective.setObjectiveType(createNewObjectiveRequest.getObjectiveType());
+        objective.setProgram(program);
+        objective.setTitle(request.getTitle());
+        objective.setDescription(request.getDescription());
+        objective.setSubmittable(request.getSubmittable());
+        objective.setDeadline(request.getDeadline());
+        objective.setHideSubmissionsBefore(request.getHideSubmissionsBefore());
+        objective.setObjectiveType(request.getObjectiveType());
 
         objectiveRepository.save(objective);
         log.info("Objective {} created by user {}.", objective.getId(), creatorUserAcc.getId());
         return objective;
     }
 
-    public void editObjective(EditObjectiveRequest editObjectiveRequest, UserAcc editorUserAcc) {
-        Optional<Objective> objectiveOptional = objectiveRepository.findById(editObjectiveRequest.getId());
-        if (objectiveOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find Objective with Id: " + editObjectiveRequest.getId());
+    public void editObjective(EditObjectiveRequest request, UserAcc editorUserAcc) {
+        Objective editedObjective = objectiveRepository.findByIdWithEagerAttachments(request.getId())
+                .orElseThrow(()->new ContentNotFoundException("Cannot find Objective with Id: " + request.getId()));
+        final Program program = programService.getExisting(request.getProgramId());
 
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editObjectiveRequest.getAttachments(), editorUserAcc.getId());
+        final HashSet<Long> newlyAddedAttachments = CollectionHelpers.subtractToSet(request.getAttachments(), editedObjective.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(newlyAddedAttachments, editorUserAcc);
 
-        Objective objective = objectiveOptional.get();
-        objective.setUGCAsEditedByUser(editorUserAcc);
-        objective.setAttachments(editObjectiveRequest.getAttachments());
+        editedObjective.setUGCAsEditedByUser(editorUserAcc);
+        editedObjective.setAttachments(request.getAttachments());
 
-        objective.setTitle(editObjectiveRequest.getTitle());
-        objective.setDescription(editObjectiveRequest.getDescription());
-        objective.setSubmittable(editObjectiveRequest.getSubmittable());
-        objective.setDeadline(editObjectiveRequest.getDeadline());
-        objective.setHideSubmissionsBefore(editObjectiveRequest.getHideSubmissionsBefore());
-        objective.setObjectiveType(editObjectiveRequest.getObjectiveType());
+        editedObjective.setProgram(program);
+        editedObjective.setTitle(request.getTitle());
+        editedObjective.setDescription(request.getDescription());
+        editedObjective.setSubmittable(request.getSubmittable());
+        editedObjective.setDeadline(request.getDeadline());
+        editedObjective.setHideSubmissionsBefore(request.getHideSubmissionsBefore());
+        editedObjective.setObjectiveType(request.getObjectiveType());
 
-        objectiveRepository.save(objective);
+        objectiveRepository.save(editedObjective);
 
-        log.info("Objective {} edited by user {}.", objective.getId(), editorUserAcc.getId());
+        log.info("Objective {} edited by user {}.", editedObjective.getId(), editorUserAcc.getId());
     }
 
     @Transactional

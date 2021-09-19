@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -16,6 +17,9 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class CreateNewObjectiveRequest extends SelfValidator {
+    @NotNull
+    @Min(1)
+    private Long programId;
     @NotNull
     @NotBlank
     @Length(max = 300)

@@ -5,6 +5,8 @@ import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import java.time.Instant;
 
 public interface GetObjectiveJpaDto extends GetUserGeneratedContentJpaDto {
+    Long getProgramId();
+
     String getTitle();
 
     String getDescription();

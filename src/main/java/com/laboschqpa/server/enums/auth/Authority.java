@@ -8,6 +8,7 @@ import java.util.Optional;
 public enum Authority {
     User("User"),
     NewsPostEditor("NewsPostEditor"),
+    ProgramEditor("ProgramEditor"),
     ObjectiveEditor("ObjectiveEditor"),
     RiddleEditor("RiddleEditor"),
     TeamScorer("TeamScorer"),

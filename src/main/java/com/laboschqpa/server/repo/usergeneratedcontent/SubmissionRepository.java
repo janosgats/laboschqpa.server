@@ -16,6 +16,10 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     @Query("delete from Submission where id = :id")
     int deleteByIdAndGetDeletedRowCount(Long id);
 
+    @EntityGraph(attributePaths = {"attachments"})
+    @Query("select s from Submission s where s.id = :id")
+    Optional<Submission> findByIdWithEagerAttachments(Long id);
+
     @EntityGraph(attributePaths = {"attachments", "objective", "team"})
     @Query("select s from Submission s where s.id = :id")
     Optional<Submission> findByIdWithEagerDisplayEntities(Long id);

@@ -21,6 +21,9 @@ public class EditObjectiveRequest extends SelfValidator {
     @Min(1)
     private Long id;
     @NotNull
+    @Min(1)
+    private Long programId;
+    @NotNull
     @NotBlank
     @Length(max = 300)
     private String title;

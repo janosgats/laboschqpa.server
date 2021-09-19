@@ -1,7 +1,7 @@
 package com.laboschqpa.server.statemachine;
 
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
-import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionRequest;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
@@ -103,27 +103,27 @@ class SubmissionStateMachineTest {
             Long submissionId = 88L;
             when(submissionRepository.findById(submissionId)).thenReturn(Optional.empty());
             SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
-            submissionStateMachine.editSubmission(EditSubmissionDto.builder().id(submissionId).build());
+            submissionStateMachine.editSubmission(EditSubmissionRequest.builder().id(submissionId).build());
             verify(submissionStateMachine, times(1)).assertInitiatorUserIsMemberOrLeaderOfItsTeam();
         });
 
         Submission submission = new Submission();
         submission.setId(99L);
 
-        EditSubmissionDto editSubmissionDto = new EditSubmissionDto();
-        editSubmissionDto.setId(submission.getId());
-        editSubmissionDto.setContent("test content X");
+        EditSubmissionRequest editSubmissionRequest = new EditSubmissionRequest();
+        editSubmissionRequest.setId(submission.getId());
+        editSubmissionRequest.setContent("test content X");
 
         SubmissionStateMachine submissionStateMachine = spy(stateMachineFactory.buildSubmissionStateMachine(userAcc));
-        when(submissionRepository.findById(editSubmissionDto.getId())).thenReturn(Optional.of(submission));
+        when(submissionRepository.findById(editSubmissionRequest.getId())).thenReturn(Optional.of(submission));
         doNothing().when(submissionStateMachine).assertIfInitiatorCanModifySubmission(submission);
 
-        submissionStateMachine.editSubmission(editSubmissionDto);
+        submissionStateMachine.editSubmission(editSubmissionRequest);
 
         verify(submissionRepository, times(1)).save(submission);
         assertNull(submission.getCreatorUser());
         assertEquals(userAcc, submission.getEditorUser());
-        assertEquals(editSubmissionDto.getContent(), submission.getContent());
+        assertEquals(editSubmissionRequest.getContent(), submission.getContent());
     }
 
     @Test

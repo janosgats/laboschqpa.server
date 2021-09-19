@@ -34,7 +34,7 @@ public class RiddleEditorService {
     }
 
     public Riddle createNewRiddle(CreateNewRiddleRequest createNewRiddleRequest, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewRiddleRequest.getAttachments(), creatorUserAcc.getId(), true);
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewRiddleRequest.getAttachments(), creatorUserAcc, true);
 
         if (createNewRiddleRequest.getAttachments().size() != 1) {
             throw new RiddleException(RiddleApiError.A_RIDDLE_HAS_TO_HAVE_EXACTLY_ONE_ATTACHMENT);
@@ -58,7 +58,7 @@ public class RiddleEditorService {
         if (riddleOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find Riddle with Id: " + editRiddleRequest.getId());
 
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editRiddleRequest.getAttachments(), editorUserAcc.getId(), true);
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editRiddleRequest.getAttachments(), editorUserAcc, true);
         if (editRiddleRequest.getAttachments().size() != 1) {
             throw new RiddleException(RiddleApiError.A_RIDDLE_HAS_TO_HAVE_EXACTLY_ONE_ATTACHMENT);
         }

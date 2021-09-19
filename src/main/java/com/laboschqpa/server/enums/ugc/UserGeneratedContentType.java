@@ -10,7 +10,8 @@ public enum UserGeneratedContentType {
     OBJECTIVE(Integer.parseInt(UserGeneratedContentTypeValues.OBJECTIVE)),
     SUBMISSION(Integer.parseInt(UserGeneratedContentTypeValues.SUBMISSION)),
     RIDDLE(Integer.parseInt(UserGeneratedContentTypeValues.RIDDLE)),
-    SPEED_DRINKING(Integer.parseInt(UserGeneratedContentTypeValues.SPEED_DRINKING));
+    SPEED_DRINKING(Integer.parseInt(UserGeneratedContentTypeValues.SPEED_DRINKING)),
+    PROGRAM(Integer.parseInt(UserGeneratedContentTypeValues.PROGRAM));
 
     private Integer value;
 

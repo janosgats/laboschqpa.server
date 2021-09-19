@@ -3,7 +3,7 @@ package com.laboschqpa.server.api.controller;
 import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.submission.CreateNewSubmissionDto;
 import com.laboschqpa.server.api.dto.ugc.submission.DisplayListSubmissionRequest;
-import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionDto;
+import com.laboschqpa.server.api.dto.ugc.submission.EditSubmissionRequest;
 import com.laboschqpa.server.api.dto.ugc.submission.GetSubmissionResponse;
 import com.laboschqpa.server.api.service.SubmissionService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
@@ -49,10 +49,10 @@ public class SubmissionController {
     }
 
     @PostMapping("/edit")
-    public void postEditSubmission(@RequestBody EditSubmissionDto editSubmissionDto,
+    public void postEditSubmission(@RequestBody EditSubmissionRequest editSubmissionRequest,
                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        editSubmissionDto.validateSelf();
-        submissionService.editSubmission(editSubmissionDto, authenticationPrincipal.getUserAccEntity());
+        editSubmissionRequest.validateSelf();
+        submissionService.editSubmission(editSubmissionRequest, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")

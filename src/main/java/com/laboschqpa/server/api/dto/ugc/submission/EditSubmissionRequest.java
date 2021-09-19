@@ -13,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Data
-public class EditSubmissionDto extends SelfValidator {
+public class EditSubmissionRequest extends SelfValidator {
     @NotNull
     @Min(1)
     private Long id;
