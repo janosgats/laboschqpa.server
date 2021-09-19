@@ -36,6 +36,13 @@ public class ObjectiveController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/listObjectivesBelongingToProgram")
+    public List<GetObjectiveResponse> getListObjectivesBelongingToProgram(@RequestParam(name = "programId") Long programId) {
+        return objectiveService.listObjectivesBelongingToProgram(programId).stream()
+                .map(o -> new GetObjectiveResponse(o, true))
+                .collect(Collectors.toList());
+    }
+
     @PostMapping("/listForDisplay")
     public List<GetObjectiveResponse> postListForDisplay(@RequestBody ListObjectivesForDisplayRequest request,
                                                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {

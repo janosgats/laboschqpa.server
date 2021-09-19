@@ -77,7 +77,7 @@ public class ObjectiveService {
 
     public void editObjective(EditObjectiveRequest request, UserAcc editorUserAcc) {
         Objective editedObjective = objectiveRepository.findByIdWithEagerAttachments(request.getId())
-                .orElseThrow(()->new ContentNotFoundException("Cannot find Objective with Id: " + request.getId()));
+                .orElseThrow(() -> new ContentNotFoundException("Cannot find Objective with Id: " + request.getId()));
         final Program program = programService.getExisting(request.getProgramId());
 
         final HashSet<Long> newlyAddedAttachments = CollectionHelpers.subtractToSet(request.getAttachments(), editedObjective.getAttachments());
@@ -111,6 +111,10 @@ public class ObjectiveService {
 
     public List<Objective> listAllObjectives() {
         return objectiveRepository.findAll();
+    }
+
+    public List<Objective> listObjectivesBelongingToProgram(long programId) {
+        return objectiveRepository.findAllByProgramIdWithEagerAttachments(programId);
     }
 
     public List<GetObjectiveWithTeamScoreJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId) {

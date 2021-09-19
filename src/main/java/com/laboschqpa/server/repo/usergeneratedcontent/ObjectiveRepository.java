@@ -26,4 +26,8 @@ public interface ObjectiveRepository extends JpaRepository<Objective, Long> {
             " where o.objectiveType in :objectiveTypes " +
             " order by o.creationTime desc")
     List<Objective> findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(@Param("objectiveTypes") Collection<ObjectiveType> objectiveTypes);
+
+    @EntityGraph(attributePaths = {"attachments"})
+    @Query("select o from Objective o where o.program.id = :programId")
+    List<Objective> findAllByProgramIdWithEagerAttachments(Long programId);
 }
