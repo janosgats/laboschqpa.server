@@ -26,19 +26,26 @@ public class ObjectiveController {
     public GetObjectiveResponse getObjective(@RequestParam(name = "id") Long objectiveId,
                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
-        return new GetObjectiveResponse(objectiveService.getObjective(objectiveId, observerTeamId), true);
+        final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
+
+        return new GetObjectiveResponse(objectiveService.getObjective(objectiveId, observerTeamId, showFractionObjectives), true);
     }
 
     @GetMapping("/listAll")
-    public List<GetObjectiveResponse> getListAllObjectives() {
-        return objectiveService.listAllObjectives().stream()
+    public List<GetObjectiveResponse> getListAllObjectives(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
+
+        return objectiveService.listAllObjectives(showFractionObjectives).stream()
                 .map(GetObjectiveResponse::new)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/listObjectivesBelongingToProgram")
-    public List<GetObjectiveResponse> getListObjectivesBelongingToProgram(@RequestParam(name = "programId") Long programId) {
-        return objectiveService.listObjectivesBelongingToProgram(programId).stream()
+    public List<GetObjectiveResponse> getListObjectivesBelongingToProgram(@RequestParam(name = "programId") Long programId,
+                                                                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
+
+        return objectiveService.listObjectivesBelongingToProgram(programId, showFractionObjectives).stream()
                 .map(o -> new GetObjectiveResponse(o, true))
                 .collect(Collectors.toList());
     }
@@ -48,8 +55,9 @@ public class ObjectiveController {
                                                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         request.validateSelf();
         final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
+        final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
 
-        return objectiveService.listForDisplay(request.getObjectiveTypes(), observerTeamId).stream()
+        return objectiveService.listForDisplay(request.getObjectiveTypes(), observerTeamId, showFractionObjectives).stream()
                 .map(o -> new GetObjectiveResponse(o, true))
                 .collect(Collectors.toList());
     }
@@ -83,5 +91,9 @@ public class ObjectiveController {
             return authenticationPrincipal.getUserAccEntity().getTeam().getId();
         }
         return null;
+    }
+
+    private boolean shouldShowFractionObjectives(CustomOauth2User authenticationPrincipal) {
+        return new PrincipalAuthorizationHelper(authenticationPrincipal).hasAnySufficientAuthority(Authority.ObjectiveEditor, Authority.TeamScorer);
     }
 }

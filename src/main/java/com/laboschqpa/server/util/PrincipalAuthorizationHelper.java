@@ -32,6 +32,10 @@ public class PrincipalAuthorizationHelper {
         return hasAnySufficientAuthority(Authority.Admin);
     }
 
+    public boolean hasAuthority(Authority authority) {
+        return hasAnySufficientAuthority(authority);
+    }
+
 
     public void assertHasAuthority(Authority authority) {
         assertHasAnySufficientAuthority(authority);

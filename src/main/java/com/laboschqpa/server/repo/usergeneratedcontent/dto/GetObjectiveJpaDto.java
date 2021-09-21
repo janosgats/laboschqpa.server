@@ -18,4 +18,6 @@ public interface GetObjectiveJpaDto extends GetUserGeneratedContentJpaDto {
     Instant getHideSubmissionsBefore();
 
     ObjectiveType getObjectiveType();
+
+    Boolean getIsFraction();
 }

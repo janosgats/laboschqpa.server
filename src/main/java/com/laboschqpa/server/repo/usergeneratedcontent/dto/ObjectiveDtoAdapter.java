@@ -48,4 +48,9 @@ public class ObjectiveDtoAdapter extends UserGeneratedContentDtoAdapter implemen
     public ObjectiveType getObjectiveType() {
         return delegate.getObjectiveType();
     }
+
+    @Override
+    public Boolean getIsFraction() {
+        return delegate.getIsFraction();
+    }
 }

@@ -38,6 +38,8 @@ public class EditObjectiveRequest extends SelfValidator {
     @NotNull
     @JsonDeserialize(converter = ObjectiveTypeFromValueJacksonConverter.class)
     private ObjectiveType objectiveType;
+    @NotNull
+    private Boolean isFraction;
 
     private Set<Long> attachments;
 }

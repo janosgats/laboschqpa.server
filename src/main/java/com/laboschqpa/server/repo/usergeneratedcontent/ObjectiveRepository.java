@@ -17,17 +17,22 @@ public interface ObjectiveRepository extends JpaRepository<Objective, Long> {
     @Query("delete from Objective where id = :id")
     int deleteByIdAndGetDeletedRowCount(Long id);
 
+
+    @Query("select o from Objective o where (:showFractionObjectives = true or o.isFraction = false)")
+    List<Objective> findAll(Boolean showFractionObjectives);
+
     @EntityGraph(attributePaths = {"attachments"})
-    @Query("select o from Objective o where o.id = :id")
-    Optional<Objective> findByIdWithEagerAttachments(Long id);
+    @Query("select o from Objective o where o.id = :id and (:showFractionObjectives = true  or o.isFraction = false)")
+    Optional<Objective> findByIdWithEagerAttachments(Long id, Boolean showFractionObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
     @Query("select o from Objective o " +
-            " where o.objectiveType in :objectiveTypes " +
+            " where o.objectiveType in :objectiveTypes and (:showFractionObjectives = true  or o.isFraction = false) " +
             " order by o.creationTime desc")
-    List<Objective> findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(@Param("objectiveTypes") Collection<ObjectiveType> objectiveTypes);
+    List<Objective> findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(@Param("objectiveTypes") Collection<ObjectiveType> objectiveTypes,
+                                                                                        Boolean showFractionObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
-    @Query("select o from Objective o where o.program.id = :programId")
-    List<Objective> findAllByProgramIdWithEagerAttachments(Long programId);
+    @Query("select o from Objective o where o.program.id = :programId and (:showFractionObjectives = true  or o.isFraction = false)")
+    List<Objective> findAllByProgramIdWithEagerAttachments(Long programId, Boolean showFractionObjectives);
 }

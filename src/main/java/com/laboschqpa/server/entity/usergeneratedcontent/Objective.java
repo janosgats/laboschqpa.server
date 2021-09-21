@@ -47,4 +47,7 @@ public class Objective extends UserGeneratedContent {
     @Convert(converter = ObjectiveTypeAttributeConverter.class)
     @Column(name = "objective_type", columnDefinition = "tinyint not null", nullable = false)
     private ObjectiveType objectiveType;
+
+    @Column(name = "is_fraction", nullable = false)
+    private Boolean isFraction;
 }

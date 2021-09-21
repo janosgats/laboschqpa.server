@@ -33,8 +33,8 @@ public class ObjectiveService {
     private final AttachmentHelper attachmentHelper;
     private final ProgramService programService;
 
-    public GetObjectiveWithTeamScoreJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId) {
-        Optional<Objective> objectiveOptional = objectiveRepository.findByIdWithEagerAttachments(objectiveId);
+    public GetObjectiveWithTeamScoreJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId, boolean showFractionObjectives) {
+        Optional<Objective> objectiveOptional = objectiveRepository.findByIdWithEagerAttachments(objectiveId, showFractionObjectives);
 
         if (objectiveOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find Objective with Id: " + objectiveId);
@@ -58,25 +58,26 @@ public class ObjectiveService {
         final Program program = programService.getExisting(request.getProgramId());
         attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(request.getAttachments(), creatorUserAcc);
 
-        Objective objective = new Objective();
-        objective.setUGCAsCreatedByUser(creatorUserAcc);
-        objective.setAttachments(request.getAttachments());
+        Objective newObjective = new Objective();
+        newObjective.setUGCAsCreatedByUser(creatorUserAcc);
+        newObjective.setAttachments(request.getAttachments());
 
-        objective.setProgram(program);
-        objective.setTitle(request.getTitle());
-        objective.setDescription(request.getDescription());
-        objective.setSubmittable(request.getSubmittable());
-        objective.setDeadline(request.getDeadline());
-        objective.setHideSubmissionsBefore(request.getHideSubmissionsBefore());
-        objective.setObjectiveType(request.getObjectiveType());
+        newObjective.setProgram(program);
+        newObjective.setTitle(request.getTitle());
+        newObjective.setDescription(request.getDescription());
+        newObjective.setSubmittable(request.getSubmittable());
+        newObjective.setDeadline(request.getDeadline());
+        newObjective.setHideSubmissionsBefore(request.getHideSubmissionsBefore());
+        newObjective.setObjectiveType(request.getObjectiveType());
+        newObjective.setIsFraction(request.getIsFraction());
 
-        objectiveRepository.save(objective);
-        log.info("Objective {} created by user {}.", objective.getId(), creatorUserAcc.getId());
-        return objective;
+        objectiveRepository.save(newObjective);
+        log.info("Objective {} created by user {}.", newObjective.getId(), creatorUserAcc.getId());
+        return newObjective;
     }
 
     public void editObjective(EditObjectiveRequest request, UserAcc editorUserAcc) {
-        Objective editedObjective = objectiveRepository.findByIdWithEagerAttachments(request.getId())
+        Objective editedObjective = objectiveRepository.findByIdWithEagerAttachments(request.getId(), true)
                 .orElseThrow(() -> new ContentNotFoundException("Cannot find Objective with Id: " + request.getId()));
         final Program program = programService.getExisting(request.getProgramId());
 
@@ -93,6 +94,7 @@ public class ObjectiveService {
         editedObjective.setDeadline(request.getDeadline());
         editedObjective.setHideSubmissionsBefore(request.getHideSubmissionsBefore());
         editedObjective.setObjectiveType(request.getObjectiveType());
+        editedObjective.setIsFraction(request.getIsFraction());
 
         objectiveRepository.save(editedObjective);
 
@@ -109,16 +111,17 @@ public class ObjectiveService {
         log.info("Objective {} deleted by user {}.", objectiveId, deleterUserAcc.getId());
     }
 
-    public List<Objective> listAllObjectives() {
-        return objectiveRepository.findAll();
+    public List<Objective> listAllObjectives(boolean showFractionObjectives) {
+        return objectiveRepository.findAll(showFractionObjectives);
     }
 
-    public List<Objective> listObjectivesBelongingToProgram(long programId) {
-        return objectiveRepository.findAllByProgramIdWithEagerAttachments(programId);
+    public List<Objective> listObjectivesBelongingToProgram(long programId, boolean showFractionObjectives) {
+        return objectiveRepository.findAllByProgramIdWithEagerAttachments(programId, showFractionObjectives);
     }
 
-    public List<GetObjectiveWithTeamScoreJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId) {
-        List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes);
+    public List<GetObjectiveWithTeamScoreJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
+                                                                boolean showFractionObjectives) {
+        List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes, showFractionObjectives);
 
         final List<Long> objectiveIds = objectives.stream().map(Objective::getId).collect(Collectors.toList());
         Map<Long, TeamScore> teamScoreMap = getTeamScoreMap(objectiveIds, observerTeamId);
