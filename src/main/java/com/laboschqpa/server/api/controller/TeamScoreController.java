@@ -23,20 +23,28 @@ public class TeamScoreController {
     private final TeamScoreService teamScoreService;
 
     @GetMapping("/teamScore")
-    public GetTeamScoreDto getTeamScore(@RequestParam(name = "id") Long teamScoreId) {
+    public GetTeamScoreDto getTeamScore(@RequestParam(name = "id") Long teamScoreId,
+                                        @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer);
+
         return new GetTeamScoreDto(teamScoreService.getTeamScore(teamScoreId));
     }
 
     @ApiOperation("Returns a 1 element long array with the found dto, or an empty array if not found.")
     @GetMapping("/find")
-    public List<GetTeamScoreDto> getTeamScore(@RequestParam(name = "objectiveId") Long objectiveId, @RequestParam(name = "teamId") Long teamId) {
+    public List<GetTeamScoreDto> getTeamScore(@RequestParam(name = "objectiveId") Long objectiveId, @RequestParam(name = "teamId") Long teamId,
+                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.TeamScorer);
+
         return teamScoreService.find(objectiveId, teamId).stream()
                 .map(GetTeamScoreDto::new)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/listAll")
-    public List<GetTeamScoreDto> getListAllTeamScores() {
+    public List<GetTeamScoreDto> getListAllTeamScores(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer);
+
         return teamScoreService.listAllTeamScores().stream()
                 .map(GetTeamScoreDto::new)
                 .collect(Collectors.toList());
@@ -46,7 +54,8 @@ public class TeamScoreController {
     public CreatedEntityResponse postCreateNewTeamScore(@RequestBody CreateNewTeamScoreDto createNewTeamScoreDto,
                                                         @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewTeamScoreDto.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer);
+
         long newId = teamScoreService.createNewTeamScore(createNewTeamScoreDto, authenticationPrincipal.getUserAccEntity()).getId();
         return new CreatedEntityResponse(newId);
     }
@@ -55,14 +64,16 @@ public class TeamScoreController {
     public void postEditTeamScore(@RequestBody EditTeamScoreDto editTeamScoreDto,
                                   @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         editTeamScoreDto.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer);
+
         teamScoreService.editTeamScore(editTeamScoreDto, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
     public void deleteTeamScore(@RequestParam(name = "id") Long teamScoreId,
                                 @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.TeamScorer);
+
         teamScoreService.deleteTeamScore(teamScoreId, authenticationPrincipal.getUserAccEntity());
     }
 }

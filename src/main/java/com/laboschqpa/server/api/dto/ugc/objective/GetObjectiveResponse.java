@@ -24,7 +24,7 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
     private Instant hideSubmissionsBefore;
     @JsonSerialize(converter = ObjectiveTypeToValueJacksonConverter.class)
     private ObjectiveType objectiveType;
-    private Integer observerTeamScore;
+    private Boolean observerTeamHasScore;
 
     public GetObjectiveResponse() {
         super();
@@ -57,7 +57,8 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
         this.objectiveType = objective.getObjectiveType();
 
         if (objective instanceof GetObjectiveWithTeamScoreJpaDto) {
-            this.observerTeamScore = ((GetObjectiveWithTeamScoreJpaDto) objective).getObserverTeamScore();
+            final Integer observerTeamScore = ((GetObjectiveWithTeamScoreJpaDto) objective).getObserverTeamScore();
+            this.observerTeamHasScore = observerTeamScore != null && observerTeamScore > 0;
         }
     }
 }
