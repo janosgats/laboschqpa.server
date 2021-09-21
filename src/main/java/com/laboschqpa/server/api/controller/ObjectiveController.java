@@ -66,7 +66,7 @@ public class ObjectiveController {
     public CreatedEntityResponse postCreateNewObjective(@RequestBody CreateNewObjectiveRequest createNewObjectiveRequest,
                                                         @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewObjectiveRequest.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.ObjectiveEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.ObjectiveEditor);
         long newId = objectiveService.createNewObjective(createNewObjectiveRequest, authenticationPrincipal.getUserAccEntity()).getId();
         return new CreatedEntityResponse(newId);
     }
@@ -75,14 +75,14 @@ public class ObjectiveController {
     public void postEditObjective(@RequestBody EditObjectiveRequest editObjectiveRequest,
                                   @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         editObjectiveRequest.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.ObjectiveEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.ObjectiveEditor);
         objectiveService.editObjective(editObjectiveRequest, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
     public void deleteObjective(@RequestParam(name = "id") Long objectiveId,
                                 @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.ObjectiveEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.ObjectiveEditor);
         objectiveService.deleteObjective(objectiveId, authenticationPrincipal.getUserAccEntity());
     }
 

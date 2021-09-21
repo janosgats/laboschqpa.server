@@ -107,7 +107,7 @@ public class SubmissionService {
 
     public List<Submission> filterSubmissionsThatUserCanSee(List<Submission> submissionsToFilter,
                                                             UserAcc userAcc) {
-        if (new PrincipalAuthorizationHelper(userAcc).hasAnySufficientAuthority(Authority.TeamScorer)) {
+        if (new PrincipalAuthorizationHelper(userAcc).hasAuthority(Authority.TeamScorer)) {
             return submissionsToFilter;
         }
 

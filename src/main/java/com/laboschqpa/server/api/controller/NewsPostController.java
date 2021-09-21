@@ -44,7 +44,7 @@ public class NewsPostController {
     public CreatedEntityResponse postCreateNew(@RequestBody CreateNewNewsPostRequest createNewNewsPostRequest,
                                                @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewNewsPostRequest.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.NewsPostEditor);
         long newId = newsPostService.create(createNewNewsPostRequest, authenticationPrincipal.getUserAccEntity()).getId();
         return new CreatedEntityResponse(newId);
     }
@@ -53,14 +53,14 @@ public class NewsPostController {
     public void postEdit(@RequestBody EditNewsPostRequest editNewsPostRequest,
                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         editNewsPostRequest.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.NewsPostEditor);
         newsPostService.edit(editNewsPostRequest, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
     public void deleteDelete(@RequestParam(name = "id") Long newsPostId,
                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.NewsPostEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.NewsPostEditor);
         newsPostService.delete(newsPostId, authenticationPrincipal.getUserAccEntity());
     }
 }

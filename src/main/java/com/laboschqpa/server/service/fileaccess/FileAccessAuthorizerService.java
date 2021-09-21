@@ -119,7 +119,7 @@ public class FileAccessAuthorizerService implements FileAccessAuthorizer {
             return false;//The file is not a riddle attachment -> can't be visible by riddles
         }
 
-        if (new PrincipalAuthorizationHelper(userAcc).hasAnySufficientAuthority(Authority.RiddleEditor)) {
+        if (new PrincipalAuthorizationHelper(userAcc).hasAuthority(Authority.RiddleEditor)) {
             return true;
         }
 

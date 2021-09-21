@@ -51,7 +51,7 @@ public class SpeedDrinkingController {
     public CreatedEntityResponse postCreateNew(@RequestBody CreateNewSpeedDrinkingRequest createNewSpeedDrinkingRequest,
                                                @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         createNewSpeedDrinkingRequest.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.SpeedDrinkingEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.SpeedDrinkingEditor);
         long newId = speedDrinkingService.createSpeedDrinking(createNewSpeedDrinkingRequest, authenticationPrincipal.getUserAccEntity()).getId();
         return new CreatedEntityResponse(newId);
     }
@@ -60,14 +60,14 @@ public class SpeedDrinkingController {
     public void postEdit(@RequestBody EditSpeedDrinkingRequest editSpeedDrinkingRequest,
                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         editSpeedDrinkingRequest.validateSelf();
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.SpeedDrinkingEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.SpeedDrinkingEditor);
         speedDrinkingService.editSpeedDrinking(editSpeedDrinkingRequest, authenticationPrincipal.getUserAccEntity());
     }
 
     @DeleteMapping("/delete")
     public void delete(@RequestParam(name = "id") Long speedDrinkingId,
                        @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAnySufficientAuthority(Authority.SpeedDrinkingEditor, Authority.Admin);
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.SpeedDrinkingEditor);
         speedDrinkingService.deleteSpeedDrinking(speedDrinkingId, authenticationPrincipal.getUserAccEntity());
     }
 }

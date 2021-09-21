@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
-import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -20,16 +19,12 @@ public class PrincipalAuthorizationHelper {
         userAccEntity = authenticationPrincipal.getUserAccEntity();
     }
 
-    public boolean isTrueOrIsAdmin(BooleanSupplier condition) {
-        return hasAdminAuthority() || condition.getAsBoolean();
-    }
-
     public void assertHasAdminAuthority() {
-        assertHasAnySufficientAuthority(Authority.Admin);
+        assertHasAuthority(Authority.Admin);
     }
 
     public boolean hasAdminAuthority() {
-        return hasAnySufficientAuthority(Authority.Admin);
+        return hasAuthority(Authority.Admin);
     }
 
     public boolean hasAuthority(Authority authority) {
