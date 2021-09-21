@@ -19,5 +19,5 @@ public interface GetObjectiveJpaDto extends GetUserGeneratedContentJpaDto {
 
     ObjectiveType getObjectiveType();
 
-    Boolean getIsFraction();
+    Boolean getIsHidden();
 }

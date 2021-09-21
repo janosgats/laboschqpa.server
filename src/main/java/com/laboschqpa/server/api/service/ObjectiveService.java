@@ -69,7 +69,7 @@ public class ObjectiveService {
         newObjective.setDeadline(request.getDeadline());
         newObjective.setHideSubmissionsBefore(request.getHideSubmissionsBefore());
         newObjective.setObjectiveType(request.getObjectiveType());
-        newObjective.setIsFraction(request.getIsFraction());
+        newObjective.setIsHidden(request.getIsHidden());
 
         objectiveRepository.save(newObjective);
         log.info("Objective {} created by user {}.", newObjective.getId(), creatorUserAcc.getId());
@@ -94,7 +94,7 @@ public class ObjectiveService {
         editedObjective.setDeadline(request.getDeadline());
         editedObjective.setHideSubmissionsBefore(request.getHideSubmissionsBefore());
         editedObjective.setObjectiveType(request.getObjectiveType());
-        editedObjective.setIsFraction(request.getIsFraction());
+        editedObjective.setIsHidden(request.getIsHidden());
 
         objectiveRepository.save(editedObjective);
 

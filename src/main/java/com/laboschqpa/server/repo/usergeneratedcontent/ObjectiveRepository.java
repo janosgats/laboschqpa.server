@@ -18,21 +18,21 @@ public interface ObjectiveRepository extends JpaRepository<Objective, Long> {
     int deleteByIdAndGetDeletedRowCount(Long id);
 
 
-    @Query("select o from Objective o where (:showFractionObjectives = true or o.isFraction = false)")
+    @Query("select o from Objective o where (:showFractionObjectives = true or o.isHidden = false)")
     List<Objective> findAll(Boolean showFractionObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
-    @Query("select o from Objective o where o.id = :id and (:showFractionObjectives = true  or o.isFraction = false)")
+    @Query("select o from Objective o where o.id = :id and (:showFractionObjectives = true  or o.isHidden = false)")
     Optional<Objective> findByIdWithEagerAttachments(Long id, Boolean showFractionObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
     @Query("select o from Objective o " +
-            " where o.objectiveType in :objectiveTypes and (:showFractionObjectives = true  or o.isFraction = false) " +
+            " where o.objectiveType in :objectiveTypes and (:showFractionObjectives = true  or o.isHidden = false) " +
             " order by o.creationTime desc")
     List<Objective> findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(@Param("objectiveTypes") Collection<ObjectiveType> objectiveTypes,
                                                                                         Boolean showFractionObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
-    @Query("select o from Objective o where o.program.id = :programId and (:showFractionObjectives = true  or o.isFraction = false)")
+    @Query("select o from Objective o where o.program.id = :programId and (:showFractionObjectives = true  or o.isHidden = false)")
     List<Objective> findAllByProgramIdWithEagerAttachments(Long programId, Boolean showFractionObjectives);
 }

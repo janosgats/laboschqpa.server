@@ -48,6 +48,6 @@ public class Objective extends UserGeneratedContent {
     @Column(name = "objective_type", columnDefinition = "tinyint not null", nullable = false)
     private ObjectiveType objectiveType;
 
-    @Column(name = "is_fraction", nullable = false)
-    private Boolean isFraction;
+    @Column(name = "is_hidden", nullable = false)
+    private Boolean isHidden;
 }

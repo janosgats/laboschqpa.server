@@ -50,7 +50,7 @@ public class ObjectiveDtoAdapter extends UserGeneratedContentDtoAdapter implemen
     }
 
     @Override
-    public Boolean getIsFraction() {
-        return delegate.getIsFraction();
+    public Boolean getIsHidden() {
+        return delegate.getIsHidden();
     }
 }

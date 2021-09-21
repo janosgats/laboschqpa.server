@@ -24,7 +24,7 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
     private Instant hideSubmissionsBefore;
     @JsonSerialize(converter = ObjectiveTypeToValueJacksonConverter.class)
     private ObjectiveType objectiveType;
-    private Boolean isFraction;
+    private Boolean isHidden;
     private Boolean observerTeamHasScore;
 
     public GetObjectiveResponse() {
@@ -56,7 +56,7 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
         this.deadline = objective.getDeadline();
         this.hideSubmissionsBefore = objective.getHideSubmissionsBefore();
         this.objectiveType = objective.getObjectiveType();
-        this.isFraction = objective.getIsFraction();
+        this.isHidden = objective.getIsHidden();
 
         if (objective instanceof GetObjectiveWithTeamScoreJpaDto) {
             final Integer observerTeamScore = ((GetObjectiveWithTeamScoreJpaDto) objective).getObserverTeamScore();
