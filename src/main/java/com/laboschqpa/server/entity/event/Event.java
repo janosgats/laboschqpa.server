@@ -47,6 +47,6 @@ public class Event {
     /**
      * If null, there is no deadline.
      */
-    @Column(name = "registration_deadline")
+    @Column(name = "registration_deadline", columnDefinition = "datetime")
     private Instant registrationDeadline;
 }
