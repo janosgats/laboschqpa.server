@@ -36,7 +36,7 @@ public class GoogleOAuth2Provider implements OAuth2Provider {
 
         final String emailAddress = tryToGetEmailFromClaims(claims);
 
-        final String nickName = Helpers.getNickName(firstName, lastName, emailAddress, "Google");
+        final String nickName = Helpers.getNickName(firstName, lastName, emailAddress, null, "Google");
         return new Oauth2UserProfileData(googleExternalAccountDetail, emailAddress, firstName, lastName, nickName);
     }
 

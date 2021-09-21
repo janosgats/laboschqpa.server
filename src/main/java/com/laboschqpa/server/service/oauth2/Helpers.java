@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public class Helpers {
 
-    public static String getNickName(String firstName, String lastName, String emailAddress, String timePrefix) {
+    public static String getNickName(String firstName, String lastName, String emailAddress, String providerUserName, String timePrefix) {
         if (StringUtils.isNotBlank(firstName) || StringUtils.isNotBlank(lastName)) {
             return null;
         }
@@ -16,6 +16,10 @@ public class Helpers {
             if (splitAddress.length > 0) {
                 return splitAddress[0];
             }
+        }
+
+        if (StringUtils.isNotBlank(providerUserName)) {
+            return providerUserName;
         }
 
         return timePrefix + "-" + Instant.now().toString();

@@ -21,20 +21,20 @@ public class GithubOAuth2Provider implements OAuth2Provider {
 
     @Override
     public Oauth2UserProfileData extractDataFromOauth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {
-        final GithubUserInfoDto githubUserInfoDto;
+        final GithubUserInfoDto githubUserInfo;
         try {
-            githubUserInfoDto = gitHubApiClient.getOAuth2UserInfo(oAuth2UserRequest.getAccessToken());
+            githubUserInfo = gitHubApiClient.getOAuth2UserInfo(oAuth2UserRequest.getAccessToken());
         } catch (Exception e) {
             throw new DefectiveAuthProviderResponseAuthenticationException("Cannot get OAuth2 UserInfo resource from GitHub", e);
         }
-        if (!githubUserInfoDto.isValid()) {
+        if (!githubUserInfo.isValid()) {
             throw new DefectiveAuthProviderResponseAuthenticationException("GitHub OAuth2 UserInfo resource response is invalid!");
         }
 
         String firstName = null;
         String lastName = null;
-        if (githubUserInfoDto.getName() != null) {
-            String[] parts = githubUserInfoDto.getName().split(" ", 2);
+        if (githubUserInfo.getName() != null) {
+            String[] parts = githubUserInfo.getName().split(" ", 2);
             if (parts.length > 0)
                 firstName = parts[0];
             if (parts.length > 1)
@@ -42,10 +42,10 @@ public class GithubOAuth2Provider implements OAuth2Provider {
         }
 
         GithubExternalAccountDetail githubExternalAccountDetail = new GithubExternalAccountDetail();
-        githubExternalAccountDetail.setGithubId(githubUserInfoDto.getId());
+        githubExternalAccountDetail.setGithubId(githubUserInfo.getId());
 
-        final String nickName = Helpers.getNickName(firstName, lastName, githubUserInfoDto.getEmail(), "GitHub");
-        return new Oauth2UserProfileData(githubExternalAccountDetail, githubUserInfoDto.getEmail(), firstName, lastName, nickName);
+        final String nickName = Helpers.getNickName(firstName, lastName, githubUserInfo.getEmail(), githubUserInfo.getLogin(), "GitHub");
+        return new Oauth2UserProfileData(githubExternalAccountDetail, githubUserInfo.getEmail(), firstName, lastName, nickName);
     }
 
     @Override

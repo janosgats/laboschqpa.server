@@ -19,4 +19,5 @@ public class GithubUserInfoDto extends SelfValidator {
     private String id;
     private String email;
     private String name;
+    private String login;
 }
