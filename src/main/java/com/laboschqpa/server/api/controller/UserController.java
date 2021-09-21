@@ -2,6 +2,7 @@ package com.laboschqpa.server.api.controller;
 
 import com.laboschqpa.server.api.dto.user.PostSetUserInfoRequest;
 import com.laboschqpa.server.api.dto.user.UserInfoResponse;
+import com.laboschqpa.server.api.dto.user.UsersPageUserInfoResponse;
 import com.laboschqpa.server.api.service.UserService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.exceptions.UnAuthorizedException;
@@ -49,6 +50,13 @@ public class UserController {
     public List<UserInfoResponse> getListAllWithTeam() {
         return userService.listAllWithTeam().stream()
                 .map(u -> new UserInfoResponse(u, false, true))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/usersPage/listAllEnabled")
+    public List<UsersPageUserInfoResponse> getUsersPageListAllEnabled() {
+        return userService.listAllWithTeam().stream()
+                .map(u -> new UsersPageUserInfoResponse(u, true))
                 .collect(Collectors.toList());
     }
 }
