@@ -1,4 +1,4 @@
-package com.laboschqpa.server.entity.qrtagfight;
+package com.laboschqpa.server.entity.qrfight;
 
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
@@ -14,6 +14,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @Table(name = "qr_tag_submission",
+        indexes = {
+                @Index(columnList = "team_id", name = "team")
+        },
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"qr_tag_id", "team_id"}, name = "qr_tag__team__unique")
         }

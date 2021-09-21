@@ -3,15 +3,16 @@ package com.laboschqpa.server.enums.apierrordescriptor;
 import com.laboschqpa.server.annotation.ApiErrorCategory;
 import com.laboschqpa.server.api.errorhandling.ApiErrorDescriptor;
 
-@ApiErrorCategory("qrTagFight")
-public enum QrTagFightApiError implements ApiErrorDescriptor {
+@ApiErrorCategory("qrFight")
+public enum QrFightApiError implements ApiErrorDescriptor {
     YOUR_TEAM_ALREADY_SUBMITTED_THIS_TAG(1),
     TAG_DOES_NOT_EXIST(2),
-    TAG_SECRET_MISMATCH(3);
+    TAG_SECRET_MISMATCH(3),
+    TEAM_RATE_LIMIT_HIT_FOR_QR_FIGHT_SUBMISSIONS(4);
 
     private Integer apiErrorCode;
 
-    QrTagFightApiError(Integer apiErrorCode) {
+    QrFightApiError(Integer apiErrorCode) {
         this.apiErrorCode = apiErrorCode;
     }
 
