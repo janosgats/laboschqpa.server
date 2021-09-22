@@ -18,6 +18,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -70,6 +71,9 @@ public class UserAcc implements Serializable {
 
     @Column(name = "nick_name")
     private String nickName;
+
+    @Column(name = "registered", columnDefinition = "datetime", nullable = false)
+    private Instant registered;
 
     @Builder.Default
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)

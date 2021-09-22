@@ -17,5 +17,9 @@ from external_account_detail ex
 where ex.user_id IN(:userIds);
 
 delete
+from user_join_circumstance ujc
+where ujc.user_id IN(:userIds);
+
+delete
 from user_acc
 where id IN(:userIds);

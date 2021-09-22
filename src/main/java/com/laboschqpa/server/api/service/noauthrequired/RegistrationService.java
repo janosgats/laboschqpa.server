@@ -1,8 +1,10 @@
 package com.laboschqpa.server.api.service.noauthrequired;
 
+import com.laboschqpa.server.api.dto.join.CreateNewAccountRequest;
 import com.laboschqpa.server.config.helper.EnumBasedAuthority;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
+import com.laboschqpa.server.entity.account.UserJoinCircumstance;
 import com.laboschqpa.server.entity.account.externalaccountdetail.ExternalAccountDetail;
 import com.laboschqpa.server.enums.apierrordescriptor.RegistrationApiError;
 import com.laboschqpa.server.enums.auth.Authority;
@@ -11,6 +13,7 @@ import com.laboschqpa.server.exceptions.apierrordescriptor.RegistrationException
 import com.laboschqpa.server.model.sessiondto.RegistrationSessionDto;
 import com.laboschqpa.server.repo.AcceptedEmailRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
+import com.laboschqpa.server.repo.UserJoinCircumstanceRepository;
 import com.laboschqpa.server.service.loginauthentication.LoginAuthenticationHelper;
 import com.laboschqpa.server.service.loginauthentication.UserAccResolutionSource;
 import com.laboschqpa.server.service.oauth2.OAuth2Provider;
@@ -28,6 +31,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.Instant;
 import java.util.Set;
 
 @Log4j2
@@ -40,6 +44,7 @@ public class RegistrationService {
     private final UserAccRepository userAccRepository;
     private final UserAccResolverService userAccResolverService;
     private final AcceptedEmailRepository acceptedEmailRepository;
+    private final UserJoinCircumstanceRepository userJoinCircumstanceRepository;
 
     @AllArgsConstructor
     private static class ExplodedRegistration {
@@ -49,13 +54,13 @@ public class RegistrationService {
         final ExternalAccountDetail externalAccountDetail;
     }
 
-    public UserAcc createNewAccountFromSessionOAuthInfo() {
+    public UserAcc createNewAccountFromSessionOAuthInfo(CreateNewAccountRequest request) {
         ExplodedRegistration exploded = getExplodedRegistrationSessionDto();
 
         assertUserAccDoesNotExistYet(exploded.registrationSessionDto, exploded.oAuth2Provider,
                 exploded.registrationSessionDto.getEmailAddress(), exploded.externalAccountDetail);
 
-        UserAcc registeredUserAcc = registerNewUser(exploded);
+        UserAcc registeredUserAcc = registerNewUser(exploded, request);
 
         logInNewlyCreatedUser(registeredUserAcc, exploded.providerRegistration);
         return registeredUserAcc;
@@ -107,7 +112,7 @@ public class RegistrationService {
         }
     }
 
-    private UserAcc registerNewUser(ExplodedRegistration exploded) {
+    private UserAcc registerNewUser(ExplodedRegistration exploded, CreateNewAccountRequest request) {
         return transactionTemplate.execute((transactionStatus) -> {
             final UserAcc registeredUserAccEntity = initNewUserAccEntity(exploded.registrationSessionDto);
             exploded.oAuth2Provider
@@ -117,6 +122,12 @@ public class RegistrationService {
                     exploded.registrationSessionDto.getEmailAddress(), registeredUserAccEntity, true);
 
             acceptedEmailRepository.recalculateByUserId(registeredUserAccEntity.getId());
+
+            final UserJoinCircumstance userJoinCircumstance = new UserJoinCircumstance();
+            userJoinCircumstance.setUserAcc(registeredUserAccEntity);
+            userJoinCircumstance.setJoinUrl(request.getJoinUrl());
+            userJoinCircumstance.setCreated(Instant.now());
+            userJoinCircumstanceRepository.save(userJoinCircumstance);
 
             exploded.registrationSessionDto.removeFromCurrentSession();
             return registeredUserAccEntity;
@@ -133,6 +144,8 @@ public class RegistrationService {
         newUserAcc.setFirstName(registrationSessionDto.getFirstName());
         newUserAcc.setLastName(registrationSessionDto.getLastName());
         newUserAcc.setNickName(registrationSessionDto.getNickName());
+
+        newUserAcc.setRegistered(Instant.now());
 
         userAccRepository.save(newUserAcc);
         return newUserAcc;

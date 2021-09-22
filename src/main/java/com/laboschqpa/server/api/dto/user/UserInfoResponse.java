@@ -9,6 +9,7 @@ import com.laboschqpa.server.util.ProfilePicHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -19,6 +20,8 @@ public class UserInfoResponse {
     private String firstName;
     private String lastName;
     private String nickName;
+
+    private Instant registered;
 
     private String profilePicUrl;
 
@@ -41,6 +44,7 @@ public class UserInfoResponse {
         this.firstName = userAcc.getFirstName();
         this.lastName = userAcc.getLastName();
         this.nickName = userAcc.getNickName();
+        this.registered = userAcc.getRegistered();
 
         this.profilePicUrl = ProfilePicHelper.getAvatarUrl(firstName, lastName, nickName);
 
