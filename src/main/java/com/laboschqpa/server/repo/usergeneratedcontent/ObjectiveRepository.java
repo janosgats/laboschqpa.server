@@ -35,4 +35,11 @@ public interface ObjectiveRepository extends JpaRepository<Objective, Long> {
     @EntityGraph(attributePaths = {"attachments"})
     @Query("select o from Objective o where o.program.id = :programId and (:showFractionObjectives = true  or o.isHidden = false)")
     List<Objective> findAllByProgramIdWithEagerAttachments(Long programId, Boolean showFractionObjectives);
+
+    @EntityGraph(attributePaths = {"attachments"})
+    @Query("select o from Objective o" +
+            " where o.program.id = :programId" +
+            "    and o.objectiveType = :objectiveType" +
+            "    and (:showFractionObjectives = true  or o.isHidden = false)")
+    List<Objective> findAllByProgramIdAndObjectiveTypeWithEagerAttachments(Long programId, ObjectiveType objectiveType, Boolean showFractionObjectives);
 }

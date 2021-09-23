@@ -7,7 +7,9 @@ import com.laboschqpa.server.api.dto.ugc.objective.GetObjectiveResponse;
 import com.laboschqpa.server.api.dto.ugc.objective.ListObjectivesForDisplayRequest;
 import com.laboschqpa.server.api.service.ObjectiveService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
+import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.enums.auth.Authority;
+import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,10 +44,17 @@ public class ObjectiveController {
 
     @GetMapping("/listObjectivesBelongingToProgram")
     public List<GetObjectiveResponse> getListObjectivesBelongingToProgram(@RequestParam(name = "programId") Long programId,
+                                                                          @RequestParam(name = "objectiveType", required = false) ObjectiveType objectiveType,
                                                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
 
-        return objectiveService.listObjectivesBelongingToProgram(programId, showFractionObjectives).stream()
+        final List<Objective> objectives;
+        if (objectiveType != null) {
+            objectives = objectiveService.listObjectivesBelongingToProgram(programId, objectiveType, showFractionObjectives);
+        } else {
+            objectives = objectiveService.listObjectivesBelongingToProgram(programId, showFractionObjectives);
+        }
+        return objectives.stream()
                 .map(o -> new GetObjectiveResponse(o, true))
                 .collect(Collectors.toList());
     }

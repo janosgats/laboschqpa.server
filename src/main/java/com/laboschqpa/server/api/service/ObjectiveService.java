@@ -119,6 +119,10 @@ public class ObjectiveService {
         return objectiveRepository.findAllByProgramIdWithEagerAttachments(programId, showFractionObjectives);
     }
 
+    public List<Objective> listObjectivesBelongingToProgram(long programId, ObjectiveType objectiveType, boolean showFractionObjectives) {
+        return objectiveRepository.findAllByProgramIdAndObjectiveTypeWithEagerAttachments(programId,objectiveType, showFractionObjectives);
+    }
+
     public List<GetObjectiveWithTeamScoreJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
                                                                 boolean showFractionObjectives) {
         List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes, showFractionObjectives);
