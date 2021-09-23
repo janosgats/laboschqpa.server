@@ -5,7 +5,7 @@ import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamLifecycleApiError;
-import com.laboschqpa.server.exceptions.apierrordescriptor.TeamUserRelationException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.TeamLifecycleException;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class TeamLifecycleStateMachineTest {
     private void assertThrowsTeamUserRelationExceptionWithSpecificError(TeamLifecycleApiError expectedTeamLifecycleApiError, Executable executable) {
         try {
             executable.execute();
-        } catch (TeamUserRelationException e) {
+        } catch (TeamLifecycleException e) {
             if (e.getApiErrorDescriptor().equals(expectedTeamLifecycleApiError)) {
                 return;
             } else {

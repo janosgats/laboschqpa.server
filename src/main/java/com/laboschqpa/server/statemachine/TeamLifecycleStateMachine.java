@@ -5,7 +5,7 @@ import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamLifecycleApiError;
-import com.laboschqpa.server.exceptions.apierrordescriptor.TeamUserRelationException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.TeamLifecycleException;
 import com.laboschqpa.server.repo.UserAccRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class TeamLifecycleStateMachine {
         assertInitiatorIsSameAsAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.NOTHING || alteredUserAcc.getTeam() != null)
-            throw new TeamUserRelationException(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM,
+            throw new TeamLifecycleException(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM,
                     "You can only create a new team if you aren't a member or applicant of any other team!");
 
         Team newTeam = new Team();
@@ -36,7 +36,7 @@ public class TeamLifecycleStateMachine {
         assertInitiatorIsSameAsAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.NOTHING || alteredUserAcc.getTeam() != null)
-            throw new TeamUserRelationException(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM,
+            throw new TeamLifecycleException(TeamLifecycleApiError.YOU_ARE_ALREADY_MEMBER_OR_APPLICANT_OF_A_TEAM,
                     "You can apply to a team only if you aren't a member or applicant of an other team!");
 
         alteredUserAcc.setTeam(team);
@@ -54,7 +54,7 @@ public class TeamLifecycleStateMachine {
         assertInitiatorIsSameAsAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.APPLICANT)
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "You can cancel only an applied UserAcc application!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "You can cancel only an applied UserAcc application!");
 
         alteredUserAcc.setTeam(null);
         alteredUserAcc.setTeamRole(TeamRole.NOTHING);
@@ -67,7 +67,7 @@ public class TeamLifecycleStateMachine {
         assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.APPLICANT)
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "You can decline only an applied UserAcc application!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "You can decline only an applied UserAcc application!");
 
         alteredUserAcc.setTeam(null);
         alteredUserAcc.setTeamRole(TeamRole.NOTHING);
@@ -81,7 +81,7 @@ public class TeamLifecycleStateMachine {
         if (alteredUserAcc.getTeamRole() == TeamRole.APPLICANT && alteredUserAcc.getTeam() != null) {
             alteredUserAcc.setTeamRole(TeamRole.MEMBER);
         } else {
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "The user you try to accept the application of isn't an applicant!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "The user you try to accept the application of isn't an applicant!");
         }
 
         log.debug("Approved application for UserAcc {}.", alteredUserAcc.getId());
@@ -97,7 +97,7 @@ public class TeamLifecycleStateMachine {
             assertIfExitingIsAllowedFromTeam();
             leaveTeamAsLeader();
         } else {
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "The user isn't member or leader!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "The user isn't member or leader!");
         }
 
         log.debug("UserAcc {} left its team.", alteredUserAcc.getId());
@@ -114,7 +114,7 @@ public class TeamLifecycleStateMachine {
             alteredUserAcc.setTeamRole(TeamRole.NOTHING);
             alteredUserAcc.setTeam(null);
         } else {
-            throw new TeamUserRelationException(TeamLifecycleApiError.THERE_IS_NO_OTHER_LEADER, "There is no other leader in the team. If you want to leave, make someone else leader or archive the team!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.THERE_IS_NO_OTHER_LEADER, "There is no other leader in the team. If you want to leave, make someone else leader or archive the team!");
         }
     }
 
@@ -125,7 +125,7 @@ public class TeamLifecycleStateMachine {
             alteredUserAcc.setTeamRole(TeamRole.NOTHING);
             alteredUserAcc.setTeam(null);
         } else {
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "The user isn't member or leader of the team!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "The user isn't member or leader of the team!");
         }
 
         log.debug("UserAcc {} was kicked from its team.", alteredUserAcc.getId());
@@ -135,21 +135,23 @@ public class TeamLifecycleStateMachine {
         assertInitiatorIsSameAsAltered();
 
         if (initiatorUserAcc.getTeamRole() != TeamRole.LEADER)
-            throw new TeamUserRelationException(TeamLifecycleApiError.YOU_HAVE_TO_BE_A_LEADER_TO_DO_THIS_OPERATION, "You have to be a leader of the team you want to archive!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.YOU_HAVE_TO_BE_A_LEADER_TO_DO_THIS_OPERATION, "You have to be a leader of the team you want to archive!");
 
         assertIfExitingIsAllowedFromTeam();
 
-        initiatorUserAcc.getTeam().setArchived(true);
-        userAccRepository.kickEveryoneFromTeam(initiatorUserAcc.getTeam());
+        final Team team = initiatorUserAcc.getTeam();
+        team.setArchived(true);
+        team.setName(team.getName() + "_archive_" + team.getId());//This is to break the non-uniqueness of names between archived and non-archived teams
+        userAccRepository.kickEveryoneFromTeam(team);
 
-        log.debug("UserAcc {} archived and left its team.", alteredUserAcc.getId());
+        log.debug("UserAcc {} archived and left its team ({}).", alteredUserAcc.getId(), team.getId());
     }
 
     public void giveLeaderRights() {
         assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.MEMBER)
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED,
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED,
                     "The user have to be a member of the team to give him leader rights!");
 
         alteredUserAcc.setTeamRole(TeamRole.LEADER);
@@ -159,7 +161,7 @@ public class TeamLifecycleStateMachine {
         assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.LEADER)
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED,
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED,
                     "The user is not a leader so you can't take away leader rights!");
 
         alteredUserAcc.setTeamRole(TeamRole.MEMBER);
@@ -169,43 +171,43 @@ public class TeamLifecycleStateMachine {
         assertInitiatorIsSameAsAltered();
 
         if (alteredUserAcc.getTeamRole() != TeamRole.LEADER)
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "You aren't a leader!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED, "You aren't a leader!");
 
         if (userAccRepository.getCountOfEnabledLeadersInTeam(alteredUserAcc.getTeam()) > 1) {
             //There is at least one other Leader in the team
             alteredUserAcc.setTeamRole(TeamRole.MEMBER);
         } else {
-            throw new TeamUserRelationException(TeamLifecycleApiError.THERE_IS_NO_OTHER_LEADER,
+            throw new TeamLifecycleException(TeamLifecycleApiError.THERE_IS_NO_OTHER_LEADER,
                     "There is no other leader in the team. If you want to resign, give leader rights to someone else!");
         }
     }
 
     void assertIfExitingIsAllowedFromTeam() {
         if (!alteredUserAcc.getTeam().getAllowMembersToExit()) {
-            throw new TeamUserRelationException(TeamLifecycleApiError.EXITING_FROM_TEAM_IS_NOT_ALLOWED, "Exiting from this team is not allowed!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.EXITING_FROM_TEAM_IS_NOT_ALLOWED, "Exiting from this team is not allowed!");
         }
     }
 
     void assertInitiatorIsSameAsAltered() {
         if (!initiatorUserAcc.getId().equals(alteredUserAcc.getId()))
-            throw new TeamUserRelationException(TeamLifecycleApiError.INITIATOR_IS_DIFFERENT_THAN_ALTERED, "You can do this operation only for you own account!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.INITIATOR_IS_DIFFERENT_THAN_ALTERED, "You can do this operation only for you own account!");
     }
 
     void assertInitiatorIsDifferentThanAltered_and_initiatorIsLeaderOfTeamOfTheAltered() {
         if (initiatorUserAcc.getId().equals(alteredUserAcc.getId()))
-            throw new TeamUserRelationException(TeamLifecycleApiError.INITIATOR_IS_SAME_AS_ALTERED, "You can't do this operation for you own account!");
+            throw new TeamLifecycleException(TeamLifecycleApiError.INITIATOR_IS_SAME_AS_ALTERED, "You can't do this operation for you own account!");
 
         if (alteredUserAcc.getTeam() == null) {
-            throw new TeamUserRelationException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED,
+            throw new TeamLifecycleException(TeamLifecycleApiError.OPERATION_IS_INVALID_FOR_TEAM_ROLE_OF_ALTERED,
                     "The altered user is not in any team!");
         }
         if (initiatorUserAcc.getTeam() == null) {
-            throw new TeamUserRelationException(TeamLifecycleApiError.INITIATOR_IS_NOT_LEADER_OF_TEAM_OF_ALTERED,
+            throw new TeamLifecycleException(TeamLifecycleApiError.INITIATOR_IS_NOT_LEADER_OF_TEAM_OF_ALTERED,
                     "You have to be a leader of team of the altered account to do this operation!");
         }
 
         if (!(alteredUserAcc.getTeam().getId().equals(initiatorUserAcc.getTeam().getId()) && initiatorUserAcc.getTeamRole() == TeamRole.LEADER))
-            throw new TeamUserRelationException(TeamLifecycleApiError.INITIATOR_IS_NOT_LEADER_OF_TEAM_OF_ALTERED,
+            throw new TeamLifecycleException(TeamLifecycleApiError.INITIATOR_IS_NOT_LEADER_OF_TEAM_OF_ALTERED,
                     "You have to be a leader of team of the altered account to do this operation!");
     }
 

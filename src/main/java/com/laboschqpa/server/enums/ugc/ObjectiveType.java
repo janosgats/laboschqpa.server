@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public enum ObjectiveType {
     MAIN_OBJECTIVE(Integer.parseInt(ObjectiveTypeValues.MAIN_OBJECTIVE)),
-    PRE_WEEK_TASK(Integer.parseInt(ObjectiveTypeValues.PRE_WEEK_TASK)),
     ACHIEVEMENT(Integer.parseInt(ObjectiveTypeValues.ACHIEVEMENT));
 
     private Integer value;

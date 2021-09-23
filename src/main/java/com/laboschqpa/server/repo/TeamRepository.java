@@ -17,6 +17,8 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     @Query("select team from Team team where team.id = :id and team.archived = false")
     Optional<Team> findByIdAndArchivedIsFalse_WithPessimisticWriteLock(long id);
 
+    Optional<Team> findByName(String name);
+
     @Query("select t.id as id, t.name as name, t.archived as archived, sum(coalesce(ts.score, 0)) as score " +
             " from Team t " +
             "   left join TeamScore ts on ts.team.id = t.id " +

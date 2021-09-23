@@ -6,7 +6,7 @@ import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamLifecycleApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
-import com.laboschqpa.server.exceptions.apierrordescriptor.TeamUserRelationException;
+import com.laboschqpa.server.exceptions.apierrordescriptor.TeamLifecycleException;
 import com.laboschqpa.server.repo.TeamRepository;
 import com.laboschqpa.server.repo.UserAccRepository;
 import com.laboschqpa.server.statemachine.StateMachineFactory;
@@ -37,9 +37,13 @@ public class TeamLifecycleService {
         createNewTeamRequest.validateSelf();
 
         if (disableNewTeamCreation) {
-            throw new TeamUserRelationException(TeamLifecycleApiError.CREATION_OF_NEW_TEAMS_IS_DISABLED,
+            throw new TeamLifecycleException(TeamLifecycleApiError.CREATION_OF_NEW_TEAMS_IS_DISABLED,
                     "Creation of new teams is not allowed at the moment!");
         }
+
+        teamRepository.findByName(createNewTeamRequest.getName()).ifPresent(team -> {
+            throw new TeamLifecycleException(TeamLifecycleApiError.THIS_TEAM_NAME_IS_ALREADY_TAKEN);
+        });
 
         return transactionTemplate.execute(transactionStatus -> {
             createNewTeamRequest.setName(createNewTeamRequest.getName().trim());
