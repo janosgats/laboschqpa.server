@@ -50,7 +50,7 @@ public class QrFightService {
             throw new TeamMembershipException(TeamMembershipApiError.YOU_ARE_NOT_IN_A_TEAM);
         }
         final Team team = userAcc.getTeam();
-        manageSubmissionRateLimiting(team);
+        manageSubmissionRateLimiting(team, userAcc);
 
         final QrTag qrTag = getExistingQrTag(tagId);
 
@@ -65,11 +65,11 @@ public class QrFightService {
         saveNewSubmission(qrTag, userAcc);
     }
 
-    private void manageSubmissionRateLimiting(Team team) {
+    private void manageSubmissionRateLimiting(Team team, UserAcc userAcc) {
         if (!teamRateControlService.isRateLimitAlright(TeamRateControlTopic.QR_FIGHT_TAG_SUBMISSION_TRIAL, team.getId())) {
             throw new QrFightException(QrFightApiError.TEAM_RATE_LIMIT_HIT_FOR_QR_FIGHT_SUBMISSIONS);
         }
-        teamRateControlService.log(TeamRateControlTopic.QR_FIGHT_TAG_SUBMISSION_TRIAL, team.getId());
+        teamRateControlService.log(TeamRateControlTopic.QR_FIGHT_TAG_SUBMISSION_TRIAL, team.getId(), userAcc.getId());
     }
 
     private void saveNewSubmission(QrTag qrTag, UserAcc userAcc) {

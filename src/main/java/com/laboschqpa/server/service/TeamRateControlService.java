@@ -2,7 +2,6 @@ package com.laboschqpa.server.service;
 
 import com.laboschqpa.server.entity.ratelimit.TeamRateControlEvent;
 import com.laboschqpa.server.enums.TeamRateControlTopic;
-import com.laboschqpa.server.exceptions.NotImplementedException;
 import com.laboschqpa.server.repo.TeamRateControlEventRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +39,19 @@ public class TeamRateControlService {
     @Value("${teamRateLimit.qrFightTagSubmission.limit.daily}")
     private Long qrFightTagSubmissionLimitDaily;
 
-    public void log(TeamRateControlTopic topic, long teamId) {
+    @Value("${teamRateLimit.riddleSubmission.limit.tenMinutely}")
+    private Long riddleSubmissionLimitTenMinutely;
+    @Value("${teamRateLimit.riddleSubmission.limit.hourly}")
+    private Long riddleSubmissionLimitHourly;
+    @Value("${teamRateLimit.riddleSubmission.limit.daily}")
+    private Long riddleSubmissionLimitDaily;
+
+    public void log(TeamRateControlTopic topic, long teamId, long userId) {
         TeamRateControlEvent teamRateControlEvent = new TeamRateControlEvent();
 
         teamRateControlEvent.setTopic(topic);
         teamRateControlEvent.setTeamId(teamId);
+        teamRateControlEvent.setUserId(userId);
         teamRateControlEvent.setTime(Instant.now());
 
         teamRateControlEventRepository.save(teamRateControlEvent);
@@ -55,29 +62,19 @@ public class TeamRateControlService {
     }
 
     public boolean isRateLimitAlright(TeamRateControlTopic topic, long teamId) {
-        if (topic != TeamRateControlTopic.QR_FIGHT_TAG_SUBMISSION_TRIAL) {
-            throw new NotImplementedException("Multiple topics are not yet implemented.");
-        }
-
         final Instant now = Instant.now();
         final Instant sinceTimeForTenMinutely = now.minusSeconds(SECONDS_IN_TEN_MINUTES);
         final Instant sinceTimeForHourly = now.minusSeconds(SECONDS_IN_HOUR);
         final Instant sinceTimeForDaily = now.minusSeconds(SECONDS_IN_DAY);
 
 
-        final long tenMinutelyCount = teamRateControlEventRepository.countOfEventsSince(
-                TeamRateControlTopic.QR_FIGHT_TAG_SUBMISSION_TRIAL,
-                teamId, sinceTimeForTenMinutely);
-        final long hourlyCount = teamRateControlEventRepository.countOfEventsSince(
-                TeamRateControlTopic.QR_FIGHT_TAG_SUBMISSION_TRIAL,
-                teamId, sinceTimeForHourly);
-        final long dailyCount = teamRateControlEventRepository.countOfEventsSince(
-                TeamRateControlTopic.QR_FIGHT_TAG_SUBMISSION_TRIAL,
-                teamId, sinceTimeForDaily);
+        final long tenMinutelyCount = teamRateControlEventRepository.countOfEventsSince(topic, teamId, sinceTimeForTenMinutely);
+        final long hourlyCount = teamRateControlEventRepository.countOfEventsSince(topic, teamId, sinceTimeForHourly);
+        final long dailyCount = teamRateControlEventRepository.countOfEventsSince(topic, teamId, sinceTimeForDaily);
 
-        final boolean isOkayTenMinutely = tenMinutelyCount < qrFightTagSubmissionLimitTenMinutely;
-        final boolean isOkayHourly = hourlyCount < qrFightTagSubmissionLimitHourly;
-        final boolean isOkayDaily = dailyCount < qrFightTagSubmissionLimitDaily;
+        final boolean isOkayTenMinutely = tenMinutelyCount < getTenMinutelyLimitForTopic(topic);
+        final boolean isOkayHourly = hourlyCount < getHourlyLimitForTopic(topic);
+        final boolean isOkayDaily = dailyCount < getDailyLimitForTopic(topic);
 
         if (!isOkayTenMinutely) {
             meterRegistry.counter(METRIC_NAME_TEAM_RATE_CONTROL_LIMIT_HIT_COUNT,
@@ -96,5 +93,38 @@ public class TeamRateControlService {
         }
 
         return isOkayTenMinutely && isOkayHourly && isOkayDaily;
+    }
+
+    private Long getTenMinutelyLimitForTopic(TeamRateControlTopic topic) {
+        switch (topic) {
+            case QR_FIGHT_TAG_SUBMISSION_TRIAL:
+                return qrFightTagSubmissionLimitTenMinutely;
+            case RIDDLE_SUBMISSION_TRIAL:
+                return riddleSubmissionLimitTenMinutely;
+            default:
+                throw new IllegalStateException("Unexpected value: " + topic);
+        }
+    }
+
+    private Long getHourlyLimitForTopic(TeamRateControlTopic topic) {
+        switch (topic) {
+            case QR_FIGHT_TAG_SUBMISSION_TRIAL:
+                return qrFightTagSubmissionLimitHourly;
+            case RIDDLE_SUBMISSION_TRIAL:
+                return riddleSubmissionLimitHourly;
+            default:
+                throw new IllegalStateException("Unexpected value: " + topic);
+        }
+    }
+
+    private Long getDailyLimitForTopic(TeamRateControlTopic topic) {
+        switch (topic) {
+            case QR_FIGHT_TAG_SUBMISSION_TRIAL:
+                return qrFightTagSubmissionLimitDaily;
+            case RIDDLE_SUBMISSION_TRIAL:
+                return riddleSubmissionLimitDaily;
+            default:
+                throw new IllegalStateException("Unexpected value: " + topic);
+        }
     }
 }

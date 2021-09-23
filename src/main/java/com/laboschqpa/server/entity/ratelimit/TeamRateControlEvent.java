@@ -27,6 +27,9 @@ public class TeamRateControlEvent {
     @Column(name = "team_id", nullable = false)
     private Long teamId;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Column(name = "time", columnDefinition = "datetime", nullable = false)
     private Instant time;
 }

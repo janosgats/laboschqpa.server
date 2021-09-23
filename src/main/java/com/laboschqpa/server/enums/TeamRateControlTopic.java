@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum TeamRateControlTopic {
-    QR_FIGHT_TAG_SUBMISSION_TRIAL(1, "qrFightTagSubmission");
+    QR_FIGHT_TAG_SUBMISSION_TRIAL(1, "qrFightTagSubmission"),
+    RIDDLE_SUBMISSION_TRIAL(2, "riddleSubmission");
 
     private Integer value;
     @Getter
