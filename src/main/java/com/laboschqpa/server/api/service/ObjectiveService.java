@@ -115,29 +115,36 @@ public class ObjectiveService {
         return objectiveRepository.findAll(showFractionObjectives);
     }
 
-    public List<Objective> listObjectivesBelongingToProgram(long programId, boolean showFractionObjectives) {
-        return objectiveRepository.findAllByProgramIdWithEagerAttachments(programId, showFractionObjectives);
+    public List<GetObjectiveWithTeamScoreJpaDto> listObjectivesBelongingToProgram(long programId,
+                                                                                  @Nullable Long observerTeamId, boolean showFractionObjectives) {
+        List<Objective> objectives = objectiveRepository.findAllByProgramIdWithEagerAttachments(programId, showFractionObjectives);
+        return augmentObjectivesWithTeamScore(objectives, observerTeamId);
     }
 
-    public List<Objective> listObjectivesBelongingToProgram(long programId, ObjectiveType objectiveType, boolean showFractionObjectives) {
-        return objectiveRepository.findAllByProgramIdAndObjectiveTypeWithEagerAttachments(programId,objectiveType, showFractionObjectives);
+    public List<GetObjectiveWithTeamScoreJpaDto> listObjectivesBelongingToProgram(long programId, ObjectiveType objectiveType,
+                                                                                  @Nullable Long observerTeamId, boolean showFractionObjectives) {
+        List<Objective> objectives = objectiveRepository.findAllByProgramIdAndObjectiveTypeWithEagerAttachments(programId, objectiveType, showFractionObjectives);
+        return augmentObjectivesWithTeamScore(objectives, observerTeamId);
     }
 
     public List<GetObjectiveWithTeamScoreJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
                                                                 boolean showFractionObjectives) {
         List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes, showFractionObjectives);
+        return augmentObjectivesWithTeamScore(objectives, observerTeamId);
+    }
 
+    private List<GetObjectiveWithTeamScoreJpaDto> augmentObjectivesWithTeamScore(Collection<Objective> objectives, @Nullable Long observerTeamId) {
         final List<Long> objectiveIds = objectives.stream().map(Objective::getId).collect(Collectors.toList());
         Map<Long, TeamScore> teamScoreMap = getTeamScoreMap(objectiveIds, observerTeamId);
 
         List<GetObjectiveWithTeamScoreJpaDto> mergedEntities = new ArrayList<>(objectives.size());
         for (var objective : objectives) {
             final TeamScore teamScore = teamScoreMap.get(objective.getId());
-            Integer score = null;
+            Integer observerScore = null;
             if (teamScore != null) {
-                score = teamScore.getScore();
+                observerScore = teamScore.getScore();
             }
-            mergedEntities.add(new ObjectiveWithTeamScoreDtoAdapter(objective, score));
+            mergedEntities.add(new ObjectiveWithTeamScoreDtoAdapter(objective, observerScore));
         }
 
         return mergedEntities;

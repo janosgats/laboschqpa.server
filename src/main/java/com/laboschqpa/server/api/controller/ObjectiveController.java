@@ -7,9 +7,9 @@ import com.laboschqpa.server.api.dto.ugc.objective.GetObjectiveResponse;
 import com.laboschqpa.server.api.dto.ugc.objective.ListObjectivesForDisplayRequest;
 import com.laboschqpa.server.api.service.ObjectiveService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
-import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.ugc.ObjectiveType;
+import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithTeamScoreJpaDto;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -47,12 +47,13 @@ public class ObjectiveController {
                                                                           @RequestParam(name = "objectiveType", required = false) ObjectiveType objectiveType,
                                                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
+        final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
 
-        final List<Objective> objectives;
+        final List<GetObjectiveWithTeamScoreJpaDto> objectives;
         if (objectiveType != null) {
-            objectives = objectiveService.listObjectivesBelongingToProgram(programId, objectiveType, showFractionObjectives);
+            objectives = objectiveService.listObjectivesBelongingToProgram(programId, objectiveType, observerTeamId, showFractionObjectives);
         } else {
-            objectives = objectiveService.listObjectivesBelongingToProgram(programId, showFractionObjectives);
+            objectives = objectiveService.listObjectivesBelongingToProgram(programId, observerTeamId, showFractionObjectives);
         }
         return objectives.stream()
                 .map(o -> new GetObjectiveResponse(o, true))
