@@ -1,4 +1,4 @@
-package com.laboschqpa.server.api.service;
+package com.laboschqpa.server.api.service.riddle;
 
 import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleResponse;
 import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponse;
@@ -84,7 +84,7 @@ public class RiddleService {
 
     public RiddleSubmitSolutionResponse submitSolution(Long teamId, Long riddleIdToSubmitSolutionTo, String givenSolution) {
         final Riddle riddle = getExistingAccessibleRiddle(teamId, riddleIdToSubmitSolutionTo, false);
-        final boolean isGivenSolutionCorrect = riddle.getSolution().equalsIgnoreCase(givenSolution);
+        final boolean isGivenSolutionCorrect = RiddleHelpers.areSolutionsSimilar(riddle.getSolution(), givenSolution);
 
         final Optional<RiddleResolution> existingResolutionOptional = riddleResolutionRepository.findByRiddleIdAndTeamId(riddle.getId(), teamId);
 

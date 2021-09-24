@@ -2,7 +2,7 @@ package com.laboschqpa.server.api.controller;
 
 import com.laboschqpa.server.api.dto.ugc.riddle.GetAccessibleRiddleResponse;
 import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponse;
-import com.laboschqpa.server.api.service.RiddleService;
+import com.laboschqpa.server.api.service.riddle.RiddleService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.TeamRateControlTopic;
