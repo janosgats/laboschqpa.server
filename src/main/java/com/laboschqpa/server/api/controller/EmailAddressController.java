@@ -6,6 +6,7 @@ import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Log4j2
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/emailAddress")
@@ -30,6 +32,13 @@ public class EmailAddressController {
         return userEmailAddressRepository.findAllByUserAccId(loggedInUserId).stream()
                 .map(UserEmailAddressResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    @DeleteMapping("/deleteOwnEmailAddress")
+    public void deleteDeleteOwnEmailAddress(@RequestParam("id") Long idToDelete,
+                                            @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        final long loggedInUserId = authenticationPrincipal.getUserId();
+        emailAddressService.deleteDeleteOwnEmailAddress(idToDelete, loggedInUserId);
     }
 
     @PostMapping("/submitNewAddress")
