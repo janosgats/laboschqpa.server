@@ -17,6 +17,10 @@ public class FileHostApiClient extends AbstractApiClient {
     private String apiBaseUrl;
     @Value("${apiClient.fileHost.indexedFileInfo.url}")
     private String indexedFileInfoUrl;
+    @Value("${apiClient.fileHost.listSucceededImageVariantIdsOfFile.url}")
+    private String listSucceededImageVariantIdsOfFileUrl;
+    @Value("${apiClient.fileHost.markImageVariantFileAsCorrupt.url}")
+    private String markImageVariantFileAsCorruptUrl;
 
     @Value("${apiClient.fileHost.deleteFile.url}")
     private String deleteFileUrl;
@@ -30,6 +34,22 @@ public class FileHostApiClient extends AbstractApiClient {
                 indexedFileInfoUrl,
                 HttpMethod.GET,
                 BodyInserters.fromValue(indexedFileIds));
+    }
+
+    public Long[] listSucceededImageVariantIdsOfFile(long originalFileId) {
+        return getApiCaller().doCallAndThrowExceptionIfStatuscodeIsNot2xx(Long[].class,
+                listSucceededImageVariantIdsOfFileUrl,
+                HttpMethod.GET,
+                Map.of("originalFileId", String.valueOf(originalFileId))
+        );
+    }
+
+    public void markImageVariantFileAsCorruptUrl(long variantFileId) {
+        getApiCaller().doCallAndThrowExceptionIfStatuscodeIsNot2xx(Long[].class,
+                markImageVariantFileAsCorruptUrl,
+                HttpMethod.POST,
+                Map.of("variantFileId", String.valueOf(variantFileId))
+        );
     }
 
     public void deleteFile(long indexedFileId) {
