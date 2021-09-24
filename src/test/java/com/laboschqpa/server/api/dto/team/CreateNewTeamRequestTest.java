@@ -10,7 +10,7 @@ class CreateNewTeamRequestTest {
     @Test
     void teamName() {
         CreateNewTeamRequest createNewTeamRequest = new CreateNewTeamRequest();
-        createNewTeamRequest.setName("Valid Team Name 69-!áéíóöőúüűÁÉÍÓÖŐÚÜŰ $ § +");
+        createNewTeamRequest.setName("Valid Team Name 69-!áéíóöőúüűÁÉÍÓÖŐÚÜŰ Ł$§ +");
         createNewTeamRequest.validateSelf();
 
         createNewTeamRequest = new CreateNewTeamRequest();
