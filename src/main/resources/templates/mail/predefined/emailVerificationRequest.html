@@ -29,11 +29,11 @@
         <a th:href="${emailVerificationUrl}">
             <button class="button"
                     style="vertical-align:middle; width: 380px; margin: 0 auto; display: block">
-                <span> Igen, az enyém (klikk ide) </span>
+                <span> Igen, az enyém - klikk ide! </span>
             </button>
         </a>
 
-        <p>Ha a fenti gomb nem működne, nyisd meg ezt a linket az e-mail címed megerősítéséhez: <a th:href="${emailVerificationUrl}" th:text="${emailVerificationUrl}">asd</a></p>
+        <p>Ha a fenti gomb nem működne, nyisd meg ezt a linket, hogy a Qpa Web accodhoz csatlakoztasd ezt az e-mail címet: <a th:href="${emailVerificationUrl}" th:text="${emailVerificationUrl}">asd</a></p>
 
     <div th:replace="mail/fragments/signature.html"></div>
 </body>
