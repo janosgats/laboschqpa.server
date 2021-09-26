@@ -23,6 +23,8 @@ public class RegistrationSessionDto implements Serializable {
     private String lastName;
     private String nickName;
 
+    private String profilePicUrl;
+
     public void writeToSession(HttpSession httpSession) {
         httpSession.setAttribute(SESSION_ATTRIBUTE_NAME, this);
     }

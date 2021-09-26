@@ -8,6 +8,7 @@ import com.laboschqpa.server.enums.converter.jackson.TeamRoleToValueJacksonConve
 import com.laboschqpa.server.util.ProfilePicHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.Set;
@@ -46,7 +47,11 @@ public class UserInfoResponse {
         this.nickName = userAcc.getNickName();
         this.registered = userAcc.getRegistered();
 
-        this.profilePicUrl = ProfilePicHelper.getAvatarUrl(firstName, lastName, nickName);
+        if (StringUtils.isNotBlank(userAcc.getProfilePicUrl())) {
+            this.profilePicUrl = userAcc.getProfilePicUrl();
+        } else {
+            this.profilePicUrl = ProfilePicHelper.getAvatarUrl(firstName, lastName, nickName);
+        }
 
         if (userAcc.getTeam() != null) {
             this.teamId = userAcc.getTeam().getId();

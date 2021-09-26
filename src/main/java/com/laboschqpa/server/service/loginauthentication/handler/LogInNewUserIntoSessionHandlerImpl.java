@@ -89,6 +89,7 @@ public class LogInNewUserIntoSessionHandlerImpl implements LogInNewUserIntoSessi
         dto.setFirstName(oauth2UserProfileData.getFirstName());
         dto.setLastName(oauth2UserProfileData.getLastName());
         dto.setNickName(oauth2UserProfileData.getNickName());
+        dto.setProfilePicUrl(oauth2UserProfileData.getProfilePicUrl());
 
         dto.writeToCurrentSession();
     }

@@ -72,6 +72,9 @@ public class UserAcc implements Serializable {
     @Column(name = "nick_name")
     private String nickName;
 
+    @Column(name = "profile_pic_url")
+    private String profilePicUrl;
+
     @Column(name = "registered", columnDefinition = "datetime", nullable = false)
     private Instant registered;
 

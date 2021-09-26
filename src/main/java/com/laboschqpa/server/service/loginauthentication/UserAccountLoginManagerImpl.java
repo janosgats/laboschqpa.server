@@ -22,6 +22,7 @@ public class UserAccountLoginManagerImpl implements UserAccountLoginManager {
     private final TransactionTemplate transactionTemplate;
     private final AddLoginMethodToExistingUserHandler addLoginMethodToExistingUserHandler;
     private final LogInNewUserIntoSessionHandler logInNewUserIntoSessionHandler;
+    private final LogInHelpers logInHelpers;
 
     @Override
     public CustomOauth2User getExactUserFromOAuth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {
@@ -35,13 +36,17 @@ public class UserAccountLoginManagerImpl implements UserAccountLoginManager {
     private CustomOauth2User handleInTransaction(OAuth2UserRequest oAuth2UserRequest) {
         ExplodedOAuth2UserRequestDto explodedRequest = explodeOAuth2UserRequest(oAuth2UserRequest);
 
+        final CustomOauth2User oauth2User;
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             //No user is logged in in the session
-            return logInNewUserIntoSessionHandler.resolveUserAccountAndLogInIntoSession(explodedRequest);
+            oauth2User = logInNewUserIntoSessionHandler.resolveUserAccountAndLogInIntoSession(explodedRequest);
         } else {
             //A user is probably logged in
-            return addLoginMethodToExistingUserHandler.handleOAuth2UserRequestWhenUserIsAlreadyLoggedIn(explodedRequest);
+            oauth2User = addLoginMethodToExistingUserHandler.handleOAuth2UserRequestWhenUserIsAlreadyLoggedIn(explodedRequest);
         }
+
+        logInHelpers.updateProfilePicUrlIfNeeded(oauth2User.getUserAccEntity(), explodedRequest.getOauth2UserProfileData().getProfilePicUrl());
+        return oauth2User;
     }
 
     private ExplodedOAuth2UserRequestDto explodeOAuth2UserRequest(OAuth2UserRequest oAuth2UserRequest) {

@@ -15,4 +15,5 @@ public class Oauth2UserProfileData {
     private String firstName;
     private String lastName;
     private String nickName;
+    private String profilePicUrl;
 }

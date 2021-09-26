@@ -144,6 +144,9 @@ public class RegistrationService {
         newUserAcc.setFirstName(registrationSessionDto.getFirstName());
         newUserAcc.setLastName(registrationSessionDto.getLastName());
         newUserAcc.setNickName(registrationSessionDto.getNickName());
+        if (StringUtils.isNotBlank(registrationSessionDto.getProfilePicUrl())) {
+            newUserAcc.setProfilePicUrl(registrationSessionDto.getProfilePicUrl());
+        }
 
         newUserAcc.setRegistered(Instant.now());
 

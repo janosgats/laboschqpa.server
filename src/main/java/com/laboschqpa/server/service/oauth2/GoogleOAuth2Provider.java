@@ -27,6 +27,7 @@ public class GoogleOAuth2Provider implements OAuth2Provider {
         final Object googleSubObject = claims.get("sub");
         final String firstName = (String) claims.get("given_name");
         final String lastName = (String) claims.get("family_name");
+        final String profilePicUrl = (String) claims.get("picture");
         if (!(googleSubObject instanceof String) || ((String) googleSubObject).isBlank()) {
             throw new DefectiveAuthProviderResponseAuthenticationException("Google OAuth2 sub is invalid!");
         }
@@ -37,7 +38,7 @@ public class GoogleOAuth2Provider implements OAuth2Provider {
         final String emailAddress = tryToGetEmailFromClaims(claims);
 
         final String nickName = Helpers.getNickName(firstName, lastName, emailAddress, null, "Google");
-        return new Oauth2UserProfileData(googleExternalAccountDetail, emailAddress, firstName, lastName, nickName);
+        return new Oauth2UserProfileData(googleExternalAccountDetail, emailAddress, firstName, lastName, nickName, profilePicUrl);
     }
 
     private String tryToGetEmailFromClaims(Map<String, Object> claims) {

@@ -1,5 +1,6 @@
 package com.laboschqpa.server.service.apiclient.github;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.laboschqpa.server.util.SelfValidator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,4 +21,6 @@ public class GithubUserInfoDto extends SelfValidator {
     private String email;
     private String name;
     private String login;
+    @JsonProperty("avatar_url")
+    private String avatarUrl;
 }
