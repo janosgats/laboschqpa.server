@@ -15,6 +15,8 @@ import javax.persistence.Table;
 @Table(name = "news_post")
 @DiscriminatorValue(value = UserGeneratedContentTypeValues.NEWS_POST)
 public class NewsPost extends UserGeneratedContent {
+    @Column(name = "title", columnDefinition = "text", nullable = false)
+    private String title;
     @Column(name = "content", columnDefinition = "text")
     private String content;
 }

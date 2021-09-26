@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetNewsPostResponse extends GetUserGeneratedContentResponse {
+    private String title;
     private String content;
 
     public GetNewsPostResponse() {
@@ -24,6 +25,7 @@ public class GetNewsPostResponse extends GetUserGeneratedContentResponse {
      */
     public GetNewsPostResponse(NewsPost newsPost, boolean includeAttachments) {
         super(newsPost, includeAttachments);
+        this.title = newsPost.getTitle();
         this.content = newsPost.getContent();
     }
 }

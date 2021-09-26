@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
@@ -15,6 +16,10 @@ public class EditNewsPostRequest extends SelfValidator {
     @NotNull
     @Min(1)
     private Long id;
+    @NotNull
+    @NotBlank
+    @Length(max = 20)
+    private String title;
     @NotNull
     @Length(max = 30000)
     private String content;

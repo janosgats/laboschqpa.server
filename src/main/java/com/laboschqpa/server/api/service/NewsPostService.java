@@ -42,6 +42,7 @@ public class NewsPostService {
         newsPost.setUGCAsCreatedByUser(creatorUserAcc);
         newsPost.setAttachments(createNewNewsPostRequest.getAttachments());
 
+        newsPost.setTitle(createNewNewsPostRequest.getTitle());
         newsPost.setContent(createNewNewsPostRequest.getContent());
 
         newsPostRepository.save(newsPost);
@@ -61,6 +62,7 @@ public class NewsPostService {
         editedNewsPost.setAttachments(request.getAttachments());
 
 
+        editedNewsPost.setTitle(request.getTitle());
         editedNewsPost.setContent(request.getContent());
 
         newsPostRepository.save(editedNewsPost);

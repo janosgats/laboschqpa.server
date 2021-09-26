@@ -5,12 +5,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class CreateNewNewsPostRequest extends SelfValidator {
+    @NotNull
+    @NotBlank
+    @Length(max = 200)
+    private String title;
     @NotNull
     @Length(max = 30000)
     private String content;

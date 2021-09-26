@@ -46,7 +46,7 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping({"/listAllWithTeamName", "/listAllEnabledWithTeamName"})
+    @GetMapping("/listAllEnabledWithTeamName")
     public List<UserInfoResponse> getListAllEnabledWithTeam() {
         return userService.listAllEnabledWithTeam().stream()
                 .map(u -> new UserInfoResponse(u, false, true))
