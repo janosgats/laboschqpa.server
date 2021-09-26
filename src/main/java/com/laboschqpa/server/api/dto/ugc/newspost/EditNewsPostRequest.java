@@ -18,7 +18,7 @@ public class EditNewsPostRequest extends SelfValidator {
     private Long id;
     @NotNull
     @NotBlank
-    @Length(max = 20)
+    @Length(max = 250)
     private String title;
     @NotNull
     @Length(max = 30000)

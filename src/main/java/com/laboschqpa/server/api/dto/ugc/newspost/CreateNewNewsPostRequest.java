@@ -14,7 +14,7 @@ import java.util.Set;
 public class CreateNewNewsPostRequest extends SelfValidator {
     @NotNull
     @NotBlank
-    @Length(max = 200)
+    @Length(max = 250)
     private String title;
     @NotNull
     @Length(max = 30000)
