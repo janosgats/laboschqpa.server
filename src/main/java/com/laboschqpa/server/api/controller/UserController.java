@@ -46,16 +46,16 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/listAllWithTeamName")
-    public List<UserInfoResponse> getListAllWithTeam() {
-        return userService.listAllWithTeam().stream()
+    @GetMapping({"/listAllWithTeamName", "/listAllEnabledWithTeamName"})
+    public List<UserInfoResponse> getListAllEnabledWithTeam() {
+        return userService.listAllEnabledWithTeam().stream()
                 .map(u -> new UserInfoResponse(u, false, true))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/usersPage/listAllEnabled")
     public List<UsersPageUserInfoResponse> getUsersPageListAllEnabled() {
-        return userService.listAllWithTeam().stream()
+        return userService.listAllEnabledWithTeam().stream()
                 .map(u -> new UsersPageUserInfoResponse(u, true))
                 .collect(Collectors.toList());
     }

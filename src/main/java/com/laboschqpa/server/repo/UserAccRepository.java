@@ -61,6 +61,11 @@ public interface UserAccRepository extends JpaRepository<UserAcc, Long> {
     @Query("select userAcc " +
             "from UserAcc userAcc " +
             " left join fetch userAcc.team t " +
-            "order by t.name ASC, userAcc.nickName ASC, userAcc.firstName ASC, userAcc.lastName ASC")
-    List<UserAcc> findAll_withTeam_orderByNamesAsc();
+            "where userAcc.enabled = TRUE " +
+            "order by " +
+            "t.name ASC NULLS LAST, " +
+            "userAcc.nickName ASC NULLS LAST, " +
+            "userAcc.firstName ASC NULLS LAST, " +
+            "userAcc.lastName ASC NULLS LAST")
+    List<UserAcc> findAllEnabled_withTeam_orderByNamesAsc();
 }
