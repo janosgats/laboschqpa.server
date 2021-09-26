@@ -15,9 +15,34 @@ public class LogInHelpers {
 
 
     public void updateProfilePicUrlIfNeeded(UserAcc userAccEntity, String possibleNewUrl) {
-        if (StringUtils.isBlank(userAccEntity.getProfilePicUrl()) && StringUtils.isNotBlank(possibleNewUrl)) {
-            userAccEntity.setProfilePicUrl(possibleNewUrl);
-            userAccRepository.save(userAccEntity);
+        final String oldUrl = userAccEntity.getProfilePicUrl();
+
+        if (StringUtils.isBlank(possibleNewUrl)) {
+            return;
         }
+
+        if (StringUtils.isBlank(oldUrl)) {
+            doUpdatePicture(userAccEntity, possibleNewUrl);
+            return;
+        }
+
+        if (StringUtils.contains(possibleNewUrl, "googleusercontent.com/a-/")) {
+            //The new image is (likely) NOT an auto generated default image, but a real picture, set by the user.
+            doUpdatePicture(userAccEntity, possibleNewUrl);
+        }
+
+        if (StringUtils.contains(oldUrl, "googleusercontent.com/a/")) {
+            //The old image is (likely) an auto generated default image
+            doUpdatePicture(userAccEntity, possibleNewUrl);
+        }
+    }
+
+    private void doUpdatePicture(UserAcc userAccEntity, String possibleNewUrl) {
+        if (StringUtils.equals(userAccEntity.getProfilePicUrl(), possibleNewUrl)) {
+            return;//No need to update
+        }
+
+        userAccEntity.setProfilePicUrl(possibleNewUrl);
+        userAccRepository.save(userAccEntity);
     }
 }
