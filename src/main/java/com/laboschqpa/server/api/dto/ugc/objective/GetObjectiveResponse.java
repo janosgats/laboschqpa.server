@@ -6,7 +6,7 @@ import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.enums.converter.jackson.ObjectiveTypeToValueJacksonConverter;
 import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveJpaDto;
-import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithTeamScoreJpaDto;
+import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithAcceptanceJpaDto;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.ObjectiveDtoAdapter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,7 +25,10 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
     @JsonSerialize(converter = ObjectiveTypeToValueJacksonConverter.class)
     private ObjectiveType objectiveType;
     private Boolean isHidden;
-    private Boolean observerTeamHasScore;
+    /**
+     * for the observer team
+     */
+    private Boolean isAccepted;
 
     public GetObjectiveResponse() {
         super();
@@ -58,9 +61,8 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
         this.objectiveType = objective.getObjectiveType();
         this.isHidden = objective.getIsHidden();
 
-        if (objective instanceof GetObjectiveWithTeamScoreJpaDto) {
-            final Integer observerTeamScore = ((GetObjectiveWithTeamScoreJpaDto) objective).getObserverTeamScore();
-            this.observerTeamHasScore = observerTeamScore != null && observerTeamScore > 0;
+        if (objective instanceof GetObjectiveWithAcceptanceJpaDto) {
+            this.isAccepted = ((GetObjectiveWithAcceptanceJpaDto) objective).getIsAcceptedForTeam();
         }
     }
 }

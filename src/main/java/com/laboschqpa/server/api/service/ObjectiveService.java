@@ -2,16 +2,16 @@ package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveRequest;
 import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveRequest;
-import com.laboschqpa.server.entity.TeamScore;
+import com.laboschqpa.server.entity.ObjectiveAcceptance;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.entity.usergeneratedcontent.Program;
 import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
-import com.laboschqpa.server.repo.TeamScoreRepository;
+import com.laboschqpa.server.repo.ObjectiveAcceptanceRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
-import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithTeamScoreJpaDto;
-import com.laboschqpa.server.repo.usergeneratedcontent.dto.ObjectiveWithTeamScoreDtoAdapter;
+import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithAcceptanceJpaDto;
+import com.laboschqpa.server.repo.usergeneratedcontent.dto.ObjectiveWithAcceptanceDtoAdapter;
 import com.laboschqpa.server.util.AttachmentHelper;
 import com.laboschqpa.server.util.CollectionHelpers;
 import com.laboschqpa.server.util.MappingHelper;
@@ -29,29 +29,15 @@ import java.util.stream.Collectors;
 @Service
 public class ObjectiveService {
     private final ObjectiveRepository objectiveRepository;
-    private final TeamScoreRepository teamScoreRepository;
+    private final ObjectiveAcceptanceRepository objectiveAcceptanceRepository;
     private final AttachmentHelper attachmentHelper;
     private final ProgramService programService;
 
-    public GetObjectiveWithTeamScoreJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId, boolean showHiddenObjectives) {
-        Optional<Objective> objectiveOptional = objectiveRepository.findByIdWithEagerAttachments(objectiveId, showHiddenObjectives);
+    public GetObjectiveWithAcceptanceJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+        Objective objective = objectiveRepository.findByIdWithEagerAttachments(objectiveId, showHiddenObjectives)
+                .orElseThrow(() -> new ContentNotFoundException("Cannot find Objective with Id: " + objectiveId));
 
-        if (objectiveOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find Objective with Id: " + objectiveId);
-
-        Optional<TeamScore> teamScore = getTeamScoreOptional(objectiveId, observerTeamId);
-        Integer score = null;
-        if (teamScore.isPresent()) {
-            score = teamScore.get().getScore();
-        }
-        return new ObjectiveWithTeamScoreDtoAdapter(objectiveOptional.get(), score);
-    }
-
-    private Optional<TeamScore> getTeamScoreOptional(long objectiveId, @Nullable Long observerTeamId) {
-        if (observerTeamId == null) {
-            return Optional.empty();
-        }
-        return teamScoreRepository.findByObjectiveIdAndTeamId(objectiveId, observerTeamId);
+        return augmentObjectivesWithTeamAcceptance(List.of(objective), observerTeamId).get(0);
     }
 
     public Objective createNewObjective(CreateNewObjectiveRequest request, UserAcc creatorUserAcc) {
@@ -115,47 +101,43 @@ public class ObjectiveService {
         return objectiveRepository.findAll(showHiddenObjectives);
     }
 
-    public List<GetObjectiveWithTeamScoreJpaDto> listObjectivesBelongingToProgram(long programId,
-                                                                                  @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+    public List<GetObjectiveWithAcceptanceJpaDto> listObjectivesBelongingToProgram(long programId,
+                                                                                   @Nullable Long observerTeamId, boolean showHiddenObjectives) {
         List<Objective> objectives = objectiveRepository.findAllByProgramIdWithEagerAttachments(programId, showHiddenObjectives);
-        return augmentObjectivesWithTeamScore(objectives, observerTeamId);
+        return augmentObjectivesWithTeamAcceptance(objectives, observerTeamId);
     }
 
-    public List<GetObjectiveWithTeamScoreJpaDto> listObjectivesBelongingToProgram(long programId, ObjectiveType objectiveType,
-                                                                                  @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+    public List<GetObjectiveWithAcceptanceJpaDto> listObjectivesBelongingToProgram(long programId, ObjectiveType objectiveType,
+                                                                                   @Nullable Long observerTeamId, boolean showHiddenObjectives) {
         List<Objective> objectives = objectiveRepository.findAllByProgramIdAndObjectiveTypeWithEagerAttachments(programId, objectiveType, showHiddenObjectives);
-        return augmentObjectivesWithTeamScore(objectives, observerTeamId);
+        return augmentObjectivesWithTeamAcceptance(objectives, observerTeamId);
     }
 
-    public List<GetObjectiveWithTeamScoreJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
-                                                                boolean showHiddenObjectives) {
+    public List<GetObjectiveWithAcceptanceJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
+                                                                 boolean showHiddenObjectives) {
         List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes, showHiddenObjectives);
-        return augmentObjectivesWithTeamScore(objectives, observerTeamId);
+        return augmentObjectivesWithTeamAcceptance(objectives, observerTeamId);
     }
 
-    private List<GetObjectiveWithTeamScoreJpaDto> augmentObjectivesWithTeamScore(Collection<Objective> objectives, @Nullable Long observerTeamId) {
+    private List<GetObjectiveWithAcceptanceJpaDto> augmentObjectivesWithTeamAcceptance(Collection<Objective> objectives, @Nullable Long observerTeamId) {
         final List<Long> objectiveIds = objectives.stream().map(Objective::getId).collect(Collectors.toList());
-        Map<Long, TeamScore> teamScoreMap = getTeamScoreMap(objectiveIds, observerTeamId);
+        Map<Long, ObjectiveAcceptance> teamAcceptanceMap = getTeamAcceptanceMap(objectiveIds, observerTeamId);
 
-        List<GetObjectiveWithTeamScoreJpaDto> mergedEntities = new ArrayList<>(objectives.size());
+        List<GetObjectiveWithAcceptanceJpaDto> mergedEntities = new ArrayList<>(objectives.size());
         for (var objective : objectives) {
-            final TeamScore teamScore = teamScoreMap.get(objective.getId());
-            Integer observerScore = null;
-            if (teamScore != null) {
-                observerScore = teamScore.getScore();
-            }
-            mergedEntities.add(new ObjectiveWithTeamScoreDtoAdapter(objective, observerScore));
+            final ObjectiveAcceptance objectiveAcceptance = teamAcceptanceMap.get(objective.getId());
+            mergedEntities.add(new ObjectiveWithAcceptanceDtoAdapter(objective, objectiveAcceptance != null));
         }
 
         return mergedEntities;
     }
 
-    private Map<Long, TeamScore> getTeamScoreMap(List<Long> objectiveIds, @Nullable Long observerTeamId) {
+    private Map<Long, ObjectiveAcceptance> getTeamAcceptanceMap(List<Long> objectiveIds, @Nullable Long observerTeamId) {
         if (observerTeamId == null) {
             return new HashMap<>();
         }
 
-        List<TeamScore> teamScoreList = teamScoreRepository.findByObjectiveIdInAndTeamId(objectiveIds, observerTeamId);
-        return MappingHelper.toMap(teamScoreList, ts -> ts.getObjective().getId());
+        List<ObjectiveAcceptance> acceptanceList = objectiveAcceptanceRepository.findByObjectiveIdInAndTeamId(objectiveIds, observerTeamId);
+        return MappingHelper.toMap(acceptanceList, ts -> ts.getObjective().getId());
     }
 }

@@ -9,7 +9,7 @@ import com.laboschqpa.server.api.service.ObjectiveService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.ugc.ObjectiveType;
-import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithTeamScoreJpaDto;
+import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithAcceptanceJpaDto;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,7 +49,7 @@ public class ObjectiveController {
         final boolean showHiddenObjectives = shouldShowHiddenObjectives(authenticationPrincipal);
         final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
 
-        final List<GetObjectiveWithTeamScoreJpaDto> objectives;
+        final List<GetObjectiveWithAcceptanceJpaDto> objectives;
         if (objectiveType != null) {
             objectives = objectiveService.listObjectivesBelongingToProgram(programId, objectiveType, observerTeamId, showHiddenObjectives);
         } else {
