@@ -26,6 +26,6 @@ public class GetTeamMemberResponse {
         this.nickName = teamMemberJpaDto.getNickName();
         this.teamRole = teamMemberJpaDto.getTeamRole();
 
-        this.profilePicUrl = ProfilePicHelper.getAvatarUrl(firstName, lastName, nickName);
+        this.profilePicUrl = ProfilePicHelper.getProfilePicUrl(teamMemberJpaDto, firstName, lastName, nickName);
     }
 }

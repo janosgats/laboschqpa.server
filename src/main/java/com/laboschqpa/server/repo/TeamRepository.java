@@ -27,14 +27,16 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
             " order by score desc")
     List<TeamWithScoreJpaDto> findAllWithScoreByArchivedIsFalseOrderByScoreDesc();
 
-    @Query("select u.id as userId, u.firstName as firstName, u.lastName as lastName, u.nickName as nickName, u.teamRole as teamRole " +
+    @Query("select u.id as userId, u.firstName as firstName, u.lastName as lastName, " +
+            " u.nickName as nickName, u.teamRole as teamRole, u.profilePicUrl as profilePicUrl " +
             " from UserAcc u " +
             " where u.team.id = :teamId " +
             "   and u.teamRole in (com.laboschqpa.server.enums.TeamRole.MEMBER, com.laboschqpa.server.enums.TeamRole.LEADER) " +
             " order by u.teamRole desc")
     List<TeamMemberJpaDto> findAllMembers(@Param("teamId") long teamId);
 
-    @Query("select u.id as userId, u.firstName as firstName, u.lastName as lastName, u.nickName as nickName, u.teamRole as teamRole " +
+    @Query("select u.id as userId, u.firstName as firstName, u.lastName as lastName, u.nickName as nickName, " +
+            " u.teamRole as teamRole, u.profilePicUrl as profilePicUrl " +
             " from UserAcc u " +
             " where u.team.id = :teamId " +
             "   and u.teamRole = com.laboschqpa.server.enums.TeamRole.APPLICANT " +

@@ -35,7 +35,7 @@ public class UsersPageUserInfoResponse {
         this.lastName = userAcc.getLastName();
         this.nickName = userAcc.getNickName();
 
-        this.profilePicUrl = ProfilePicHelper.getAvatarUrl(firstName, lastName, nickName);
+        this.profilePicUrl = ProfilePicHelper.getProfilePicUrl(userAcc, firstName, lastName, nickName);
 
         if (userAcc.getTeam() != null) {
             this.teamId = userAcc.getTeam().getId();

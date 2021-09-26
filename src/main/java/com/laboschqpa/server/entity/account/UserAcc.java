@@ -9,6 +9,7 @@ import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.converter.attributeconverter.AuthorityAttributeConverter;
 import com.laboschqpa.server.enums.converter.attributeconverter.TeamRoleAttributeConverter;
+import com.laboschqpa.server.model.ProfilePicUrlContainer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
                 @Index(columnList = "team_role", name = "team_role")
         }
 )
-public class UserAcc implements Serializable {
+public class UserAcc implements ProfilePicUrlContainer, Serializable {
     static final long serialVersionUID = 42L;
 
     @Id
@@ -107,6 +108,11 @@ public class UserAcc implements Serializable {
     @OneToMany(mappedBy = "userAcc", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<GithubExternalAccountDetail> githubExternalAccountDetails = new HashSet<>();
+
+    @Override
+    public String getProfilePicUrl() {
+        return this.profilePicUrl;
+    }
 
     public Set<UserEmailAddress> getUserEmailAddresses() {
         return userEmailAddresses;
