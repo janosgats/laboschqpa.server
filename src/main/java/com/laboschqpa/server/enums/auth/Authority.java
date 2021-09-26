@@ -11,6 +11,7 @@ public enum Authority {
     ProgramEditor("ProgramEditor"),
     ObjectiveEditor("ObjectiveEditor"),
     RiddleEditor("RiddleEditor"),
+    EventEditor("EventEditor"),
     TeamScorer("TeamScorer"),
     SpeedDrinkingEditor("SpeedDrinkingEditor"),
     AcceptedEmailEditor("AcceptedEmailEditor"),

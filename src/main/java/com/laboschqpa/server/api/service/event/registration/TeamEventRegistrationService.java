@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -49,6 +50,10 @@ public class TeamEventRegistrationService {
 
     public void deleteAllRegistrationsOfTeam(Team team) {
         teamEventRegistrationRepository.deleteAllRegistrationsOfTeam(team);
+    }
+
+    public List<Team> listAllRegisteredTeams(long eventId) {
+        return teamEventRegistrationRepository.findAllRegisteredTeams(eventId);
     }
 
     private void createTeamRegistration(Team team, Event event) {

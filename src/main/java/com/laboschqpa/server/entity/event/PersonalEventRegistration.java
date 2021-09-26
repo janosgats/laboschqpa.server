@@ -19,5 +19,5 @@ import javax.persistence.*;
 public class PersonalEventRegistration extends EventRegistration {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserAcc userAcc;
+    private UserAcc user;
 }

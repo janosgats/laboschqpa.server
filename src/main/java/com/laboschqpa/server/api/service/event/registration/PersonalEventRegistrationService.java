@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class PersonalEventRegistrationService {
 
     public void register(UserAcc userAcc, long eventId) {
         final Event event = getExistingOpenPersonalEvent(eventId);
-        if (personalEventRegistrationRepository.findByUserAccAndEvent(userAcc, event).isPresent()) {
+        if (personalEventRegistrationRepository.findByUserAndEvent(userAcc, event).isPresent()) {
             throw new EventException(EventApiError.ALREADY_REGISTERED);
         }
 
@@ -42,17 +43,21 @@ public class PersonalEventRegistrationService {
         deletePersonalRegistration(userAcc, event);
     }
 
+    public List<UserAcc> listAllRegisteredUsers(long eventId) {
+        return personalEventRegistrationRepository.findAllRegisteredUsers(eventId);
+    }
+
     private void createPersonalRegistration(UserAcc userAcc, Event event) {
         PersonalEventRegistration registration = new PersonalEventRegistration();
         registration.setEvent(event);
-        registration.setUserAcc(userAcc);
+        registration.setUser(userAcc);
         registration.setCreated(Instant.now());
         personalEventRegistrationRepository.save(registration);
     }
 
     private void deletePersonalRegistration(UserAcc userAcc, Event event) {
         int deletedRowCount;
-        if ((deletedRowCount = personalEventRegistrationRepository.deleteByUserAccAndEvent_andGetDeletedRowCount(userAcc, event)) != 1) {
+        if ((deletedRowCount = personalEventRegistrationRepository.deleteByUserAndEvent_andGetDeletedRowCount(userAcc, event)) != 1) {
             throw new ContentNotFoundException("Count of deleted rows is " + deletedRowCount + "!");
         }
     }

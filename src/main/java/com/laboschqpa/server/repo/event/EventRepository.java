@@ -14,7 +14,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("select e.id as id, e.target as target, e.name as name, e.registrationDeadline as registrationDeadline, " +
             " e.registrationLimit as registrationLimit, per.id as personalEventRegistrationId " +
             " from Event e " +
-            " left join fetch PersonalEventRegistration per on e = per.event and per.userAcc.id = :userId" +
+            " left join fetch PersonalEventRegistration per on e = per.event and per.user.id = :userId" +
             " where e.target = com.laboschqpa.server.enums.event.EventTarget.PERSONAL")
     List<PersonalEventForUserJpaDto> findAllPersonalEventsForUser(@Param("userId") Long userId);
 
