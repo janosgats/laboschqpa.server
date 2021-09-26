@@ -28,16 +28,16 @@ public class ObjectiveController {
     public GetObjectiveResponse getObjective(@RequestParam(name = "id") Long objectiveId,
                                              @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
-        final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
+        final boolean showHiddenObjectives = shouldShowHiddenObjectives(authenticationPrincipal);
 
-        return new GetObjectiveResponse(objectiveService.getObjective(objectiveId, observerTeamId, showFractionObjectives), true);
+        return new GetObjectiveResponse(objectiveService.getObjective(objectiveId, observerTeamId, showHiddenObjectives), true);
     }
 
     @GetMapping("/listAll")
     public List<GetObjectiveResponse> getListAllObjectives(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
+        final boolean showHiddenObjectives = shouldShowHiddenObjectives(authenticationPrincipal);
 
-        return objectiveService.listAllObjectives(showFractionObjectives).stream()
+        return objectiveService.listAllObjectives(showHiddenObjectives).stream()
                 .map(GetObjectiveResponse::new)
                 .collect(Collectors.toList());
     }
@@ -46,14 +46,14 @@ public class ObjectiveController {
     public List<GetObjectiveResponse> getListObjectivesBelongingToProgram(@RequestParam(name = "programId") Long programId,
                                                                           @RequestParam(name = "objectiveType", required = false) ObjectiveType objectiveType,
                                                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
+        final boolean showHiddenObjectives = shouldShowHiddenObjectives(authenticationPrincipal);
         final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
 
         final List<GetObjectiveWithTeamScoreJpaDto> objectives;
         if (objectiveType != null) {
-            objectives = objectiveService.listObjectivesBelongingToProgram(programId, objectiveType, observerTeamId, showFractionObjectives);
+            objectives = objectiveService.listObjectivesBelongingToProgram(programId, objectiveType, observerTeamId, showHiddenObjectives);
         } else {
-            objectives = objectiveService.listObjectivesBelongingToProgram(programId, observerTeamId, showFractionObjectives);
+            objectives = objectiveService.listObjectivesBelongingToProgram(programId, observerTeamId, showHiddenObjectives);
         }
         return objectives.stream()
                 .map(o -> new GetObjectiveResponse(o, true))
@@ -65,9 +65,9 @@ public class ObjectiveController {
                                                          @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         request.validateSelf();
         final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
-        final boolean showFractionObjectives = shouldShowFractionObjectives(authenticationPrincipal);
+        final boolean showHiddenObjectives = shouldShowHiddenObjectives(authenticationPrincipal);
 
-        return objectiveService.listForDisplay(request.getObjectiveTypes(), observerTeamId, showFractionObjectives).stream()
+        return objectiveService.listForDisplay(request.getObjectiveTypes(), observerTeamId, showHiddenObjectives).stream()
                 .map(o -> new GetObjectiveResponse(o, true))
                 .collect(Collectors.toList());
     }
@@ -103,7 +103,7 @@ public class ObjectiveController {
         return null;
     }
 
-    private boolean shouldShowFractionObjectives(CustomOauth2User authenticationPrincipal) {
+    private boolean shouldShowHiddenObjectives(CustomOauth2User authenticationPrincipal) {
         return new PrincipalAuthorizationHelper(authenticationPrincipal).hasAnySufficientAuthority(Authority.ObjectiveEditor, Authority.TeamScorer);
     }
 }

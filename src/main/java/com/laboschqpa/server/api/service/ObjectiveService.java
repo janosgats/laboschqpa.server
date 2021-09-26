@@ -33,8 +33,8 @@ public class ObjectiveService {
     private final AttachmentHelper attachmentHelper;
     private final ProgramService programService;
 
-    public GetObjectiveWithTeamScoreJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId, boolean showFractionObjectives) {
-        Optional<Objective> objectiveOptional = objectiveRepository.findByIdWithEagerAttachments(objectiveId, showFractionObjectives);
+    public GetObjectiveWithTeamScoreJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+        Optional<Objective> objectiveOptional = objectiveRepository.findByIdWithEagerAttachments(objectiveId, showHiddenObjectives);
 
         if (objectiveOptional.isEmpty())
             throw new ContentNotFoundException("Cannot find Objective with Id: " + objectiveId);
@@ -111,25 +111,25 @@ public class ObjectiveService {
         log.info("Objective {} deleted by user {}.", objectiveId, deleterUserAcc.getId());
     }
 
-    public List<Objective> listAllObjectives(boolean showFractionObjectives) {
-        return objectiveRepository.findAll(showFractionObjectives);
+    public List<Objective> listAllObjectives(boolean showHiddenObjectives) {
+        return objectiveRepository.findAll(showHiddenObjectives);
     }
 
     public List<GetObjectiveWithTeamScoreJpaDto> listObjectivesBelongingToProgram(long programId,
-                                                                                  @Nullable Long observerTeamId, boolean showFractionObjectives) {
-        List<Objective> objectives = objectiveRepository.findAllByProgramIdWithEagerAttachments(programId, showFractionObjectives);
+                                                                                  @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+        List<Objective> objectives = objectiveRepository.findAllByProgramIdWithEagerAttachments(programId, showHiddenObjectives);
         return augmentObjectivesWithTeamScore(objectives, observerTeamId);
     }
 
     public List<GetObjectiveWithTeamScoreJpaDto> listObjectivesBelongingToProgram(long programId, ObjectiveType objectiveType,
-                                                                                  @Nullable Long observerTeamId, boolean showFractionObjectives) {
-        List<Objective> objectives = objectiveRepository.findAllByProgramIdAndObjectiveTypeWithEagerAttachments(programId, objectiveType, showFractionObjectives);
+                                                                                  @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+        List<Objective> objectives = objectiveRepository.findAllByProgramIdAndObjectiveTypeWithEagerAttachments(programId, objectiveType, showHiddenObjectives);
         return augmentObjectivesWithTeamScore(objectives, observerTeamId);
     }
 
     public List<GetObjectiveWithTeamScoreJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
-                                                                boolean showFractionObjectives) {
-        List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes, showFractionObjectives);
+                                                                boolean showHiddenObjectives) {
+        List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes, showHiddenObjectives);
         return augmentObjectivesWithTeamScore(objectives, observerTeamId);
     }
 

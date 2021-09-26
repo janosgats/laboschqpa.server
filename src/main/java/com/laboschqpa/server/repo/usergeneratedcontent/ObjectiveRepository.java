@@ -18,28 +18,28 @@ public interface ObjectiveRepository extends JpaRepository<Objective, Long> {
     int deleteByIdAndGetDeletedRowCount(Long id);
 
 
-    @Query("select o from Objective o where (:showFractionObjectives = true or o.isHidden = false)")
-    List<Objective> findAll(Boolean showFractionObjectives);
+    @Query("select o from Objective o where (:showHiddenObjectives = true or o.isHidden = false)")
+    List<Objective> findAll(Boolean showHiddenObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
-    @Query("select o from Objective o where o.id = :id and (:showFractionObjectives = true  or o.isHidden = false)")
-    Optional<Objective> findByIdWithEagerAttachments(Long id, Boolean showFractionObjectives);
+    @Query("select o from Objective o where o.id = :id and (:showHiddenObjectives = true  or o.isHidden = false)")
+    Optional<Objective> findByIdWithEagerAttachments(Long id, Boolean showHiddenObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
     @Query("select o from Objective o " +
-            " where o.objectiveType in :objectiveTypes and (:showFractionObjectives = true  or o.isHidden = false) " +
+            " where o.objectiveType in :objectiveTypes and (:showHiddenObjectives = true  or o.isHidden = false) " +
             " order by o.creationTime desc")
     List<Objective> findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(@Param("objectiveTypes") Collection<ObjectiveType> objectiveTypes,
-                                                                                        Boolean showFractionObjectives);
+                                                                                        Boolean showHiddenObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
-    @Query("select o from Objective o where o.program.id = :programId and (:showFractionObjectives = true  or o.isHidden = false)")
-    List<Objective> findAllByProgramIdWithEagerAttachments(Long programId, Boolean showFractionObjectives);
+    @Query("select o from Objective o where o.program.id = :programId and (:showHiddenObjectives = true  or o.isHidden = false)")
+    List<Objective> findAllByProgramIdWithEagerAttachments(Long programId, Boolean showHiddenObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
     @Query("select o from Objective o" +
             " where o.program.id = :programId" +
             "    and o.objectiveType = :objectiveType" +
-            "    and (:showFractionObjectives = true  or o.isHidden = false)")
-    List<Objective> findAllByProgramIdAndObjectiveTypeWithEagerAttachments(Long programId, ObjectiveType objectiveType, Boolean showFractionObjectives);
+            "    and (:showHiddenObjectives = true  or o.isHidden = false)")
+    List<Objective> findAllByProgramIdAndObjectiveTypeWithEagerAttachments(Long programId, ObjectiveType objectiveType, Boolean showHiddenObjectives);
 }
