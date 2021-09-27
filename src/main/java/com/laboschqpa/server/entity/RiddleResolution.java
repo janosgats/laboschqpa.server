@@ -12,7 +12,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "riddle_resolution",
         indexes = {
-                @Index(columnList = "riddle_id, solving_timestamp", name = "riddle_id__solving_timestamp"),
+                @Index(columnList = "riddle_id, solving_time", name = "riddle_id__solving_time"),
                 @Index(columnList = "team_id, status, riddle_id", name = "team_id__status__riddle_id"),
         },
         uniqueConstraints = {
@@ -40,6 +40,6 @@ public class RiddleResolution {
     @Column(name = "hint_used", nullable = false)
     private Boolean hintUsed;
 
-    @Column(name = "solving_timestamp", columnDefinition = "datetime")
-    private Instant solvingTimestamp;
+    @Column(name = "solving_time", columnDefinition = "datetime")
+    private Instant solvingTime;
 }

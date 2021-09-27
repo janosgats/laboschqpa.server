@@ -27,7 +27,7 @@ public class GetAccessibleRiddleResponse {
 
     private Long firstSolvingTeamId;
     private String firstSolvingTeamName;
-    private Instant firstSolvingTimestamp;
+    private Instant firstSolvingTime;
 
     public GetAccessibleRiddleResponse(GetAccessibleRiddleJpaDto getAccessibleRiddleJpaDto, boolean includeHint, boolean includeSolution) {
         this.id = getAccessibleRiddleJpaDto.getId();

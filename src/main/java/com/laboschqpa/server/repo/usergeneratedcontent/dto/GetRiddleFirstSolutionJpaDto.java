@@ -8,12 +8,12 @@ public interface GetRiddleFirstSolutionJpaDto {
 
     String getTeamName();
 
-    Timestamp getSolvingTimestamp();
+    Timestamp getSolvingTime();
 
-    default Instant getSolvingTimestampAsInstant() {
-        if (getSolvingTimestamp() == null) {
+    default Instant getSolvingTimeAsInstant() {
+        if (getSolvingTime() == null) {
             return null;
         }
-        return getSolvingTimestamp().toInstant();
+        return getSolvingTime().toInstant();
     }
 }

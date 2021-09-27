@@ -13,13 +13,13 @@ public interface RiddleResolutionRepository extends JpaRepository<RiddleResoluti
     Optional<RiddleResolution> findByRiddleIdAndTeamId(Long riddleId, Long teamId);
 
     @Query(value = "" +
-            "select t.id as teamId, t.name as teamName, resol.solving_timestamp as solvingTimestamp\n" +
+            "select t.id as teamId, t.name as teamName, resol.solving_time as solvingTime\n" +
             "from riddle_resolution resol\n" +
             "         join team t on resol.team_id = t.id\n" +
             "where " +
             "resol.riddle_id = :riddleId\n" +
             "  and resol.status = " + RiddleResolutionStatusValues.SOLVED + "\n" +
-            "order by resol.solving_timestamp ASC\n" +
+            "order by resol.solving_time ASC\n" +
             "LIMIT 1",
             nativeQuery = true)
     Optional<GetRiddleFirstSolutionJpaDto> findFirstSolutionOfRiddle(@Param("riddleId") Long riddleId);

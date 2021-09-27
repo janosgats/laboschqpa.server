@@ -52,7 +52,7 @@ public class RiddleService {
         if (riddleFirstSolutionOptional.isPresent()) {
             getAccessibleRiddleResponse.setFirstSolvingTeamId(riddleFirstSolutionOptional.get().getTeamId());
             getAccessibleRiddleResponse.setFirstSolvingTeamName(riddleFirstSolutionOptional.get().getTeamName());
-            getAccessibleRiddleResponse.setFirstSolvingTimestamp(riddleFirstSolutionOptional.get().getSolvingTimestampAsInstant());
+            getAccessibleRiddleResponse.setFirstSolvingTime(riddleFirstSolutionOptional.get().getSolvingTimeAsInstant());
         }
 
         return getAccessibleRiddleResponse;
@@ -96,7 +96,7 @@ public class RiddleService {
                 if (!wasAlreadySolved) {
                     //Updating the existing resolution
                     existingResolutionOptional.get().setStatus(RiddleResolutionStatus.SOLVED);
-                    existingResolutionOptional.get().setSolvingTimestamp(Instant.now());
+                    existingResolutionOptional.get().setSolvingTime(Instant.now());
                     riddleResolutionRepository.save(existingResolutionOptional.get());
                 }
             } else {
@@ -107,7 +107,7 @@ public class RiddleService {
                 riddleResolution.setRiddle(riddle);
                 riddleResolution.setTeam(new Team(teamId));
                 riddleResolution.setStatus(RiddleResolutionStatus.SOLVED);
-                riddleResolution.setSolvingTimestamp(Instant.now());
+                riddleResolution.setSolvingTime(Instant.now());
                 riddleResolution.setHintUsed(false);
 
                 riddleResolutionRepository.save(riddleResolution);
