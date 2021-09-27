@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +17,14 @@ public interface SpeedDrinkingRepository extends JpaRepository<SpeedDrinking, Lo
     @Query("select sd from SpeedDrinking sd " +
             " where sd.category = :category " +
             " order by sd.time asc")
-    List<SpeedDrinking> findByCategory_withDrinkerUserAccAndTeam_orderByTimeAsc(@Param("category") SpeedDrinkingCategory category);
+    List<SpeedDrinking> findByCategory_withDrinkerUserAccAndTeam_orderByTimeAsc(SpeedDrinkingCategory category);
+
+    @EntityGraph(attributePaths = {"drinkerUserAcc", "drinkerUserAcc.team"})
+    @Query("select sd from SpeedDrinking sd " +
+            " where sd.category = :category " +
+            "     and sd.drinkerUserAcc.team.id = :teamId " +
+            " order by sd.time asc")
+    List<SpeedDrinking> findByCategoryAndTeam_withDrinkerUserAccAndTeam_orderByTimeAsc(SpeedDrinkingCategory category, Long teamId);
 
     @Modifying
     @Query("delete from SpeedDrinking where id = :id")

@@ -78,7 +78,10 @@ public class SpeedDrinkingService {
     }
 
     public List<SpeedDrinking> listWithDrinkerUserAccAndTeam(DisplayListSpeedDrinkingRequest request) {
-        return speedDrinkingRepository.findByCategory_withDrinkerUserAccAndTeam_orderByTimeAsc(request.getCategory());
+        if(request.getTeamId() == null) {
+            return speedDrinkingRepository.findByCategory_withDrinkerUserAccAndTeam_orderByTimeAsc(request.getCategory());
+        }
+        return speedDrinkingRepository.findByCategoryAndTeam_withDrinkerUserAccAndTeam_orderByTimeAsc(request.getCategory(), request.getTeamId());
     }
 
     public SpeedDrinking getExistingSpeedDrinking(Long id, boolean withUserAccAndTeam) {
