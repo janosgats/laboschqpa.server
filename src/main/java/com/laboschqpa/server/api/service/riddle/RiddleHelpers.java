@@ -10,7 +10,7 @@ public class RiddleHelpers {
 
     static {
         stringReplacementMap.put("á", "a");
-        stringReplacementMap.put("é", "é");
+        stringReplacementMap.put("é", "e");
         stringReplacementMap.put("í", "i");
         stringReplacementMap.put("ú", "u");
         stringReplacementMap.put("ü", "u");
