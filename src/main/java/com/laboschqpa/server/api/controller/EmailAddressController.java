@@ -3,7 +3,9 @@ package com.laboschqpa.server.api.controller;
 import com.laboschqpa.server.api.dto.emailaddress.UserEmailAddressResponse;
 import com.laboschqpa.server.api.service.EmailAddressService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
+import com.laboschqpa.server.repo.EmailVerificationRequestRepository;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
+import com.laboschqpa.server.service.mailing.QpaEmailDispatcher;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 @Validated
 public class EmailAddressController {
     private final UserEmailAddressRepository userEmailAddressRepository;
+    private final EmailVerificationRequestRepository emailVerificationRequestRepository;
+    private final QpaEmailDispatcher qpaEmailDispatcher;
     private final EmailAddressService emailAddressService;
 
     @GetMapping("/listOwnAddresses")
@@ -55,5 +59,17 @@ public class EmailAddressController {
         return userEmailAddressRepository.findAllByUserAccId(userId).stream()
                 .map(UserEmailAddressResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/resendVerificationRequests")
+    public void postResendVerificationRequests(@RequestBody List<Long> ids,
+                                               @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
+
+        emailVerificationRequestRepository.findAllByIdIn(ids)
+                .forEach(request -> {
+                    qpaEmailDispatcher.sendSyncEmailVerificationRequestMail(request.getEmail(), request.getId(), request.getVerificationKey());
+                    log.info("Resent EmailVerificationRequest: id: {}", request.getId());
+                });
     }
 }
