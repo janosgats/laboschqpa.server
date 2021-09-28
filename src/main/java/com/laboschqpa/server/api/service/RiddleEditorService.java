@@ -7,6 +7,8 @@ import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
 import com.laboschqpa.server.enums.apierrordescriptor.RiddleApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.exceptions.apierrordescriptor.RiddleException;
+import com.laboschqpa.server.repo.RiddleResolutionRepository;
+import com.laboschqpa.server.repo.event.dto.RiddleTeamProgressJpaDto;
 import com.laboschqpa.server.repo.usergeneratedcontent.RiddleRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.Optional;
 @Service
 public class RiddleEditorService {
     private final RiddleRepository riddleRepository;
+    private final RiddleResolutionRepository riddleResolutionRepository;
     private final AttachmentHelper attachmentHelper;
 
     public Riddle getRiddle(Long riddleId) {
@@ -88,5 +91,9 @@ public class RiddleEditorService {
 
     public List<Riddle> listAllRiddles() {
         return riddleRepository.findAll();
+    }
+
+    public List<RiddleTeamProgressJpaDto> listProgressOfTeams() {
+        return riddleResolutionRepository.listProgressOfTeams();
     }
 }

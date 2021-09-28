@@ -4,6 +4,7 @@ import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleRequest;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleRequest;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.GetRiddleResponse;
+import com.laboschqpa.server.api.dto.ugc.riddleeditor.RiddleTeamProgressResponse;
 import com.laboschqpa.server.api.service.RiddleEditorService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
@@ -33,6 +34,15 @@ public class RiddleEditorController {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.RiddleEditor);
         return riddleEditorService.listAllRiddles().stream()
                 .map((riddle -> new GetRiddleResponse(riddle, true, true, false)))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/listProgressOfTeams")
+    public List<RiddleTeamProgressResponse> getListProgressOfTeams(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.RiddleEditor);
+
+        return riddleEditorService.listProgressOfTeams().stream()
+                .map(RiddleTeamProgressResponse::new)
                 .collect(Collectors.toList());
     }
 

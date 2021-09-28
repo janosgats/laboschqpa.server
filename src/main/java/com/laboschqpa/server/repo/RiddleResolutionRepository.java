@@ -2,11 +2,13 @@ package com.laboschqpa.server.repo;
 
 import com.laboschqpa.server.entity.RiddleResolution;
 import com.laboschqpa.server.enums.riddle.RiddleResolutionStatusValues;
+import com.laboschqpa.server.repo.event.dto.RiddleTeamProgressJpaDto;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetRiddleFirstSolutionJpaDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RiddleResolutionRepository extends JpaRepository<RiddleResolution, Long> {
@@ -23,4 +25,11 @@ public interface RiddleResolutionRepository extends JpaRepository<RiddleResoluti
             "LIMIT 1",
             nativeQuery = true)
     Optional<GetRiddleFirstSolutionJpaDto> findFirstSolutionOfRiddle(@Param("riddleId") Long riddleId);
+
+    @Query("select res.team.id as teamId, res.team.name as teamName, count(res) as solvedRiddleCount " +
+            " from RiddleResolution res " +
+            " where res.status = com.laboschqpa.server.enums.riddle.RiddleResolutionStatus.SOLVED " +
+            " group by res.team " +
+            " order by solvedRiddleCount DESC ")
+    List<RiddleTeamProgressJpaDto> listProgressOfTeams();
 }
