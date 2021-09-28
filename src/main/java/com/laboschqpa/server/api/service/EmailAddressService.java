@@ -6,6 +6,7 @@ import com.laboschqpa.server.enums.EmailVerificationPhase;
 import com.laboschqpa.server.enums.apierrordescriptor.EmailAddressApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.exceptions.apierrordescriptor.EmailAddressException;
+import com.laboschqpa.server.repo.AcceptedEmailRepository;
 import com.laboschqpa.server.repo.EmailVerificationRequestRepository;
 import com.laboschqpa.server.repo.UserEmailAddressRepository;
 import com.laboschqpa.server.service.mailing.QpaEmailDispatcher;
@@ -26,6 +27,7 @@ public class EmailAddressService {
     private final EmailVerificationRequestRepository emailVerificationRequestRepository;
     private final UserEmailAddressRepository userEmailAddressRepository;
     private final QpaEmailDispatcher qpaEmailDispatcher;
+    private final AcceptedEmailRepository acceptedEmailRepository;
 
     public void onSubmitNewEmail(UserAcc userAcc, String emailToRegister) {
         if (userEmailAddressRepository.findByEmail(emailToRegister).isPresent()) {
@@ -53,11 +55,12 @@ public class EmailAddressService {
     }
 
     @Transactional
-    public void deleteDeleteOwnEmailAddress(long idToDelete, long loggedInUserId) {
+    public void deleteOwnEmailAddress(long idToDelete, long loggedInUserId) {
         int deletedRowCount;
         if ((deletedRowCount = userEmailAddressRepository.deleteByIdAndAndUserIdAndGetDeletedRowCount(idToDelete, loggedInUserId)) != 1) {
             throw new ContentNotFoundException("Count of deleted rows is " + deletedRowCount + "! The address may not be owned by you.");
         }
+        acceptedEmailRepository.recalculateByUserId(loggedInUserId);
         log.info("UserEmailAddress {} deleted by user {}.", idToDelete, loggedInUserId);
     }
 }

@@ -40,7 +40,7 @@ public class EmailMessageFactory {
     @RequiredArgsConstructor
     public class WithJavaMailSender {
         private static final String FROM_ADDRESS_PERSONAL = "Schönherz Qpa";
-        private static final String FROM_ADDRESS_EMAIL = "schociqpa@gmail.com";
+        private static final String FROM_ADDRESS_EMAIL = "qpa2021@sch.bme.hu";
         private static final String REPLY_TO_ADDRESS_PERSONAL = "Lábosch";
         private static final String REPLY_TO_ADDRESS_EMAIL = "labosch@sch.bme.hu";
 

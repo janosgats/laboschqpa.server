@@ -38,7 +38,7 @@ public class EmailAddressController {
     public void deleteDeleteOwnEmailAddress(@RequestParam("id") Long idToDelete,
                                             @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         final long loggedInUserId = authenticationPrincipal.getUserId();
-        emailAddressService.deleteDeleteOwnEmailAddress(idToDelete, loggedInUserId);
+        emailAddressService.deleteOwnEmailAddress(idToDelete, loggedInUserId);
     }
 
     @PostMapping("/submitNewAddress")
