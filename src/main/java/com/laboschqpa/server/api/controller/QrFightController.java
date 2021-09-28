@@ -44,7 +44,7 @@ public class QrFightController {
     public void postSubmit(@RequestParam("tagId") Long tagId,
                            @RequestParam("secret") String secret,
                            @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        final UserAcc userAcc = Helpers.getUserAcc(authenticationPrincipal);
+        final UserAcc userAcc = ControllerHelpers.getUserAcc(authenticationPrincipal);
         qrFightService.submitQrTag(userAcc, tagId, secret);
     }
 }

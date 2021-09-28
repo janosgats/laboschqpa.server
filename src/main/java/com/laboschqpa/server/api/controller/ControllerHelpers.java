@@ -5,7 +5,7 @@ import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamMembershipApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.TeamMembershipException;
 
-class Helpers {
+public class ControllerHelpers {
 
     public static Long getUserId(CustomOauth2User authenticationPrincipal) {
         return getUserAcc(authenticationPrincipal).getId();

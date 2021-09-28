@@ -1,5 +1,6 @@
 package com.laboschqpa.server.api.controller.admin;
 
+import com.laboschqpa.server.api.controller.ControllerHelpers;
 import com.laboschqpa.server.api.service.admin.AuthorityAdminService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.enums.auth.Authority;
@@ -29,7 +30,9 @@ public class AuthorityAdminController {
                                      @RequestParam("authority") String authorityStringValue,
                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
-        authorityAdminService.addUserAuthority(userAccId, Authority.fromStringValue(authorityStringValue));
+        long loggedInUserId = ControllerHelpers.getUserId(authenticationPrincipal);
+
+        authorityAdminService.addUserAuthority(userAccId, Authority.fromStringValue(authorityStringValue), loggedInUserId);
     }
 
     @DeleteMapping("user/delete")
@@ -37,6 +40,8 @@ public class AuthorityAdminController {
                                     @RequestParam("authority") String authorityStringValue,
                                     @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAdminAuthority();
-        authorityAdminService.deleteUserAuthority(userAccId, Authority.fromStringValue(authorityStringValue));
+        long loggedInUserId = ControllerHelpers.getUserId(authenticationPrincipal);
+
+        authorityAdminService.deleteUserAuthority(userAccId, Authority.fromStringValue(authorityStringValue), loggedInUserId);
     }
 }

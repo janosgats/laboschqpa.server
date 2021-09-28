@@ -31,7 +31,7 @@ public class EventController {
 
     @GetMapping("/listPersonalEventsForUser")
     public List<GetPersonalEventForUserResponse> getListPersonalEventsForUser(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        long userId = Helpers.getUserId(authenticationPrincipal);
+        long userId = ControllerHelpers.getUserId(authenticationPrincipal);
 
         return eventService.listPersonalEventsFor(userId).stream()
                 .map(GetPersonalEventForUserResponse::new)
@@ -40,7 +40,7 @@ public class EventController {
 
     @GetMapping("/listTeamEventsForUser")
     public List<GetTeamEventForUserResponse> getListTeamEventsForUser(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        long teamId = Helpers.getTeamId(authenticationPrincipal);
+        long teamId = ControllerHelpers.getTeamId(authenticationPrincipal);
 
         return eventService.listTeamEventsFor(teamId).stream()
                 .map(GetTeamEventForUserResponse::new)
@@ -72,22 +72,22 @@ public class EventController {
     @PostMapping("/registration/personal/register")
     public void postRegisterPersonal(@RequestParam("eventId") Long eventId,
                                      @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        final UserAcc userAcc = Helpers.getUserAcc(authenticationPrincipal);
+        final UserAcc userAcc = ControllerHelpers.getUserAcc(authenticationPrincipal);
         personalEventRegistrationService.register(userAcc, eventId);
     }
 
     @PostMapping("/registration/personal/deRegister")
     public void postDeRegisterPersonal(@RequestParam("eventId") Long eventId,
                                        @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        final UserAcc userAcc = Helpers.getUserAcc(authenticationPrincipal);
+        final UserAcc userAcc = ControllerHelpers.getUserAcc(authenticationPrincipal);
         personalEventRegistrationService.deRegister(userAcc, eventId);
     }
 
     @PostMapping("/registration/team/register")
     public void postRegisterTeam(@RequestParam("eventId") Long eventId,
                                  @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        final long teamId = Helpers.getTeamId(authenticationPrincipal);
-        if (Helpers.getUserAcc(authenticationPrincipal).getTeamRole() != TeamRole.LEADER) {
+        final long teamId = ControllerHelpers.getTeamId(authenticationPrincipal);
+        if (ControllerHelpers.getUserAcc(authenticationPrincipal).getTeamRole() != TeamRole.LEADER) {
             throw new EventException(EventApiError.ONLY_LEADERS_CAN_MANAGE_TEAM_EVENT_REGISTRATIONS);
         }
         teamEventRegistrationService.register(teamId, eventId);
@@ -96,8 +96,8 @@ public class EventController {
     @PostMapping("/registration/team/deRegister")
     public void postDeRegisterTeam(@RequestParam("eventId") Long eventId,
                                    @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        final long teamId = Helpers.getTeamId(authenticationPrincipal);
-        if (Helpers.getUserAcc(authenticationPrincipal).getTeamRole() != TeamRole.LEADER) {
+        final long teamId = ControllerHelpers.getTeamId(authenticationPrincipal);
+        if (ControllerHelpers.getUserAcc(authenticationPrincipal).getTeamRole() != TeamRole.LEADER) {
             throw new EventException(EventApiError.ONLY_LEADERS_CAN_MANAGE_TEAM_EVENT_REGISTRATIONS);
         }
         teamEventRegistrationService.deRegister(teamId, eventId);

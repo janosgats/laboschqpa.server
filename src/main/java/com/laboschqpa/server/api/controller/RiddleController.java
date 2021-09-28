@@ -25,7 +25,7 @@ public class RiddleController {
 
     @GetMapping("/listAccessibleRiddles")
     public List<GetAccessibleRiddleResponse> listAccessibleRiddles(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        Long teamId = Helpers.getTeamId(authenticationPrincipal);
+        Long teamId = ControllerHelpers.getTeamId(authenticationPrincipal);
         return riddleService.listAccessibleRiddleJpaDtos(teamId).stream()
                 .map((visibleRiddleJpaDto
                         -> new GetAccessibleRiddleResponse(visibleRiddleJpaDto, visibleRiddleJpaDto.getWasHintUsed(), visibleRiddleJpaDto.getIsAlreadySolved())
@@ -35,14 +35,14 @@ public class RiddleController {
     @GetMapping("/riddle")
     public GetAccessibleRiddleResponse getOneRiddleToShow(@RequestParam("id") Long riddleIdToShow,
                                                           @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        Long teamId = Helpers.getTeamId(authenticationPrincipal);
+        Long teamId = ControllerHelpers.getTeamId(authenticationPrincipal);
         return riddleService.getOneRiddleToShow(teamId, riddleIdToShow);
     }
 
     @PostMapping("/useHint")
     public String postUseHint(@RequestParam("id") Long riddleIdToUseHintOf,
                               @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        Long teamId = Helpers.getTeamId(authenticationPrincipal);
+        Long teamId = ControllerHelpers.getTeamId(authenticationPrincipal);
         return riddleService.useHint(teamId, riddleIdToUseHintOf);
     }
 
@@ -50,7 +50,7 @@ public class RiddleController {
     public RiddleSubmitSolutionResponse postSubmitSolution(@RequestParam("id") Long riddleIdToSubmitSolutionTo,
                                                            @RequestParam("solution") String givenSolution,
                                                            @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
-        Long teamId = Helpers.getTeamId(authenticationPrincipal);
+        Long teamId = ControllerHelpers.getTeamId(authenticationPrincipal);
 
         manageSubmissionRateLimiting(teamId, authenticationPrincipal.getUserAccEntity());
         return riddleService.submitSolution(teamId, riddleIdToSubmitSolutionTo, givenSolution);
