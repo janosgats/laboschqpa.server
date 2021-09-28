@@ -37,12 +37,12 @@ public class QrFightService {
         return qrTagRepository.findAll_withSubmissionCount();
     }
 
-    public List<QrFightAreaWithTeamSubmissionCountJpaDto> listAreasWithTeamSubmissionCount() {
-        return qrTagRepository.finAllAreasWithTeamSubmissionCount();
+    public List<QrFightAreaWithTeamSubmissionCountJpaDto> listEnabledAreasWithTeamSubmissionCount() {
+        return qrFightAreaRepository.findEnabledAreasWithTeamSubmissionCount();
     }
 
-    public List<QrFightArea> listAllAreas() {
-        return qrFightAreaRepository.findAllByOrderByIdAsc();
+    public List<QrFightArea> listEnabledAreas() {
+        return qrFightAreaRepository.findAllByEnabledIsTrueOrderByIdAsc();
     }
 
     public void submitQrTag(UserAcc userAcc, long tagId, String submittedSecret) {
@@ -52,7 +52,11 @@ public class QrFightService {
         final Team team = userAcc.getTeam();
         manageSubmissionRateLimiting(team, userAcc);
 
-        final QrTag qrTag = getExistingQrTag(tagId);
+        final QrTag qrTag = getExistingQrTagWithEagerArea(tagId);
+
+        if (!qrTag.getArea().getEnabled()) {
+            throw new QrFightException(QrFightApiError.FIGHT_AREA_IS_NOT_ENABLED);
+        }
 
         if (!Objects.equals(qrTag.getSecret(), submittedSecret)) {
             throw new QrFightException(QrFightApiError.TAG_SECRET_MISMATCH);
@@ -82,8 +86,8 @@ public class QrFightService {
         qrTagSubmissionRepository.save(newSubmission);
     }
 
-    private QrTag getExistingQrTag(long id) {
-        return qrTagRepository.findById(id)
+    private QrTag getExistingQrTagWithEagerArea(long id) {
+        return qrTagRepository.findById_withEagerArea(id)
                 .orElseThrow(() -> new QrFightException(QrFightApiError.TAG_DOES_NOT_EXIST));
     }
 }

@@ -23,4 +23,7 @@ public class QrFightArea {
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "enabled", nullable = false)
+    private Boolean enabled;
 }

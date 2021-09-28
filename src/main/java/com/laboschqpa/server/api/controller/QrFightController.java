@@ -28,14 +28,14 @@ public class QrFightController {
 
     @GetMapping("/fightStats")
     public List<QrFightStatResponse> getListAreasWithTeamSubmissionCount() {
-        return qrFightService.listAreasWithTeamSubmissionCount().stream()
+        return qrFightService.listEnabledAreasWithTeamSubmissionCount().stream()
                 .map(QrFightStatResponse::new)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/listAllAreas")
-    public List<QrFightAreaResponse> getListAllAreas() {
-        return qrFightService.listAllAreas().stream()
+    @GetMapping("/listEnabledAreas")
+    public List<QrFightAreaResponse> getListEnabledAreas() {
+        return qrFightService.listEnabledAreas().stream()
                 .map(QrFightAreaResponse::new)
                 .collect(Collectors.toList());
     }
