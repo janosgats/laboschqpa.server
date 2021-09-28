@@ -78,7 +78,7 @@ public class UserAccResolverService {
             loginAuthenticationHelper.assertUserAccIsEnabled(resolvedUserAccEntity);
         }
 
-        log.info("User Account Resolved. Digest: userId: {}, accountResolutionSource: {}",
+        log.trace("User Account Resolved. Digest: userId: {}, accountResolutionSource: {}",
                 resolvedUserAccEntity != null ? resolvedUserAccEntity.getId() : "null", accountResolutionSource);
 
         return new UserAccResolutionResult(accountResolutionSource, resolvedUserAccEntity);
