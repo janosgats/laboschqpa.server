@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.AuthenticationMethod;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -33,9 +36,33 @@ public class OAuth2ProviderRegistrationFactory {
                         .clientId(clientId)
                         .clientSecret(clientSecret)
                         .build();
+            case AuthSch:
+                return getCommonAuthSchClientRegistrationBuilder()
+                        .clientId(clientId)
+                        .clientSecret(clientSecret)
+                        .build();
+
             default:
                 throw new ConfigException("Unimplemented OAuth2 providerRegistration: " + providerRegistration);
         }
+    }
+
+    private ClientRegistration.Builder getCommonAuthSchClientRegistrationBuilder() {
+        final String providerRegKey = OAuth2ProviderRegistration.AuthSch.getProviderRegistrationKey();
+
+        final ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(providerRegKey);
+        builder
+                .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("http://localhost:8080/login/oauth2/code/" + providerRegKey)
+                .scope("basic", "sn", "givenName", "mail", "linkedAccounts")
+                .authorizationUri("https://auth.sch.bme.hu/site/login")
+                .tokenUri("https://auth.sch.bme.hu/oauth2/token")
+                .userInfoUri("https://auth.sch.bme.hu/api/profile")
+                .userInfoAuthenticationMethod(AuthenticationMethod.QUERY)
+                .clientName("AuthSch");
+
+        return builder;
     }
 
     private String getClientId(OAuth2ProviderRegistration provider) {

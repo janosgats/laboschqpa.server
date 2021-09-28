@@ -6,7 +6,8 @@ import java.util.Optional;
 public enum OAuth2ProviderRegistration {
     Google("google"),
     GitHub("github"),
-    Facebook("facebook");
+    Facebook("facebook"),
+    AuthSch("authsch");
 
     private String providerRegistrationKey;
 

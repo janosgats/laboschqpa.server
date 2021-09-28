@@ -158,6 +158,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         List<ClientRegistration> registrations = new ArrayList<>();
         registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistration.Google));
         registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistration.GitHub));
+        registrations.add(oAuth2ProviderRegistrationFactory.createProviderRegistration(OAuth2ProviderRegistration.AuthSch));
 
         return new InMemoryClientRegistrationRepository(registrations);
     }
