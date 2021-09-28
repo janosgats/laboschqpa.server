@@ -2,7 +2,6 @@ package com.laboschqpa.server.api.service;
 
 import com.laboschqpa.server.api.dto.ugc.objective.CreateNewObjectiveRequest;
 import com.laboschqpa.server.api.dto.ugc.objective.EditObjectiveRequest;
-import com.laboschqpa.server.entity.ObjectiveAcceptance;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Objective;
 import com.laboschqpa.server.entity.usergeneratedcontent.Program;
@@ -10,11 +9,10 @@ import com.laboschqpa.server.enums.ugc.ObjectiveType;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.repo.ObjectiveAcceptanceRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.ObjectiveRepository;
-import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithAcceptanceJpaDto;
-import com.laboschqpa.server.repo.usergeneratedcontent.dto.ObjectiveWithAcceptanceDtoAdapter;
+import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetObjectiveWithObserverTeamDataJpaDto;
+import com.laboschqpa.server.repo.usergeneratedcontent.dto.ObjectiveWithObserverTeamDataDtoAdapter;
 import com.laboschqpa.server.util.AttachmentHelper;
 import com.laboschqpa.server.util.CollectionHelpers;
-import com.laboschqpa.server.util.MappingHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -33,11 +31,11 @@ public class ObjectiveService {
     private final AttachmentHelper attachmentHelper;
     private final ProgramService programService;
 
-    public GetObjectiveWithAcceptanceJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+    public GetObjectiveWithObserverTeamDataJpaDto getObjective(long objectiveId, @Nullable Long observerTeamId, boolean showHiddenObjectives) {
         Objective objective = objectiveRepository.findByIdWithEagerAttachments(objectiveId, showHiddenObjectives)
                 .orElseThrow(() -> new ContentNotFoundException("Cannot find Objective with Id: " + objectiveId));
 
-        return augmentObjectivesWithTeamAcceptance(List.of(objective), observerTeamId).get(0);
+        return augmentObjectivesWithObserverTeamData(List.of(objective), observerTeamId).get(0);
     }
 
     public Objective createNewObjective(CreateNewObjectiveRequest request, UserAcc creatorUserAcc) {
@@ -101,43 +99,53 @@ public class ObjectiveService {
         return objectiveRepository.findAll(showHiddenObjectives);
     }
 
-    public List<GetObjectiveWithAcceptanceJpaDto> listObjectivesBelongingToProgram(long programId,
-                                                                                   @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+    public List<GetObjectiveWithObserverTeamDataJpaDto> listObjectivesBelongingToProgram(long programId,
+                                                                                         @Nullable Long observerTeamId, boolean showHiddenObjectives) {
         List<Objective> objectives = objectiveRepository.findAllByProgramIdWithEagerAttachments(programId, showHiddenObjectives);
-        return augmentObjectivesWithTeamAcceptance(objectives, observerTeamId);
+        return augmentObjectivesWithObserverTeamData(objectives, observerTeamId);
     }
 
-    public List<GetObjectiveWithAcceptanceJpaDto> listObjectivesBelongingToProgram(long programId, ObjectiveType objectiveType,
-                                                                                   @Nullable Long observerTeamId, boolean showHiddenObjectives) {
+    public List<GetObjectiveWithObserverTeamDataJpaDto> listObjectivesBelongingToProgram(long programId, ObjectiveType objectiveType,
+                                                                                         @Nullable Long observerTeamId, boolean showHiddenObjectives) {
         List<Objective> objectives = objectiveRepository.findAllByProgramIdAndObjectiveTypeWithEagerAttachments(programId, objectiveType, showHiddenObjectives);
-        return augmentObjectivesWithTeamAcceptance(objectives, observerTeamId);
+        return augmentObjectivesWithObserverTeamData(objectives, observerTeamId);
     }
 
-    public List<GetObjectiveWithAcceptanceJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
-                                                                 boolean showHiddenObjectives) {
+    public List<GetObjectiveWithObserverTeamDataJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
+                                                                       boolean showHiddenObjectives) {
         List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes, showHiddenObjectives);
-        return augmentObjectivesWithTeamAcceptance(objectives, observerTeamId);
+        return augmentObjectivesWithObserverTeamData(objectives, observerTeamId);
     }
 
-    private List<GetObjectiveWithAcceptanceJpaDto> augmentObjectivesWithTeamAcceptance(Collection<Objective> objectives, @Nullable Long observerTeamId) {
+    private List<GetObjectiveWithObserverTeamDataJpaDto> augmentObjectivesWithObserverTeamData(Collection<Objective> objectives, @Nullable Long observerTeamId) {
         final List<Long> objectiveIds = objectives.stream().map(Objective::getId).collect(Collectors.toList());
-        Map<Long, ObjectiveAcceptance> teamAcceptanceMap = getTeamAcceptanceMap(objectiveIds, observerTeamId);
+        Set<Long> objectiveIdsThatAreAccepted = getObjectiveIdsThatAreAcceptedForTeam(objectiveIds, observerTeamId);
+        Set<Long> objectiveIdsThatHaveSubmission = getObjectiveIdsThatHaveSubmissionByTeam(objectiveIds, observerTeamId);
 
-        List<GetObjectiveWithAcceptanceJpaDto> mergedEntities = new ArrayList<>(objectives.size());
-        for (var objective : objectives) {
-            final ObjectiveAcceptance objectiveAcceptance = teamAcceptanceMap.get(objective.getId());
-            mergedEntities.add(new ObjectiveWithAcceptanceDtoAdapter(objective, objectiveAcceptance != null));
+        List<GetObjectiveWithObserverTeamDataJpaDto> mergedEntities = new ArrayList<>(objectives.size());
+        for (var augmentedObjective : objectives) {
+            final boolean isAccepted = objectiveIdsThatAreAccepted.contains(augmentedObjective.getId());
+            final boolean hasSubmission = objectiveIdsThatHaveSubmission.contains(augmentedObjective.getId());
+
+            mergedEntities.add(new ObjectiveWithObserverTeamDataDtoAdapter(augmentedObjective, isAccepted, hasSubmission));
         }
 
         return mergedEntities;
     }
 
-    private Map<Long, ObjectiveAcceptance> getTeamAcceptanceMap(List<Long> objectiveIds, @Nullable Long observerTeamId) {
+    private Set<Long> getObjectiveIdsThatAreAcceptedForTeam(List<Long> objectiveIds, @Nullable Long observerTeamId) {
         if (observerTeamId == null) {
-            return new HashMap<>();
+            return new HashSet<>();
         }
 
-        List<ObjectiveAcceptance> acceptanceList = objectiveAcceptanceRepository.findByObjectiveIdInAndTeamId(objectiveIds, observerTeamId);
-        return MappingHelper.toMap(acceptanceList, ts -> ts.getObjective().getId());
+        return objectiveAcceptanceRepository.filterObjectiveIdsThatAreAcceptedForTeam(objectiveIds, observerTeamId);
+    }
+
+    private Set<Long> getObjectiveIdsThatHaveSubmissionByTeam(List<Long> objectiveIds, @Nullable Long observerTeamId) {
+        if (observerTeamId == null) {
+            return new HashSet<>();
+        }
+
+        return objectiveRepository.filterObjectiveIdsThatHaveAtLeastOneSubmissionByTeam(objectiveIds, observerTeamId);
     }
 }

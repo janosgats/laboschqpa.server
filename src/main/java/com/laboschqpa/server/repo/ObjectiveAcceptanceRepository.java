@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ObjectiveAcceptanceRepository extends JpaRepository<ObjectiveAcceptance, Long> {
     @Transactional
@@ -21,4 +22,11 @@ public interface ObjectiveAcceptanceRepository extends JpaRepository<ObjectiveAc
     Optional<ObjectiveAcceptance> findByObjectiveIdAndTeamId(Long objectiveId, Long teamId);
 
     List<ObjectiveAcceptance> findByObjectiveIdInAndTeamId(Collection<Long> objectiveIds, Long teamId);
+
+    @Query("select" +
+            " oa.objective.id " +
+            "from ObjectiveAcceptance oa " +
+            "where oa.objective.id IN :objectiveIdsToFilter " +
+            "   and oa.team.id = :teamId")
+    Set<Long> filterObjectiveIdsThatAreAcceptedForTeam(Collection<Long> objectiveIdsToFilter, Long teamId);
 }

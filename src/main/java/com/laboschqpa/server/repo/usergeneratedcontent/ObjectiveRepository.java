@@ -11,12 +11,19 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ObjectiveRepository extends JpaRepository<Objective, Long> {
     @Modifying
     @Query("delete from Objective where id = :id")
     int deleteByIdAndGetDeletedRowCount(Long id);
 
+    @Query("select" +
+            " s.objective.id " +
+            "from Submission s " +
+            "where s.objective.id IN :objectiveIdsToFilter " +
+            "   and s.team.id = :teamId")
+    Set<Long> filterObjectiveIdsThatHaveAtLeastOneSubmissionByTeam(Collection<Long> objectiveIdsToFilter, Long teamId);
 
     @Query("select o from Objective o where (:showHiddenObjectives = true or o.isHidden = false)")
     List<Objective> findAll(Boolean showHiddenObjectives);
