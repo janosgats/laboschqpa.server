@@ -23,6 +23,7 @@ class RiddleHelpersTest {
                 Triple.of("f7h-za3-", "f7hza3", true),
                 Triple.of("34qfp+!()", "34qfp", true),
                 Triple.of("As+A!f-Ea", "a-s.a_f:ea", true),
+                Triple.of("a,b", "ab", true),
                 Triple.of("sdf", "fds", false),
                 Triple.of("s  s", "a  s", false),
                 Triple.of("a", "", false),
