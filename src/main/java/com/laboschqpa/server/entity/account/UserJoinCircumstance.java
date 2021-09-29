@@ -31,6 +31,15 @@ public class UserJoinCircumstance {
     @Column(name = "join_url", columnDefinition = "text")
     private String joinUrl;
 
+    @Column(name = "oauth2_provider")
+    private String oauth2Provider;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "created", columnDefinition = "datetime", nullable = false)
     private Instant created;
 

@@ -126,6 +126,9 @@ public class RegistrationService {
             final UserJoinCircumstance userJoinCircumstance = new UserJoinCircumstance();
             userJoinCircumstance.setUserAcc(registeredUserAccEntity);
             userJoinCircumstance.setJoinUrl(request.getJoinUrl());
+            userJoinCircumstance.setOauth2Provider(exploded.providerRegistration.getProviderRegistrationKey());
+            userJoinCircumstance.setEmail(exploded.registrationSessionDto.getEmailAddress());
+            userJoinCircumstance.setName(exploded.registrationSessionDto.getNameDigest());
             userJoinCircumstance.setCreated(Instant.now());
             userJoinCircumstanceRepository.save(userJoinCircumstance);
 
