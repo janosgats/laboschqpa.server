@@ -19,7 +19,7 @@ public class RiddleHelpers {
         stringReplacementMap.put("ö", "o");
         stringReplacementMap.put("ő", "o");
 
-        final String[] stringsToRemove = new String[]{" ", "\t", "/", "!", ".", "?", "-", "_", "(", ")", ":", "+"};
+        final String[] stringsToRemove = new String[]{" ", "\t", "/", "!", ".", ",", "?", "-", "_", "(", ")", ":", "+"};
         for (String toRemove : stringsToRemove) {
             stringReplacementMap.put(toRemove, "");
         }
