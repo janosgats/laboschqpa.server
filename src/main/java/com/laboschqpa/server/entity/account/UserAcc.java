@@ -34,7 +34,8 @@ import java.util.stream.Collectors;
         indexes = {
                 @Index(columnList = "nick_name", name = "nick_name"),
                 @Index(columnList = "team_id, team_role", name = "team_id__team_role"),
-                @Index(columnList = "team_role", name = "team_role")
+                @Index(columnList = "team_role", name = "team_role"),
+                @Index(columnList = "enabled, team_id, team_role", name = "enabled__team_id__team_role")
         }
 )
 public class UserAcc implements ProfilePicUrlContainer, Serializable {
