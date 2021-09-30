@@ -1,6 +1,7 @@
 package com.laboschqpa.server.api.controller;
 
 import com.laboschqpa.server.api.dto.qrfight.QrFightAreaResponse;
+import com.laboschqpa.server.api.dto.qrfight.QrFightAreaWithTagCountResponse;
 import com.laboschqpa.server.api.dto.qrfight.QrFightStatResponse;
 import com.laboschqpa.server.api.dto.qrfight.QrTagForUserResponse;
 import com.laboschqpa.server.api.service.qrfight.QrFightService;
@@ -37,6 +38,13 @@ public class QrFightController {
     public List<QrFightAreaResponse> getListEnabledAreas() {
         return qrFightService.listEnabledAreas().stream()
                 .map(QrFightAreaResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/listEnabledAreasWithTagCount")
+    public List<QrFightAreaResponse> getListEnabledAreasWithTagCount() {
+        return qrFightService.listEnabledAreasWithTagCount().stream()
+                .map(QrFightAreaWithTagCountResponse::new)
                 .collect(Collectors.toList());
     }
 

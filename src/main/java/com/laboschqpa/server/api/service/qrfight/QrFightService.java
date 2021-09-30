@@ -10,8 +10,9 @@ import com.laboschqpa.server.enums.apierrordescriptor.QrFightApiError;
 import com.laboschqpa.server.enums.apierrordescriptor.TeamMembershipApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.QrFightException;
 import com.laboschqpa.server.exceptions.apierrordescriptor.TeamMembershipException;
-import com.laboschqpa.server.repo.dto.QrFightAreaWithTeamSubmissionCountJpaDto;
-import com.laboschqpa.server.repo.dto.QrTagWithSubmissionCountJpaDto;
+import com.laboschqpa.server.repo.dto.qrFightArea.QrFightAreaAndTeamSubmissionCountJpaDto;
+import com.laboschqpa.server.repo.dto.qrFightArea.QrFightAreaWithTagCountJpaDto;
+import com.laboschqpa.server.repo.dto.qrFightArea.QrTagWithSubmissionCountJpaDto;
 import com.laboschqpa.server.repo.qrtagfight.QrFightAreaRepository;
 import com.laboschqpa.server.repo.qrtagfight.QrTagRepository;
 import com.laboschqpa.server.repo.qrtagfight.QrTagSubmissionRepository;
@@ -37,12 +38,16 @@ public class QrFightService {
         return qrTagRepository.findAll_withSubmissionCount();
     }
 
-    public List<QrFightAreaWithTeamSubmissionCountJpaDto> listEnabledAreasWithTeamSubmissionCount() {
+    public List<QrFightAreaAndTeamSubmissionCountJpaDto> listEnabledAreasWithTeamSubmissionCount() {
         return qrFightAreaRepository.findEnabledAreasWithTeamSubmissionCount();
     }
 
     public List<QrFightArea> listEnabledAreas() {
         return qrFightAreaRepository.findAllByEnabledIsTrueOrderByIdAsc();
+    }
+
+    public List<QrFightAreaWithTagCountJpaDto> listEnabledAreasWithTagCount() {
+        return qrFightAreaRepository.findAllByEnabledIsTrue_withBelongingTagCount_orderByIdAsc();
     }
 
     public void submitQrTag(UserAcc userAcc, long tagId, String submittedSecret) {

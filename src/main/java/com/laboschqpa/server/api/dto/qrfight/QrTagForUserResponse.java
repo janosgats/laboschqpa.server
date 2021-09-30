@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.dto.qrfight;
 
-import com.laboschqpa.server.repo.dto.QrTagWithSubmissionCountJpaDto;
+import com.laboschqpa.server.repo.dto.qrFightArea.QrTagWithSubmissionCountJpaDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

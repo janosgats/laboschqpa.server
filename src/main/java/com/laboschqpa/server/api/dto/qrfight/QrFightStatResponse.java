@@ -1,6 +1,6 @@
 package com.laboschqpa.server.api.dto.qrfight;
 
-import com.laboschqpa.server.repo.dto.QrFightAreaWithTeamSubmissionCountJpaDto;
+import com.laboschqpa.server.repo.dto.qrFightArea.QrFightAreaAndTeamSubmissionCountJpaDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ public class QrFightStatResponse {
     private String teamName;
     private Integer submissionCount;
 
-    public QrFightStatResponse(QrFightAreaWithTeamSubmissionCountJpaDto jpaDto) {
+    public QrFightStatResponse(QrFightAreaAndTeamSubmissionCountJpaDto jpaDto) {
         this.areaId = jpaDto.getAreaId();
         this.teamId = jpaDto.getTeamId();
         this.teamName = jpaDto.getTeamName();
