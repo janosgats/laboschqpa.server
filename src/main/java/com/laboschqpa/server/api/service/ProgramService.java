@@ -5,6 +5,8 @@ import com.laboschqpa.server.api.dto.ugc.program.EditProgramRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Program;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
+import com.laboschqpa.server.repo.TeamRepository;
+import com.laboschqpa.server.repo.dto.TeamWithScoreJpaDto;
 import com.laboschqpa.server.repo.usergeneratedcontent.ProgramRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetProgramWithTeamScoreJpaDto;
 import com.laboschqpa.server.util.AttachmentHelper;
@@ -22,6 +24,7 @@ import java.util.List;
 @Service
 public class ProgramService {
     private final ProgramRepository programRepository;
+    private final TeamRepository teamRepository;
     private final AttachmentHelper attachmentHelper;
 
     public Program getWithAttachments(long programId) {
@@ -94,5 +97,9 @@ public class ProgramService {
 
     public List<GetProgramWithTeamScoreJpaDto> listAllWithTeamScore(long teamId) {
         return programRepository.findAll_withTeamScore_orderByStartTimeAsc(teamId);
+    }
+
+    public List<TeamWithScoreJpaDto> findTeamsWithScoreEarnedOnProgram(long programId) {
+        return teamRepository.findByArchivedIsFalseWithScoreEarnedOnProgramOrderByScoreDesc(programId);
     }
 }

@@ -27,6 +27,15 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
             " order by score desc")
     List<TeamWithScoreJpaDto> findAllWithScoreByArchivedIsFalseOrderByScoreDesc();
 
+    @Query("select t.id as id, t.name as name, t.archived as archived, sum(coalesce(ts.score, 0)) as score " +
+            " from Team t " +
+            "   join TeamScore ts on ts.team.id = t.id " +
+            " where t.archived = false " +
+            "     and ts.objective.program.id = :programId " +
+            " group by t " +
+            " order by score desc")
+    List<TeamWithScoreJpaDto> findByArchivedIsFalseWithScoreEarnedOnProgramOrderByScoreDesc(Long programId);
+
     @Query("select u.id as userId, u.firstName as firstName, u.lastName as lastName, " +
             " u.nickName as nickName, u.teamRole as teamRole, u.profilePicUrl as profilePicUrl " +
             " from UserAcc u " +

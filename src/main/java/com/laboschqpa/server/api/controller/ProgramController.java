@@ -2,6 +2,7 @@ package com.laboschqpa.server.api.controller;
 
 import com.laboschqpa.server.api.dto.CreatedEntityResponse;
 import com.laboschqpa.server.api.dto.TeamScoreResponse;
+import com.laboschqpa.server.api.dto.TeamWithScoreResponse;
 import com.laboschqpa.server.api.dto.ugc.program.CreateNewProgramRequest;
 import com.laboschqpa.server.api.dto.ugc.program.EditProgramRequest;
 import com.laboschqpa.server.api.dto.ugc.program.GetProgramResponse;
@@ -46,6 +47,13 @@ public class ProgramController {
     public List<GetProgramResponse> getListAllWithTeamScore(@RequestParam(name = "teamId") Long teamId) {
         return programService.listAllWithTeamScore(teamId).stream()
                 .map((program) -> new GetProgramWithTeamScoreResponse(program, false))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/listTeamScoresOnProgram")
+    public List<TeamWithScoreResponse> getListTeamScoresOnProgram(@RequestParam(name = "programId") Long programId) {
+        return programService.findTeamsWithScoreEarnedOnProgram(programId).stream()
+                .map(TeamWithScoreResponse::new)
                 .collect(Collectors.toList());
     }
 
