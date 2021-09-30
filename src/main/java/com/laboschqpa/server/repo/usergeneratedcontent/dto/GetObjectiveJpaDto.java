@@ -7,6 +7,8 @@ import java.time.Instant;
 public interface GetObjectiveJpaDto extends GetUserGeneratedContentJpaDto {
     Long getProgramId();
 
+    String getProgramTitle();
+
     String getTitle();
 
     String getDescription();

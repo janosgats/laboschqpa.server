@@ -20,6 +20,11 @@ public class ObjectiveDtoAdapter extends UserGeneratedContentDtoAdapter implemen
     }
 
     @Override
+    public String getProgramTitle() {
+        return delegate.getProgram().getTitle();
+    }
+
+    @Override
     public String getTitle() {
         return delegate.getTitle();
     }

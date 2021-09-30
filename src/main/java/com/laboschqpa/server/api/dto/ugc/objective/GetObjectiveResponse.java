@@ -25,6 +25,9 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
     @JsonSerialize(converter = ObjectiveTypeToValueJacksonConverter.class)
     private ObjectiveType objectiveType;
     private Boolean isHidden;
+
+    private String programTitle;
+
     /**
      * for the observer team
      */
@@ -36,22 +39,22 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
     }
 
     public GetObjectiveResponse(Objective objective) {
-        this(objective, false);
+        this(objective, false, false);
     }
 
     /**
      * @param includeAttachments Set this to {@code false} if the attachments should not be got
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
-    public GetObjectiveResponse(Objective objective, boolean includeAttachments) {
-        this(new ObjectiveDtoAdapter(objective), includeAttachments);
+    public GetObjectiveResponse(Objective objective, boolean includeAttachments, boolean includeProgramTitle) {
+        this(new ObjectiveDtoAdapter(objective), includeAttachments, includeProgramTitle);
     }
 
     /**
      * @param includeAttachments Set this to {@code false} if the attachments should not be got
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
-    public GetObjectiveResponse(GetObjectiveJpaDto objective, boolean includeAttachments) {
+    public GetObjectiveResponse(GetObjectiveJpaDto objective, boolean includeAttachments, boolean includeProgramTitle) {
         super(objective, includeAttachments);
         this.programId = objective.getProgramId();
         this.title = objective.getTitle();
@@ -61,6 +64,10 @@ public class GetObjectiveResponse extends GetUserGeneratedContentResponse {
         this.hideSubmissionsBefore = objective.getHideSubmissionsBefore();
         this.objectiveType = objective.getObjectiveType();
         this.isHidden = objective.getIsHidden();
+
+        if (includeProgramTitle) {
+            this.programTitle = objective.getProgramTitle();
+        }
 
         if (objective instanceof GetObjectiveWithObserverTeamDataJpaDto) {
             this.isAccepted = ((GetObjectiveWithObserverTeamDataJpaDto) objective).getIsAcceptedForTeam();

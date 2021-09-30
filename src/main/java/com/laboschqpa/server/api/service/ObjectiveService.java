@@ -113,7 +113,7 @@ public class ObjectiveService {
 
     public List<GetObjectiveWithObserverTeamDataJpaDto> listForDisplay(Collection<ObjectiveType> objectiveTypes, @Nullable Long observerTeamId,
                                                                        boolean showHiddenObjectives) {
-        List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(objectiveTypes, showHiddenObjectives);
+        List<Objective> objectives = objectiveRepository.findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachmentsAndProgram(objectiveTypes, showHiddenObjectives);
         return augmentObjectivesWithObserverTeamData(objectives, observerTeamId);
     }
 

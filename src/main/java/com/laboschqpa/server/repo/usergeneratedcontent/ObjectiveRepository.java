@@ -32,12 +32,12 @@ public interface ObjectiveRepository extends JpaRepository<Objective, Long> {
     @Query("select o from Objective o where o.id = :id and (:showHiddenObjectives = true  or o.isHidden = false)")
     Optional<Objective> findByIdWithEagerAttachments(Long id, Boolean showHiddenObjectives);
 
-    @EntityGraph(attributePaths = {"attachments"})
+    @EntityGraph(attributePaths = {"attachments", "program"})
     @Query("select o from Objective o " +
             " where o.objectiveType in :objectiveTypes and (:showHiddenObjectives = true  or o.isHidden = false) " +
             " order by o.creationTime desc")
-    List<Objective> findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachments(@Param("objectiveTypes") Collection<ObjectiveType> objectiveTypes,
-                                                                                        Boolean showHiddenObjectives);
+    List<Objective> findAllByObjectiveType_OrderByCreationTimeDesc_withEagerAttachmentsAndProgram(@Param("objectiveTypes") Collection<ObjectiveType> objectiveTypes,
+                                                                                                  Boolean showHiddenObjectives);
 
     @EntityGraph(attributePaths = {"attachments"})
     @Query("select o from Objective o where o.program.id = :programId and (:showHiddenObjectives = true  or o.isHidden = false)")

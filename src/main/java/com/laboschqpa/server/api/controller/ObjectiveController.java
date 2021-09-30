@@ -30,7 +30,7 @@ public class ObjectiveController {
         final Long observerTeamId = extractObserverTeamId(authenticationPrincipal);
         final boolean showHiddenObjectives = shouldShowHiddenObjectives(authenticationPrincipal);
 
-        return new GetObjectiveResponse(objectiveService.getObjective(objectiveId, observerTeamId, showHiddenObjectives), true);
+        return new GetObjectiveResponse(objectiveService.getObjective(objectiveId, observerTeamId, showHiddenObjectives), true, false);
     }
 
     @GetMapping("/listAll")
@@ -56,7 +56,7 @@ public class ObjectiveController {
             objectives = objectiveService.listObjectivesBelongingToProgram(programId, observerTeamId, showHiddenObjectives);
         }
         return objectives.stream()
-                .map(o -> new GetObjectiveResponse(o, true))
+                .map(o -> new GetObjectiveResponse(o, true, false))
                 .collect(Collectors.toList());
     }
 
@@ -68,7 +68,7 @@ public class ObjectiveController {
         final boolean showHiddenObjectives = shouldShowHiddenObjectives(authenticationPrincipal);
 
         return objectiveService.listForDisplay(request.getObjectiveTypes(), observerTeamId, showHiddenObjectives).stream()
-                .map(o -> new GetObjectiveResponse(o, true))
+                .map(o -> new GetObjectiveResponse(o, true, true))
                 .collect(Collectors.toList());
     }
 
