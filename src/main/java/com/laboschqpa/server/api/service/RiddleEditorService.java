@@ -12,11 +12,13 @@ import com.laboschqpa.server.repo.RiddleResolutionRepository;
 import com.laboschqpa.server.repo.event.dto.RiddleTeamProgressJpaDto;
 import com.laboschqpa.server.repo.usergeneratedcontent.RiddleRepository;
 import com.laboschqpa.server.util.AttachmentHelper;
+import com.laboschqpa.server.util.CollectionHelpers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,27 +61,26 @@ public class RiddleEditorService {
     }
 
     public void editRiddle(EditRiddleRequest request, UserAcc editorUserAcc) {
-        Optional<Riddle> riddleOptional = riddleRepository.findById(request.getId());
-        if (riddleOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find Riddle with Id: " + request.getId());
+        Riddle editedRiddle = riddleRepository.findById(request.getId())
+                .orElseThrow(()->  new ContentNotFoundException("Cannot find Riddle with Id: " + request.getId()));
 
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(request.getAttachments(), editorUserAcc, true);
+        final HashSet<Long> newlyAddedAttachments = CollectionHelpers.subtractToSet(request.getAttachments(), editedRiddle.getAttachments());
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(newlyAddedAttachments, editorUserAcc.getId());
         if (request.getAttachments().size() != 1) {
             throw new RiddleException(RiddleApiError.A_RIDDLE_HAS_TO_HAVE_EXACTLY_ONE_ATTACHMENT);
         }
 
-        Riddle riddle = riddleOptional.get();
-        riddle.setUGCAsEditedByUser(editorUserAcc);
-        riddle.setAttachments(request.getAttachments());
+        editedRiddle.setUGCAsEditedByUser(editorUserAcc);
+        editedRiddle.setAttachments(request.getAttachments());
 
-        riddle.setTitle(request.getTitle());
-        riddle.setCategory(request.getCategory());
-        riddle.setHint(request.getHint());
-        riddle.setSolution(request.getSolution());
+        editedRiddle.setTitle(request.getTitle());
+        editedRiddle.setCategory(request.getCategory());
+        editedRiddle.setHint(request.getHint());
+        editedRiddle.setSolution(request.getSolution());
 
-        riddleRepository.save(riddle);
+        riddleRepository.save(editedRiddle);
 
-        log.info("Riddle {} edited by user {}.", riddle.getId(), editorUserAcc.getId());
+        log.info("Riddle {} edited by user {}.", editedRiddle.getId(), editorUserAcc.getId());
     }
 
     @Transactional
