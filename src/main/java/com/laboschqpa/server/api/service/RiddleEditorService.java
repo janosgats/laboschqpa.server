@@ -61,7 +61,7 @@ public class RiddleEditorService {
     }
 
     public void editRiddle(EditRiddleRequest request, UserAcc editorUserAcc) {
-        Riddle editedRiddle = riddleRepository.findById(request.getId())
+        Riddle editedRiddle = riddleRepository.findByIdWithEagerAttachments(request.getId())
                 .orElseThrow(()->  new ContentNotFoundException("Cannot find Riddle with Id: " + request.getId()));
 
         final HashSet<Long> newlyAddedAttachments = CollectionHelpers.subtractToSet(request.getAttachments(), editedRiddle.getAttachments());
