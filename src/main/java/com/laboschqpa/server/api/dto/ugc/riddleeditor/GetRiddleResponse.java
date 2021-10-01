@@ -1,7 +1,10 @@
 package com.laboschqpa.server.api.dto.ugc.riddleeditor;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.laboschqpa.server.api.dto.ugc.GetUserGeneratedContentResponse;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
+import com.laboschqpa.server.enums.RiddleCategory;
+import com.laboschqpa.server.enums.converter.jackson.RiddleCategoryToValueJacksonConverter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -9,6 +12,8 @@ import lombok.EqualsAndHashCode;
 @Data
 public class GetRiddleResponse extends GetUserGeneratedContentResponse {
     private String title;
+    @JsonSerialize(converter = RiddleCategoryToValueJacksonConverter.class)
+    private RiddleCategory category;
     private String hint;
     private String solution;
 
@@ -16,23 +21,24 @@ public class GetRiddleResponse extends GetUserGeneratedContentResponse {
         super();
     }
 
-    public GetRiddleResponse(Riddle riddle, boolean includeHint, boolean includeSolution) {
-        this(riddle, includeHint, includeSolution, false);
+    public GetRiddleResponse(Riddle entity, boolean includeHint, boolean includeSolution) {
+        this(entity, includeHint, includeSolution, false);
     }
 
     /**
      * @param includeAttachments Set this to {@code false} if the attachments should not be got
      *                           (e.g. to avoid {@link org.hibernate.LazyInitializationException})!
      */
-    public GetRiddleResponse(Riddle riddle, boolean includeHint, boolean includeSolution, boolean includeAttachments) {
-        super(riddle, includeAttachments);
-        this.title = riddle.getTitle();
+    public GetRiddleResponse(Riddle entity, boolean includeHint, boolean includeSolution, boolean includeAttachments) {
+        super(entity, includeAttachments);
+        this.title = entity.getTitle();
+        this.category = entity.getCategory();
 
         if (includeHint) {
-            this.hint = riddle.getHint();
+            this.hint = entity.getHint();
         }
         if (includeSolution) {
-            this.solution = riddle.getSolution();
+            this.solution = entity.getSolution();
         }
     }
 }

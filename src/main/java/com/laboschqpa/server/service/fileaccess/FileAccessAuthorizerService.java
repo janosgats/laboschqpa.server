@@ -1,13 +1,13 @@
 package com.laboschqpa.server.service.fileaccess;
 
 import com.laboschqpa.server.api.service.SubmissionService;
+import com.laboschqpa.server.api.service.riddle.RiddleService;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Submission;
 import com.laboschqpa.server.enums.TeamRole;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.enums.ugc.UserGeneratedContentType;
 import com.laboschqpa.server.repo.dto.UserGeneratedContentParentJpaDto;
-import com.laboschqpa.server.repo.usergeneratedcontent.RiddleRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.SubmissionRepository;
 import com.laboschqpa.server.repo.usergeneratedcontent.UserGeneratedContentRepository;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class FileAccessAuthorizerService implements FileAccessAuthorizer {
     private final UserGeneratedContentRepository userGeneratedContentRepository;
     private final SubmissionRepository submissionRepository;
     private final SubmissionService submissionService;
-    private final RiddleRepository riddleRepository;
+    private final RiddleService riddleService;
 
     @Override
     public boolean canUserDeleteFile(UserAcc userAcc, File file) {
@@ -123,7 +124,7 @@ public class FileAccessAuthorizerService implements FileAccessAuthorizer {
             return true;
         }
 
-        final List<Long> visibleRiddleIds = riddleRepository.findAccessibleRiddleIds(userAcc.getTeam().getId());
+        final Collection<Long> visibleRiddleIds = riddleService.getAccessibleRiddleIdsInAllCategories(userAcc.getTeam().getId());
         return riddleIdsFileIsAttachedTo.stream().anyMatch(visibleRiddleIds::contains);//The attached riddles is accessible for the user
     }
 }

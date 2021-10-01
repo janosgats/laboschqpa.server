@@ -1,7 +1,19 @@
 package com.laboschqpa.server.repo.usergeneratedcontent.dto;
 
+import com.laboschqpa.server.enums.RiddleCategory;
+import com.laboschqpa.server.enums.converter.attributeconverter.RiddleCategoryAttributeConverter;
+
 public interface GetAccessibleRiddleJpaDto extends GetUserGeneratedContentJpaDto {
     String getTitle();
+
+    Integer getCategoryVal();
+
+    default RiddleCategory getCategory() {
+        if (getCategoryVal() != null) {
+            return new RiddleCategoryAttributeConverter().convertToEntityAttribute(getCategoryVal());
+        }
+        return null;
+    }
 
     String getHint();
 

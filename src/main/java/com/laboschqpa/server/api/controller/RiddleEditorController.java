@@ -7,6 +7,7 @@ import com.laboschqpa.server.api.dto.ugc.riddleeditor.GetRiddleResponse;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.RiddleTeamProgressResponse;
 import com.laboschqpa.server.api.service.RiddleEditorService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
+import com.laboschqpa.server.enums.RiddleCategory;
 import com.laboschqpa.server.enums.auth.Authority;
 import com.laboschqpa.server.util.PrincipalAuthorizationHelper;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,15 @@ public class RiddleEditorController {
     public List<GetRiddleResponse> getListAllRiddles(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.RiddleEditor);
         return riddleEditorService.listAllRiddles().stream()
+                .map((riddle -> new GetRiddleResponse(riddle, true, true, false)))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/listAllInCategory")
+    public List<GetRiddleResponse> getListAllRiddlesInCategory(@RequestParam("category") RiddleCategory category,
+                                                               @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+        new PrincipalAuthorizationHelper(authenticationPrincipal).assertHasAuthority(Authority.RiddleEditor);
+        return riddleEditorService.listAllRiddlesInCategory(category).stream()
                 .map((riddle -> new GetRiddleResponse(riddle, true, true, false)))
                 .collect(Collectors.toList());
     }

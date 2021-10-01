@@ -1,6 +1,8 @@
 package com.laboschqpa.server.repo.usergeneratedcontent;
 
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
+import com.laboschqpa.server.enums.RiddleCategory;
+import com.laboschqpa.server.enums.converter.attributeconverter.RiddleCategoryAttributeConverter;
 import com.laboschqpa.server.enums.riddle.RiddleResolutionStatusValues;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetAccessibleRiddleJpaDto;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -29,9 +31,12 @@ public interface RiddleRepository extends JpaRepository<Riddle, Long> {
     @Query("select r from Riddle r where r.id = :id")
     Optional<Riddle> findByIdWithEagerAttachments(Long id);
 
+    List<Riddle> findAllByCategory(RiddleCategory category);
+
     //language=MySQL
     String QUERY_TO_SELECT_ACCESSIBLE_RIDDLE_IDS =
-            "select id, hint_used, 'TRUE' as is_already_solved\n" +
+            "select " +
+                    "id, hint_used, 'TRUE' as is_already_solved\n" +
                     "from (\n" +
                     "         select riddle.id as id, IF(resolution.hint_used <=> 1, 'TRUE', 'FALSE') as hint_used\n" +
                     "         from riddle\n" +
@@ -39,8 +44,11 @@ public interface RiddleRepository extends JpaRepository<Riddle, Long> {
                     "                             on resolution.riddle_id = riddle.id\n" +
                     "                                 and resolution.team_id = :teamId\n" +
                     "         where resolution.status = " + RiddleResolutionStatusValues.SOLVED + "\n" +
+                    "               and riddle.category = :categoryValue" +
                     "     ) as solved_riddle_ids\n" +
+                    "" +
                     "UNION\n" +
+                    "" +
                     "select id, hint_used, 'FALSE' as is_already_solved\n" +
                     "from (\n" +
                     "         select riddle.id as id, IF(resolution.hint_used <=> 1, 'TRUE', 'FALSE') as hint_used\n" +
@@ -48,15 +56,21 @@ public interface RiddleRepository extends JpaRepository<Riddle, Long> {
                     "                  left join riddle_resolution resolution\n" +
                     "                            on resolution.riddle_id = riddle.id\n" +
                     "                                and resolution.team_id = :teamId\n" +
-                    "         where resolution.status is NULL\n" +
-                    "            or resolution.status = " + RiddleResolutionStatusValues.UNSOLVED + "\n" +
+                    "         where" +
+                    "               (resolution.status is NULL or resolution.status = " + RiddleResolutionStatusValues.UNSOLVED + ")\n" +
+                    "               and riddle.category = :categoryValue " +
                     "         order by riddle.id asc\n" +
                     "         limit " + NUMBER_OF_FORWARD_VISIBLE_RIDDLES + "\n" +
                     "     ) as next_riddles_to_solve_ids";
 
     @Query(value = QUERY_TO_SELECT_ACCESSIBLE_RIDDLE_IDS,
             nativeQuery = true)
-    List<Long> findAccessibleRiddleIds(@Param("teamId") Long teamId);
+    List<Long> findAccessibleRiddleIds_internal(@Param("teamId") Long teamId, @Param("categoryValue") Integer categoryValue);
+
+    default List<Long> findAccessibleRiddleIds(Long teamId, RiddleCategory category) {
+        final Integer categoryValue = new RiddleCategoryAttributeConverter().convertToDatabaseColumn(category);
+        return findAccessibleRiddleIds_internal(teamId, categoryValue);
+    }
 
     @Query(value =
             "select \n" +
@@ -66,6 +80,7 @@ public interface RiddleRepository extends JpaRepository<Riddle, Long> {
                     "       ugc.creation_time   as creationTime,\n" +
                     "       ugc.edit_time       as editTime,\n" +
                     "       riddle.title        as title,\n" +
+                    "       riddle.category        as categoryVal,\n" +
                     "       riddle.hint         as hint,\n" +
                     "       riddle.solution     as solution,\n" +
                     "       is_already_solved   as isAlreadySolved,\n" +
@@ -79,5 +94,10 @@ public interface RiddleRepository extends JpaRepository<Riddle, Long> {
                     ") as accessible_riddle_ids\n" +
                     "                    on riddle.id = accessible_riddle_ids.id;",
             nativeQuery = true)
-    List<GetAccessibleRiddleJpaDto> findAccessibleRiddles(@Param("teamId") Long teamId);
+    List<GetAccessibleRiddleJpaDto> findAccessibleRiddles_internal(@Param("teamId") Long teamId, @Param("categoryValue") Integer categoryValue);
+
+    default List<GetAccessibleRiddleJpaDto> findAccessibleRiddles(Long teamId, RiddleCategory category) {
+        final Integer categoryValue = new RiddleCategoryAttributeConverter().convertToDatabaseColumn(category);
+        return findAccessibleRiddles_internal(teamId, categoryValue);
+    }
 }

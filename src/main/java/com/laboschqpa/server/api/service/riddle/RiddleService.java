@@ -5,6 +5,7 @@ import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponse;
 import com.laboschqpa.server.entity.RiddleResolution;
 import com.laboschqpa.server.entity.Team;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
+import com.laboschqpa.server.enums.RiddleCategory;
 import com.laboschqpa.server.enums.apierrordescriptor.RiddleApiError;
 import com.laboschqpa.server.enums.riddle.RiddleResolutionStatus;
 import com.laboschqpa.server.exceptions.apierrordescriptor.RiddleException;
@@ -17,8 +18,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -27,8 +28,8 @@ public class RiddleService {
     private final RiddleRepository riddleRepository;
     private final RiddleResolutionRepository riddleResolutionRepository;
 
-    public List<GetAccessibleRiddleJpaDto> listAccessibleRiddleJpaDtos(Long teamId) {
-        return riddleRepository.findAccessibleRiddles(teamId);
+    public List<GetAccessibleRiddleJpaDto> listAccessibleRiddleJpaDtos(Long teamId, RiddleCategory category) {
+        return riddleRepository.findAccessibleRiddles(teamId, category);
     }
 
     public GetAccessibleRiddleResponse getOneRiddleToShow(Long teamId, Long riddleIdToShow) {
@@ -142,9 +143,16 @@ public class RiddleService {
     }
 
     private void assertRiddleIsAccessibleForTeam(Riddle riddle, Long teamId) {
-        List<Long> visibleRiddleIds = riddleRepository.findAccessibleRiddleIds(teamId);
+        List<Long> visibleRiddleIds = riddleRepository.findAccessibleRiddleIds(teamId, riddle.getCategory());
         if (!visibleRiddleIds.contains(riddle.getId())) {
             throw new RiddleException(RiddleApiError.REQUESTED_RIDDLE_IS_NOT_YET_ACCESSIBLE_FOR_YOUR_TEAM);
         }
+    }
+
+    public Set<Long> getAccessibleRiddleIdsInAllCategories(Long teamId) {
+        return Arrays.stream(RiddleCategory.values())
+                .map(category -> riddleRepository.findAccessibleRiddleIds(teamId, category))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
     }
 }

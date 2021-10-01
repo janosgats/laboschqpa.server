@@ -4,6 +4,7 @@ import com.laboschqpa.server.api.dto.ugc.riddleeditor.CreateNewRiddleRequest;
 import com.laboschqpa.server.api.dto.ugc.riddleeditor.EditRiddleRequest;
 import com.laboschqpa.server.entity.account.UserAcc;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
+import com.laboschqpa.server.enums.RiddleCategory;
 import com.laboschqpa.server.enums.apierrordescriptor.RiddleApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.ContentNotFoundException;
 import com.laboschqpa.server.exceptions.apierrordescriptor.RiddleException;
@@ -36,43 +37,45 @@ public class RiddleEditorService {
         return riddleOptional.get();
     }
 
-    public Riddle createNewRiddle(CreateNewRiddleRequest createNewRiddleRequest, UserAcc creatorUserAcc) {
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(createNewRiddleRequest.getAttachments(), creatorUserAcc, true);
+    public Riddle createNewRiddle(CreateNewRiddleRequest request, UserAcc creatorUserAcc) {
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(request.getAttachments(), creatorUserAcc, true);
 
-        if (createNewRiddleRequest.getAttachments().size() != 1) {
+        if (request.getAttachments().size() != 1) {
             throw new RiddleException(RiddleApiError.A_RIDDLE_HAS_TO_HAVE_EXACTLY_ONE_ATTACHMENT);
         }
 
         Riddle riddle = new Riddle();
         riddle.setUGCAsCreatedByUser(creatorUserAcc);
-        riddle.setAttachments(createNewRiddleRequest.getAttachments());
+        riddle.setAttachments(request.getAttachments());
 
-        riddle.setTitle(createNewRiddleRequest.getTitle());
-        riddle.setHint(createNewRiddleRequest.getHint());
-        riddle.setSolution(createNewRiddleRequest.getSolution());
+        riddle.setTitle(request.getTitle());
+        riddle.setCategory(request.getCategory());
+        riddle.setHint(request.getHint());
+        riddle.setSolution(request.getSolution());
 
         riddleRepository.save(riddle);
         log.info("Riddle {} created by user {}.", riddle.getId(), creatorUserAcc.getId());
         return riddle;
     }
 
-    public void editRiddle(EditRiddleRequest editRiddleRequest, UserAcc editorUserAcc) {
-        Optional<Riddle> riddleOptional = riddleRepository.findById(editRiddleRequest.getId());
+    public void editRiddle(EditRiddleRequest request, UserAcc editorUserAcc) {
+        Optional<Riddle> riddleOptional = riddleRepository.findById(request.getId());
         if (riddleOptional.isEmpty())
-            throw new ContentNotFoundException("Cannot find Riddle with Id: " + editRiddleRequest.getId());
+            throw new ContentNotFoundException("Cannot find Riddle with Id: " + request.getId());
 
-        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(editRiddleRequest.getAttachments(), editorUserAcc, true);
-        if (editRiddleRequest.getAttachments().size() != 1) {
+        attachmentHelper.assertAllFilesAvailableAndHaveOwnerUserOf(request.getAttachments(), editorUserAcc, true);
+        if (request.getAttachments().size() != 1) {
             throw new RiddleException(RiddleApiError.A_RIDDLE_HAS_TO_HAVE_EXACTLY_ONE_ATTACHMENT);
         }
 
         Riddle riddle = riddleOptional.get();
         riddle.setUGCAsEditedByUser(editorUserAcc);
-        riddle.setAttachments(editRiddleRequest.getAttachments());
+        riddle.setAttachments(request.getAttachments());
 
-        riddle.setTitle(editRiddleRequest.getTitle());
-        riddle.setHint(editRiddleRequest.getHint());
-        riddle.setSolution(editRiddleRequest.getSolution());
+        riddle.setTitle(request.getTitle());
+        riddle.setCategory(request.getCategory());
+        riddle.setHint(request.getHint());
+        riddle.setSolution(request.getSolution());
 
         riddleRepository.save(riddle);
 
@@ -91,6 +94,10 @@ public class RiddleEditorService {
 
     public List<Riddle> listAllRiddles() {
         return riddleRepository.findAll();
+    }
+
+    public List<Riddle> listAllRiddlesInCategory(RiddleCategory category) {
+        return riddleRepository.findAllByCategory(category);
     }
 
     public List<RiddleTeamProgressJpaDto> listProgressOfTeams() {

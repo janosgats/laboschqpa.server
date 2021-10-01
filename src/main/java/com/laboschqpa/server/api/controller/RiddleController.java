@@ -5,6 +5,7 @@ import com.laboschqpa.server.api.dto.ugc.riddle.RiddleSubmitSolutionResponse;
 import com.laboschqpa.server.api.service.riddle.RiddleService;
 import com.laboschqpa.server.config.userservice.CustomOauth2User;
 import com.laboschqpa.server.entity.account.UserAcc;
+import com.laboschqpa.server.enums.RiddleCategory;
 import com.laboschqpa.server.enums.TeamRateControlTopic;
 import com.laboschqpa.server.enums.apierrordescriptor.RiddleApiError;
 import com.laboschqpa.server.exceptions.apierrordescriptor.RiddleException;
@@ -24,9 +25,10 @@ public class RiddleController {
     private final TeamRateControlService teamRateControlService;
 
     @GetMapping("/listAccessibleRiddles")
-    public List<GetAccessibleRiddleResponse> listAccessibleRiddles(@AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
+    public List<GetAccessibleRiddleResponse> listAccessibleRiddles(@RequestParam("category") RiddleCategory category,
+                                                                   @AuthenticationPrincipal CustomOauth2User authenticationPrincipal) {
         Long teamId = ControllerHelpers.getTeamId(authenticationPrincipal);
-        return riddleService.listAccessibleRiddleJpaDtos(teamId).stream()
+        return riddleService.listAccessibleRiddleJpaDtos(teamId, category).stream()
                 .map((visibleRiddleJpaDto
                         -> new GetAccessibleRiddleResponse(visibleRiddleJpaDto, visibleRiddleJpaDto.getWasHintUsed(), visibleRiddleJpaDto.getIsAlreadySolved())
                 )).collect(Collectors.toList());

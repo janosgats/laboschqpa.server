@@ -1,6 +1,9 @@
 package com.laboschqpa.server.api.dto.ugc.riddle;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.laboschqpa.server.entity.usergeneratedcontent.Riddle;
+import com.laboschqpa.server.enums.RiddleCategory;
+import com.laboschqpa.server.enums.converter.jackson.RiddleCategoryToValueJacksonConverter;
 import com.laboschqpa.server.repo.usergeneratedcontent.dto.GetAccessibleRiddleJpaDto;
 import lombok.Data;
 
@@ -17,6 +20,8 @@ public class GetAccessibleRiddleResponse {
     private Instant editTime;
 
     private String title;
+    @JsonSerialize(converter = RiddleCategoryToValueJacksonConverter.class)
+    private RiddleCategory category;
     private String hint;
     private String solution;
 
@@ -37,6 +42,7 @@ public class GetAccessibleRiddleResponse {
         this.editTime = getAccessibleRiddleJpaDto.getEditTimeAsInstant();
 
         this.title = getAccessibleRiddleJpaDto.getTitle();
+        this.category = getAccessibleRiddleJpaDto.getCategory();
         this.wasHintUsed = getAccessibleRiddleJpaDto.getWasHintUsed();
         this.isAlreadySolved = getAccessibleRiddleJpaDto.getIsAlreadySolved();
 
