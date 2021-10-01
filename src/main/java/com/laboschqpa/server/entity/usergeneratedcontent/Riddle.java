@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Table(name = "riddle")
 @DiscriminatorValue(value = UserGeneratedContentTypeValues.RIDDLE)
 public class Riddle extends UserGeneratedContent {
-    @Column(name = "category", columnDefinition = "text", nullable = false)
+    @Column(name = "category", nullable = false)
     @Convert(converter = RiddleCategoryAttributeConverter.class)
     private RiddleCategory category;
 
